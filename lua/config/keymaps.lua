@@ -31,6 +31,13 @@ map('n', '<leader>uq', function()
   vim.cmd(open and 'cclose' or 'copen')
 end, { desc = '検索結果の一覧を開閉' })
 
+-- ステータスラインの表示を切り替える。画面を1行広く使いたい時や、
+-- 表示が邪魔に感じた時にすぐ消せるようにしている
+map('n', '<leader>uS', function()
+  vim.o.laststatus = vim.o.laststatus == 0 and 3 or 0
+  vim.notify('ステータスライン: ' .. (vim.o.laststatus == 0 and '非表示' or '表示'))
+end, { desc = 'ステータスラインの表示切り替え' })
+
 -- 保存・終了
 map('n', '<leader>w', '<cmd>write<CR>', { desc = '保存' })
 map('n', '<leader>q', '<cmd>quit<CR>', { desc = '閉じる' })
