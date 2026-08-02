@@ -18,6 +18,7 @@ local ICEBERG = {
   gutter = 0x161822, -- 行番号・記号（gitsigns）・折りたたみの列。素の iceberg の本文色
   cursor = 0x1f2233, -- カーソル行。素の iceberg の行番号の列の色
   breadcrumb = 0x7d8296, -- 画面上部のパンくずの文字。本文より一段落とす
+  float = 0x1f2233, -- フロートの背景。素の iceberg は #3d425c で本文から浮きすぎる
 }
 
 --- 背景が明るい配色かどうかを、色そのものの明度から判定する
@@ -84,6 +85,20 @@ function M.apply()
       end
     end
   end
+
+  -- フロート（補完メニュー・ホバー・which-key・noice のコマンドライン）の背景。
+  -- 素の iceberg は #3d425c で、本文を #0d0e14 まで暗くした構成では明るすぎる。
+  -- カーソル行と同じ色にして、本文よりわずかに浮く程度に抑える
+  for _, group in ipairs({ 'NormalFloat', 'FloatBorder', 'Pmenu' }) do
+    set(group, ICEBERG.float)
+  end
+  -- スクロールバー。既定のつまみは #c7c9d1（ほぼ白）で、暗くした本文の上では
+  -- 白い四角として強く目立つ。軌道はフロート背景、つまみは gutter 程度に抑える
+  set('PmenuSbar', ICEBERG.float)
+  set('PmenuThumb', ICEBERG.gutter)
+  -- 選択行。既定は #5c638a と明るく、フロート内で浮く。
+  -- 位置が分かれば足りるので、フロート背景から一段上げる程度に留める
+  set('PmenuSel', ICEBERG.cursor + 0x0a0c14)
 
   -- 画面上部のパンくず（dropbar）の文字を控えめにする。
   -- dropbar は要素の種類ごとにハイライトを分けており、
