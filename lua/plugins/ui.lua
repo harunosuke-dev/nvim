@@ -23,6 +23,15 @@ return {
         desc = 'パンくずから選択してジャンプ',
       },
     },
+    -- TODO: パンくずをクリックして開くメニューの見た目がまだ整っていない。
+    -- 以下は対処済みだが、それでも違和感が残るとの報告あり。原因は未特定。
+    --   - NormalFloat / FloatBorder / Pmenu の背景を #3d425c -> #1f2233
+    --   - PmenuSbar / PmenuThumb（スクロールバー）を暗い色へ
+    --   - PmenuSel（選択行）を #5c638a -> #292e47
+    --   - メニュー内のカーソルを選択行と同色にして隠す（config/autocmds.lua）
+    -- 次に見るとすれば DropBarMenuHoverEntry（IncSearch にリンク）と
+    -- DropBarPreview（Visual にリンク）あたり
+    --
     -- dropbar は読み込み時に 200 以上のハイライトを自前で定義する。
     -- カラースキーム側のイベントでは取りこぼすため、ここから当て直す
     config = function(_, opts)

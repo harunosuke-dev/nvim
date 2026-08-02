@@ -86,6 +86,33 @@ if vim.fn.has('mac') == 1 and vim.fn.executable('macism') == 1 then
   })
 end
 
+-- パンくずのメニュー（dropbar）ではカーソルを隠す。
+-- 選択行は別途ハイライトされるためカーソルは不要で、
+-- ブロックカーソルが白い四角として強く目立ってしまう。
+--
+-- guicursor は「モード:形状-ハイライトグループ」で色を指定できる。
+-- 端末のカーソルは端末エミュレータ自身が描くため blend は効かない。
+-- メニューではカーソルが常に選択行の上にあるので、選択行と同じ色にして溶け込ませる
+vim.api.nvim_create_autocmd('FileType', {
+  group = augroup('hide_cursor'),
+  pattern = { 'dropbar_menu', 'dropbar_menu_fzf' },
+  callback = function(args)
+    local sel = vim.api.nvim_get_hl(0, { name = 'PmenuSel', link = false })
+    vim.api.nvim_set_hl(0, 'DropBarMenuCursor', { fg = sel.fg, bg = sel.bg })
+    local saved = vim.o.guicursor
+    vim.opt.guicursor:append('a:DropBarMenuCursor')
+
+    -- メニューを離れたら元に戻す
+    vim.api.nvim_create_autocmd({ 'BufLeave', 'BufWipeout' }, {
+      buffer = args.buf,
+      once = true,
+      callback = function()
+        vim.o.guicursor = saved
+      end,
+    })
+  end,
+})
+
 -- quickfix ウィンドウの操作性を整える
 local qf_group = augroup('quickfix')
 
