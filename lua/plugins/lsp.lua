@@ -88,17 +88,21 @@ return {
 
           -- fzf-lua のピッカー経由にする。候補が1件なら即ジャンプ、
           -- 複数あればプレビュー付きの一覧が出る（jump1 = true）
-          map('<leader>gd', '<cmd>FzfLua lsp_definitions jump1=true<cr>', '定義へジャンプ')
-          map('<leader>gr', '<cmd>FzfLua lsp_references jump1=true<cr>', '参照一覧')
-          map('<leader>gi', '<cmd>FzfLua lsp_implementations jump1=true<cr>', '実装へジャンプ')
-          map('<leader>gt', '<cmd>FzfLua lsp_typedefs jump1=true<cr>', '型定義へジャンプ')
-          map('<leader>gD', vim.lsp.buf.declaration, '宣言へジャンプ')
-          map('<leader>gs', '<cmd>FzfLua lsp_document_symbols<cr>', 'このファイルのシンボル一覧')
+          map('<leader>gd', '<cmd>FzfLua lsp_definitions jump1=true<cr>', '定義へジャンプ (Go to Definition)')
+          map('<leader>gr', '<cmd>FzfLua lsp_references jump1=true<cr>', '参照一覧 (Go to References)')
           map(
-            '<leader>gS',
-            '<cmd>FzfLua lsp_live_workspace_symbols<cr>',
-            'プロジェクト全体のシンボル検索'
+            '<leader>gi',
+            '<cmd>FzfLua lsp_implementations jump1=true<cr>',
+            '実装へジャンプ (Go to Implementation)'
           )
+          map('<leader>gt', '<cmd>FzfLua lsp_typedefs jump1=true<cr>', '型定義へジャンプ (Go to Type)')
+          map('<leader>gD', vim.lsp.buf.declaration, '宣言へジャンプ (Go to Declaration)')
+          map(
+            '<leader>gs',
+            '<cmd>FzfLua lsp_document_symbols<cr>',
+            'このファイルのシンボル一覧 (Go to Symbols)'
+          )
+          map('<leader>gS', '<cmd>FzfLua lsp_live_workspace_symbols<cr>', '全体のシンボル検索 (Go to Symbols)')
 
           -- インレイヒント（引数名や推論された型をグレーで行内表示）の切り替え
           local client = vim.lsp.get_client_by_id(event.data.client_id)
@@ -106,7 +110,7 @@ return {
             map('<leader>uh', function()
               local enabled = vim.lsp.inlay_hint.is_enabled({ bufnr = event.buf })
               vim.lsp.inlay_hint.enable(not enabled, { bufnr = event.buf })
-            end, 'インレイヒント切り替え')
+            end, 'インレイヒント切り替え (UI Hints)')
           end
         end,
       })

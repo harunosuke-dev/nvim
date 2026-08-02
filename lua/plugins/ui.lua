@@ -79,10 +79,10 @@ return {
       },
     },
     keys = {
-      { '<leader>nh', '<cmd>Noice history<cr>', desc = 'メッセージ・通知の履歴' },
-      { '<leader>nl', '<cmd>Noice last<cr>', desc = '直前のメッセージを再表示' },
-      { '<leader>nd', '<cmd>Noice dismiss<cr>', desc = '表示中の通知を消す' },
-      { '<leader>ne', '<cmd>Noice errors<cr>', desc = 'エラーだけ抽出' },
+      { '<leader>nh', '<cmd>Noice history<cr>', desc = 'メッセージ・通知の履歴 (Notification History)' },
+      { '<leader>nl', '<cmd>Noice last<cr>', desc = '直前のメッセージ (Notification Last)' },
+      { '<leader>nd', '<cmd>Noice dismiss<cr>', desc = '表示中の通知を消す (Notification Dismiss)' },
+      { '<leader>ne', '<cmd>Noice errors<cr>', desc = 'エラーだけ抽出 (Notification Errors)' },
     },
   },
 

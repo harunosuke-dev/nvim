@@ -120,10 +120,10 @@ return {
       -- 引数の並び替え。foo(a, b) にカーソルを置いて <leader>an で foo(b, a)
       vim.keymap.set('n', '<leader>an', function()
         require('nvim-treesitter-textobjects.swap').swap_next('@parameter.inner')
-      end, { desc = '次の引数と入れ替え' })
+      end, { desc = '次の引数と入れ替え (Argument Next)' })
       vim.keymap.set('n', '<leader>ap', function()
         require('nvim-treesitter-textobjects.swap').swap_previous('@parameter.inner')
-      end, { desc = '前の引数と入れ替え' })
+      end, { desc = '前の引数と入れ替え (Argument Previous)' })
     end,
   },
 

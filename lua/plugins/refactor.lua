@@ -12,14 +12,14 @@ return {
         function()
           require('grug-far').open({ transient = true })
         end,
-        desc = 'プロジェクト全体を検索・置換',
+        desc = 'プロジェクト全体を検索・置換 (Replace)',
       },
       {
         '<leader>rw',
         function()
           require('grug-far').open({ transient = true, prefills = { search = vim.fn.expand('<cword>') } })
         end,
-        desc = 'カーソル下の単語を検索・置換',
+        desc = 'カーソル下の単語を置換 (Replace Word)',
       },
       {
         '<leader>rf',
@@ -29,7 +29,7 @@ return {
             prefills = { paths = vim.fn.expand('%') },
           })
         end,
-        desc = 'このファイル内を検索・置換',
+        desc = 'このファイル内を置換 (Replace in File)',
       },
     },
   },

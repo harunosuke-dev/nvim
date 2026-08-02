@@ -51,29 +51,29 @@ return {
         end, '前の変更箇所へ')
 
         -- hunk 単位の操作。ビジュアル選択中は選んだ行だけが対象になる
-        map('n', '<leader>hs', gs.stage_hunk, 'この変更をステージ')
-        map('n', '<leader>hr', gs.reset_hunk, 'この変更を取り消す')
+        map('n', '<leader>hs', gs.stage_hunk, 'この変更をステージ (Hunk Stage)')
+        map('n', '<leader>hr', gs.reset_hunk, 'この変更を取り消す (Hunk Reset)')
         map('x', '<leader>hs', function()
           gs.stage_hunk({ vim.fn.line('.'), vim.fn.line('v') })
         end, '選択範囲をステージ')
         map('x', '<leader>hr', function()
           gs.reset_hunk({ vim.fn.line('.'), vim.fn.line('v') })
         end, '選択範囲の変更を取り消す')
-        map('n', '<leader>hS', gs.stage_buffer, 'ファイル全体をステージ')
-        map('n', '<leader>hR', gs.reset_buffer, 'ファイル全体の変更を取り消す')
+        map('n', '<leader>hS', gs.stage_buffer, 'ファイル全体をステージ (Hunk Stage buffer)')
+        map('n', '<leader>hR', gs.reset_buffer, 'ファイル全体を取り消す (Hunk Reset buffer)')
 
         -- 確認系
-        map('n', '<leader>hp', gs.preview_hunk, 'この変更を吹き出しで確認')
+        map('n', '<leader>hp', gs.preview_hunk, 'この変更を確認 (Hunk Preview)')
         map('n', '<leader>hb', function()
           gs.blame_line({ full = true })
-        end, 'この行を書いたコミットを表示')
-        map('n', '<leader>hd', gs.diffthis, '直前のコミットとの差分')
+        end, 'この行を書いたコミット (Hunk Blame)')
+        map('n', '<leader>hd', gs.diffthis, '直前のコミットとの差分 (Hunk Diff)')
         map('n', '<leader>hD', function()
           gs.diffthis('~')
         end, 'HEAD~ との差分')
 
         -- 表示の切り替え
-        map('n', '<leader>ub', gs.toggle_current_line_blame, '行ブレームの常時表示を切替')
+        map('n', '<leader>ub', gs.toggle_current_line_blame, '行ブレームの常時表示 (UI Blame)')
 
         -- テキストオブジェクト。dih で変更箇所を丸ごと捨てる、といった操作ができる
         vim.keymap.set({ 'o', 'x' }, 'ih', gs.select_hunk, { buffer = bufnr, desc = 'Git: 変更箇所' })

@@ -18,7 +18,7 @@ map('n', '<leader>\\', '<C-w>v', { desc = '縦に分割' })
 -- バッファ操作
 map('n', '<S-h>', '<cmd>bprevious<CR>', { desc = '前のバッファ' })
 map('n', '<S-l>', '<cmd>bnext<CR>', { desc = '次のバッファ' })
-map('n', '<leader>bd', '<cmd>bdelete<CR>', { desc = 'バッファを閉じる' })
+map('n', '<leader>bd', '<cmd>bdelete<CR>', { desc = 'バッファを閉じる (Buffer Delete)' })
 
 -- quickfix（検索結果などの一覧）の開閉。移動は標準の ]q / [q
 map('n', '<leader>uq', function()
@@ -29,14 +29,14 @@ map('n', '<leader>uq', function()
     end
   end
   vim.cmd(open and 'cclose' or 'copen')
-end, { desc = '検索結果の一覧を開閉' })
+end, { desc = '検索結果の一覧を開閉 (UI Quickfix)' })
 
 -- ステータスラインの表示を切り替える。画面を1行広く使いたい時や、
 -- 表示が邪魔に感じた時にすぐ消せるようにしている
 map('n', '<leader>uS', function()
   vim.o.laststatus = vim.o.laststatus == 0 and 3 or 0
   vim.notify('ステータスライン: ' .. (vim.o.laststatus == 0 and '非表示' or '表示'))
-end, { desc = 'ステータスラインの表示切り替え' })
+end, { desc = 'ステータスラインの表示 (UI Statusline)' })
 
 -- 保存・終了
 map('n', '<leader>w', '<cmd>write<CR>', { desc = '保存' })

@@ -19,7 +19,7 @@ return {
       },
     },
     keys = {
-      { '<leader>ft', '<cmd>TodoFzfLua<cr>', desc = 'TODO 一覧を検索' },
+      { '<leader>ft', '<cmd>TodoFzfLua<cr>', desc = 'TODO 一覧を検索 (Find Todo)' },
       {
         ']t',
         function()

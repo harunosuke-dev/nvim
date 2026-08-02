@@ -37,7 +37,7 @@ return {
         require('conform').format({ async = true })
       end,
       mode = { 'n', 'x' },
-      desc = 'ファイル（選択範囲）を整形',
+      desc = 'ファイル・選択範囲を整形 (Code Format)',
     },
   },
   opts = {

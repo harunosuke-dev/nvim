@@ -16,21 +16,21 @@ return {
       function()
         require('persistence').load()
       end,
-      desc = 'このディレクトリのセッションを復元',
+      desc = 'このディレクトリを復元 (Session Select)',
     },
     {
       '<leader>sl',
       function()
         require('persistence').load({ last = true })
       end,
-      desc = '最後に使ったセッションを復元',
+      desc = '最後のセッションを復元 (Session Last)',
     },
     {
       '<leader>sd',
       function()
         require('persistence').stop()
       end,
-      desc = '今回は保存しない（一時的な作業用）',
+      desc = '今回は保存しない (Session Dont save)',
     },
   },
 }
