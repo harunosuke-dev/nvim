@@ -22,7 +22,12 @@ return {
       -- auto_insert は false のまま（true にすると候補を移動しただけで
       -- バッファに実際の文字が入ってしまい、ゴーストテキストと役割が重複する）
       ghost_text = { enabled = true },
-      menu = { border = 'rounded' },
+      menu = {
+        border = 'rounded',
+        -- 候補の移動はキーボードで行うため不要。
+        -- つまみが背景色つきの別ウィンドウとして重なり、右上に四角く見えていた
+        scrollbar = false,
+      },
       list = { selection = { preselect = true, auto_insert = false } },
     },
 
