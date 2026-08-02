@@ -4,7 +4,20 @@ return {
     'folke/todo-comments.nvim',
     event = { 'BufReadPost', 'BufNewFile' },
     dependencies = { 'nvim-lua/plenary.nvim' },
-    opts = { signs = true },
+    opts = {
+      signs = true,
+      highlight = {
+        -- キーワードの後ろの本文まで着色すると、コメント全体が主張して読みにくい。
+        -- 空にすると通常のコメント色に戻り、目印はバッジだけになる
+        after = '',
+      },
+      colors = {
+        -- TODO のバッジ色。既定は DiagnosticInfo を参照するが、iceberg では
+        -- それが文字列リテラル（String / @string）と同じ #89b9c2 で、
+        -- コード中に埋もれてしまう。本文で使われていない色を直接指定する
+        info = { '#ff92d0' },
+      },
+    },
     keys = {
       { '<leader>ft', '<cmd>TodoFzfLua<cr>', desc = 'TODO 一覧を検索' },
       {
