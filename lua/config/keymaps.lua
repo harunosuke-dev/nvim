@@ -20,6 +20,17 @@ map('n', '<S-h>', '<cmd>bprevious<CR>', { desc = '前のバッファ' })
 map('n', '<S-l>', '<cmd>bnext<CR>', { desc = '次のバッファ' })
 map('n', '<leader>bd', '<cmd>bdelete<CR>', { desc = 'バッファを閉じる' })
 
+-- quickfix（検索結果などの一覧）の開閉。移動は標準の ]q / [q
+map('n', '<leader>uq', function()
+  local open = false
+  for _, win in ipairs(vim.fn.getwininfo()) do
+    if win.quickfix == 1 then
+      open = true
+    end
+  end
+  vim.cmd(open and 'cclose' or 'copen')
+end, { desc = '検索結果の一覧を開閉' })
+
 -- 保存・終了
 map('n', '<leader>w', '<cmd>write<CR>', { desc = '保存' })
 map('n', '<leader>q', '<cmd>quit<CR>', { desc = '閉じる' })

@@ -6,6 +6,8 @@ return {
     lazy = false,
     priority = 1000, -- 他プラグインより先に読み込む
     config = function()
+      -- 配色の微調整は lua/config/highlights.lua に集約している
+      require('config.highlights').setup()
       vim.cmd.colorscheme('iceberg')
     end,
   },

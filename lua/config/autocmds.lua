@@ -64,6 +64,43 @@ vim.api.nvim_create_autocmd('BufReadPre', {
   end,
 })
 
+-- quickfix ウィンドウの操作性を整える
+local qf_group = augroup('quickfix')
+
+vim.api.nvim_create_autocmd('FileType', {
+  group = qf_group,
+  pattern = { 'qf' },
+  callback = function(args)
+    -- flash.nvim が <CR> をグローバルに奪うため標準動作に戻す。
+    -- quickfix の <CR>（該当箇所へジャンプ）はマッピングではなく Vim 組み込みの
+    -- 挙動なので、グローバルマップがあると上書きされてしまう
+    vim.keymap.set('n', '<CR>', '<CR>', { buffer = args.buf, remap = false, desc = '該当箇所へジャンプ' })
+
+    -- q で閉じる。未割り当てだと q がマクロ記録の開始になり、
+    -- 一覧を閉じたつもりで記録が始まる事故が起きる
+    vim.keymap.set('n', 'q', '<cmd>cclose<CR>', { buffer = args.buf, desc = '一覧を閉じる' })
+
+    -- j / k で一覧を上下するだけで、対象の位置を隣のウィンドウに追従表示する。
+    -- 標準では <CR> を押すまで移動しないため、内容を確かめながら流し読みできない
+    vim.api.nvim_create_autocmd('CursorMoved', {
+      group = qf_group,
+      buffer = args.buf,
+      callback = function()
+        if vim.fn.getqflist({ size = 0 }).size == 0 then
+          return
+        end
+        local qf_win = vim.api.nvim_get_current_win()
+        -- keepjumps を付けないと、一覧を j / k でなぞるたびにジャンプ履歴が積まれ、
+        -- あとで <C-o> を押しても元居た場所まで一気に戻れなくなる
+        pcall(vim.cmd, 'keepjumps silent! cc ' .. vim.fn.line('.'))
+        if vim.api.nvim_win_is_valid(qf_win) then
+          vim.api.nvim_set_current_win(qf_win) -- フォーカスは一覧側に戻す
+        end
+      end,
+    })
+  end,
+})
+
 -- 保存時に行末の余分な空白を削除する
 vim.api.nvim_create_autocmd('BufWritePre', {
   group = augroup('trim_whitespace'),

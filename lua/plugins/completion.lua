@@ -29,9 +29,24 @@ return {
     -- コマンドライン（: や /）の補完。既定でも有効だが、候補一覧は Tab を
     -- 押すまで出ない設定になっている。挿入モードと操作感を揃えて自動表示にする
     cmdline = {
+      keymap = {
+        preset = 'cmdline',
+        -- プリセットは左右キーで候補を移動する割り当てだが直感的でないため、
+        -- 上下キーと <C-j> / <C-k> を追加する。
+        -- fallback を付けているので、候補が出ていない時は本来の動作
+        -- （上下 = コマンド履歴の遡り）がそのまま働く
+        ['<Up>'] = { 'select_prev', 'fallback' },
+        ['<Down>'] = { 'select_next', 'fallback' },
+        ['<C-k>'] = { 'select_prev', 'fallback' },
+        ['<C-j>'] = { 'select_next', 'fallback' },
+      },
       completion = {
         menu = { auto_show = true },
         ghost_text = { enabled = true },
+        -- 既定の preselect = true だと1件目が最初から選択済みになり、
+        -- Tab の「候補を選ぶ」処理が不成立になって2件目へ飛んでしまう。
+        -- false にすることで、1回目の Tab で1件目が選ばれる
+        list = { selection = { preselect = false, auto_insert = true } },
       },
     },
 

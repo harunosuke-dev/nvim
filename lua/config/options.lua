@@ -5,6 +5,12 @@ opt.number = true
 opt.relativenumber = true -- 相対行番号。3j / 5k のような移動がしやすい
 opt.cursorline = true
 opt.signcolumn = 'yes' -- 診断アイコンの出入りで画面が横にずれるのを防ぐ
+-- 行番号と本文の間に1文字分の余白を入れる。
+-- 描画順は 記号(%s) → 行番号(%l) → 続く文字列。
+-- 余白は「本文側の色」にする。gutter 色のままだと、本文の左端にある
+-- インデントガイド（│）が gutter との境界に接して見づらいため。
+-- %{% %} は評価結果をさらに書式として解釈するので、行によって色を変えられる
+opt.statuscolumn = "%s%l%{% v:relnum == 0 ? '%#CursorLine#' : '%#Normal#' %} "
 opt.scrolloff = 8 -- カーソル上下に最低8行を残す
 
 -- インデント

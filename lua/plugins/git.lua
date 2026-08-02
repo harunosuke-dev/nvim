@@ -25,6 +25,10 @@ return {
       },
       current_line_blame = false, -- 常時表示はうるさいので <leader>hb で都度出す
       on_attach = function(bufnr)
+        -- gitsigns はステージ済み変更用のハイライトを接続後（非同期）に定義するため、
+        -- カラースキーム側のイベントでは取りこぼす。ここから当て直す
+        require('config.highlights').apply()
+
         local gs = require('gitsigns')
         local function map(mode, key, fn, desc)
           vim.keymap.set(mode, key, fn, { buffer = bufnr, desc = 'Git: ' .. desc })
