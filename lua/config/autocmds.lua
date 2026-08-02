@@ -64,6 +64,28 @@ vim.api.nvim_create_autocmd('BufReadPre', {
   end,
 })
 
+-- 日本語入力のまま normal モードに戻ると操作できないため、英字へ自動で切り替える。
+--
+--   InsertLeave  挿入モードを抜けた時。IME で変換中に <Esc> を押した場合、
+--                1回目は IME が変換の取り消しに使って nvim に届かないため、
+--                2回目で挿入モードを抜けてここが走る
+--   FocusGained  tmux でペインを切り替えて nvim に戻ってきた時
+--                （tmux.conf の focus-events on が前提）
+--   CmdlineLeave コマンドラインを抜けた時
+--   VimEnter     起動直後
+--
+-- 逆方向（英字 → 日本語）は行わない。macism が日本語への切り替えを受け付けず、
+-- 指定してもエラーを返さないまま無視されるため。日本語を書く時は手動で切り替える
+if vim.fn.has('mac') == 1 and vim.fn.executable('macism') == 1 then
+  vim.api.nvim_create_autocmd({ 'InsertLeave', 'FocusGained', 'CmdlineLeave', 'VimEnter' }, {
+    group = augroup('ime_ascii'),
+    callback = function()
+      -- 非同期で実行する。同期だと毎回プロセス起動を待つことになる
+      vim.system({ 'macism', 'com.apple.keylayout.ABC' })
+    end,
+  })
+end
+
 -- quickfix ウィンドウの操作性を整える
 local qf_group = augroup('quickfix')
 

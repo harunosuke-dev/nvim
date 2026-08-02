@@ -50,7 +50,11 @@ opt.backup = false
 -- 動作
 opt.mouse = 'a'
 opt.updatetime = 250 -- CursorHold の発火間隔。gitsigns / illuminate の反応速度に効く
-opt.timeoutlen = 300 -- which-key のポップアップが出るまでの待ち時間
+-- キー列の入力を待つ時間。jk で挿入モードを抜ける割り当てがあるため、
+-- 短いほど「単独の j を打って止めた時の表示遅れ」が減り、jk の判定も厳しくなる。
+-- <leader> 操作は which-key がポップアップを出した時点で待ち受けに入るため、
+-- この値を下げても猶予は短くならない（which-key の delay をこれより小さくすること）
+opt.timeoutlen = 150
 opt.confirm = true -- 未保存で終了しようとした時にエラーではなく確認を出す
 
 -- 使っていない言語プロバイダを明示的に無効化する。

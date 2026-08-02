@@ -5,7 +5,9 @@ return {
   event = 'VeryLazy',
   opts = {
     preset = 'helix', -- 画面右側に縦一列で出る。項目数が多くても読みやすい
-    delay = 300, -- timeoutlen と揃えている
+    -- timeoutlen (150) より小さくする。ポップアップが出る前に
+    -- キー列がタイムアウトすると <leader> 操作が中断されてしまう
+    delay = 100,
     spec = {
       { '<leader>a', group = '引数（Treesitter）' },
       { '<leader>b', group = 'バッファ' },
