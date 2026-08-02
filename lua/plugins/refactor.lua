@@ -65,22 +65,23 @@ return {
       package_manager = 'npm',
     },
     keys = {
+      -- <leader>n は通知（noice）が使うため、npm 関連は <leader>sn 配下に置く
       {
-        '<leader>ns',
+        '<leader>sns',
         function()
           require('package-info').show({ force = true })
         end,
         desc = '依存の最新版を表示',
       },
       {
-        '<leader>nu',
+        '<leader>snu',
         function()
           require('package-info').update()
         end,
         desc = 'カーソル行の依存を更新',
       },
       {
-        '<leader>nc',
+        '<leader>snc',
         function()
           require('package-info').change_version()
         end,
