@@ -100,6 +100,34 @@ function M.apply()
   -- 位置が分かれば足りるので、フロート背景から一段上げる程度に留める
   set('PmenuSel', ICEBERG.cursor + 0x0a0c14)
 
+  -- コメントとキーワードをイタリックにする。
+  -- 「実行される処理そのものではないもの（コメント）」と「制御構造（if / function /
+  -- return など）」を字形で分け、視覚的な層を作る。
+  -- 型や関数名まで広げるとイタリックが多くなりすぎて逆に読みにくい。
+  --
+  -- iceberg 自体はスタイルの設定項目を持たないため、ここで付与する。
+  -- 表示には端末とフォントの両方の対応が要る（tmux は sitm / ritm を持つ
+  -- tmux-256color が必要。screen-256color では握り潰される）
+  for _, group in ipairs({
+    'Comment',
+    '@comment',
+    'Keyword',
+    'Statement',
+    'Conditional',
+    'Repeat',
+    'Exception',
+    '@keyword',
+    '@keyword.function',
+    '@keyword.conditional',
+    '@keyword.repeat',
+    '@keyword.return',
+    '@keyword.operator',
+    '@keyword.import',
+  }) do
+    local current = vim.api.nvim_get_hl(0, { name = group, link = false })
+    vim.api.nvim_set_hl(0, group, vim.tbl_extend('force', current, { italic = true }))
+  end
+
   -- 画面上部のパンくず（dropbar）の文字を控えめにする。
   -- dropbar は要素の種類ごとにハイライトを分けており、
   --   DropBarIconKind*  アイコン（種類ごとの色。そのまま残す）
