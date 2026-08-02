@@ -305,6 +305,83 @@ quickfix では `j` / `k` で一覧を上下すると、隣のウィンドウが
 
 `<Space>` を押して少し待つと、そこから続くキーの一覧が出る。以下は主要なものの抜粋。
 
+### なぜそのキーなのか
+
+キーは**英単語の頭文字**から来ている。由来が分かれば、忘れても思い出せる。
+
+| 接頭辞 | 由来 | 意味 |
+|---|---|---|
+| `f` | **F**ind | 探す |
+| `g` | **G**o to | 移動する（`gg` だけは lazygit） |
+| `h` | **H**unk | Git の変更のかたまり |
+| `r` | **R**eplace | 置換する |
+| `s` | **S**ession | セッション |
+| `n` | **N**otification | 通知 |
+| `u` | **U**I | 表示の切り替え |
+| `c` | **C**ode | コード |
+| `b` | **B**uffer | バッファ |
+| `a` | **A**rgument | 引数 |
+| `e` | **E**xplorer | ファイラ |
+| `w` | **W**rite | 保存 |
+| `q` | **Q**uit | 閉じる |
+| `x` | （慣例） | 一覧。trouble.nvim の慣習で、単語の頭文字ではない |
+
+2文字目も同じ規則に従う。
+
+| キー | 読み方 |
+|---|---|
+| `<Space>ff` | **F**ind **F**ile — ファイルを探す |
+| `<Space>fg` | **F**ind **G**rep — 全文検索 |
+| `<Space>fb` | **F**ind **B**uffer — 開いているバッファ |
+| `<Space>fr` | **F**ind **R**ecent — 最近開いたファイル |
+| `<Space>fw` | **F**ind **W**ord — カーソル下の単語 |
+| `<Space>fd` | **F**ind **D**iagnostics — 診断 |
+| `<Space>fk` | **F**ind **K**eymap — キーマップ |
+| `<Space>fc` | **F**ind **C**olorscheme — 配色 |
+| `<Space>ft` | **F**ind **T**odo — TODO |
+| `<Space>fh` | **F**ind **H**elp — ヘルプ |
+| `<Space>fR` | **F**ind **R**esume — 直前の検索を再開 |
+| `<Space>gd` | **G**o to **D**efinition — 定義 |
+| `<Space>gr` | **G**o to **R**eferences — 参照 |
+| `<Space>gi` | **G**o to **I**mplementation — 実装 |
+| `<Space>gt` | **G**o to **T**ype definition — 型定義 |
+| `<Space>gs` | **G**o to **S**ymbols — シンボル |
+| `<Space>hs` | **H**unk **S**tage — 変更をステージ |
+| `<Space>hr` | **H**unk **R**eset — 変更を取り消す |
+| `<Space>hp` | **H**unk **P**review — 変更を確認 |
+| `<Space>hb` | **H**unk **B**lame — 誰が書いたか |
+| `<Space>hd` | **H**unk **D**iff — 差分 |
+| `<Space>rw` | **R**eplace **W**ord — 単語を置換 |
+| `<Space>rf` | **R**eplace in **F**ile — このファイル内 |
+| `<Space>ss` | **S**ession **S**elect — セッションを復元 |
+| `<Space>sl` | **S**ession **L**ast — 最後のセッション |
+| `<Space>nh` | **N**otification **H**istory — 通知の履歴 |
+| `<Space>uh` | **U**I **H**ints — インレイヒント |
+| `<Space>ub` | **U**I **B**lame — 行ブレーム |
+| `<Space>uq` | **U**I **Q**uickfix — 一覧の開閉 |
+| `<Space>cf` | **C**ode **F**ormat — 整形 |
+| `<Space>bd` | **B**uffer **D**elete — バッファを閉じる |
+| `<Space>an` / `<Space>ap` | **A**rgument **N**ext / **P**revious — 引数を入れ替え |
+
+**大文字は変種を表す。** ただし方向はプラグインの慣習に従うため一定ではない。
+
+| キー | 小文字との違い |
+|---|---|
+| `<Space>gS` | `gs`（このファイル）に対し、**プロジェクト全体**のシンボル |
+| `<Space>xX` | `xx`（プロジェクト全体）に対し、**このファイル**の診断 |
+| `<Space>hS` | `hs`（この変更）に対し、**ファイル全体**をステージ |
+| `<Space>fD` | `fd`（このファイル）に対し、**プロジェクト全体**の診断 |
+
+**Vim の標準的な規則も踏襲している。**
+
+| 規則 | 例 |
+|---|---|
+| `]` / `[` は「次 / 前」 | `]d` `[d` は次・前の **D**iagnostic |
+| `a` / `i` は「まわりごと / 中身だけ」 | `vaf` は関数を宣言ごと、`vif` は中身だけ |
+| `g` は「移動」 | `gd` `gg` `gc` |
+
+`<Space>` を押した時のグループ一覧にも由来の英単語を出しているので、迷ったらそちらでも確認できる。
+
 ### 移動
 
 | キー | 動作 |
