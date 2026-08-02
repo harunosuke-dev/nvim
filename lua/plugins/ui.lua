@@ -177,7 +177,7 @@ return {
               'diff',
               colored = false, -- 追加・変更・削除を色分けしない
               color = { fg = dim() },
-              symbols = { added = ' ', modified = ' ', removed = ' ' },
+              symbols = { added = ' ', modified = ' ', removed = ' ' },
             },
             {
               'diagnostics',
