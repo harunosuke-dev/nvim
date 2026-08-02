@@ -1,0 +1,93 @@
+return {
+  'saghen/blink.cmp',
+  -- タグ付きリリースにはビルド済みの Rust バイナリが同梱される。
+  -- ブランチ指定にすると手元で cargo build が必要になるのでバージョン指定にする
+  version = '1.*',
+  -- CmdlineEnter を必ず含める。InsertEnter だけだと、一度も挿入モードに入って
+  -- いない状態では blink.cmp 自体が未ロードで、: や / の補完が Neovim 内蔵の
+  -- wildmenu にフォールバックしてしまう
+  event = { 'InsertEnter', 'CmdlineEnter' },
+  dependencies = { 'folke/lazydev.nvim' },
+  opts = {
+    -- zsh の auto-suggestion と同じ操作感にする。
+    -- Tab = 候補があれば確定 / スニペットの穴があれば次へ / どちらも無ければインデント
+    -- <C-n> <C-p> または ↑ ↓ で候補移動、<C-e> で取り消し、<C-k> でシグネチャ表示
+    keymap = { preset = 'super-tab' },
+
+    appearance = { nerd_font_variant = 'mono' },
+
+    completion = {
+      documentation = { auto_show = true, auto_show_delay_ms = 200 },
+      -- 打つそばから1件目が自動選択され、確定後の姿が行内に薄く出る。
+      -- auto_insert は false のまま（true にすると候補を移動しただけで
+      -- バッファに実際の文字が入ってしまい、ゴーストテキストと役割が重複する）
+      ghost_text = { enabled = true },
+      menu = { border = 'rounded' },
+      list = { selection = { preselect = true, auto_insert = false } },
+    },
+
+    -- コマンドライン（: や /）の補完。既定でも有効だが、候補一覧は Tab を
+    -- 押すまで出ない設定になっている。挿入モードと操作感を揃えて自動表示にする
+    cmdline = {
+      completion = {
+        menu = { auto_show = true },
+        ghost_text = { enabled = true },
+      },
+    },
+
+    signature = { enabled = true, window = { border = 'rounded' } },
+
+    -- Neovim 標準の vim.snippet を使う。LuaSnip は入れない
+    snippets = { preset = 'default' },
+
+    sources = {
+      default = { 'lsp', 'path', 'snippets', 'buffer', 'lazydev' },
+      providers = {
+        snippets = {
+          opts = {
+            -- friendly-snippets の既製スニペットは読み込まない。
+            -- <config>/snippets/ に置いた自作分だけを候補に出す
+            friendly_snippets = false,
+            -- ファイル名がそのまま filetype キーになる（typescriptreact.json など）。
+            -- all.json は全ファイルタイプで有効
+            search_paths = { vim.fn.stdpath('config') .. '/snippets' },
+            -- 継承関係。tsx を書いている時に typescript / javascript の分も出す
+            extended_filetypes = {
+              typescript = { 'javascript' },
+              typescriptreact = { 'typescript', 'javascript' },
+              javascriptreact = { 'javascript' },
+              mdx = { 'markdown' },
+              scss = { 'css' },
+            },
+          },
+        },
+        -- Lua 設定ファイルを編集している時だけ Neovim API の補完を最優先で出す
+        lazydev = {
+          name = 'LazyDev',
+          module = 'lazydev.integrations.blink',
+          score_offset = 100,
+        },
+      },
+    },
+
+    fuzzy = { implementation = 'prefer_rust_with_warning' },
+  },
+  opts_extend = { 'sources.default' },
+
+  init = function()
+    -- BlinkCmpGhostText は既定で NonText にリンクされる。iceberg の NonText は
+    -- #252941 で、背景 #161822 とのコントラスト比が約 1.1:1 しかなく実質見えない。
+    -- Comment (#6c7189 / 約 3.7:1) に張り替える。
+    -- blink 側は default = true で設定するため、先に定義しておけば上書きされない。
+    -- :colorscheme でハイライトは一度消えるので ColorScheme でも張り直す
+    local function set_ghost_text_hl()
+      vim.api.nvim_set_hl(0, 'BlinkCmpGhostText', { link = 'Comment' })
+    end
+
+    vim.api.nvim_create_autocmd('ColorScheme', {
+      group = vim.api.nvim_create_augroup('user_blink_ghost_text', { clear = true }),
+      callback = set_ghost_text_hl,
+    })
+    set_ghost_text_hl()
+  end,
+}

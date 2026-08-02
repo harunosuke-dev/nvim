@@ -1,0 +1,25 @@
+{
+  "version": 1.1,
+  "properties": [
+    {
+      "name": "composes",
+      "description": "CSS Modules: 他のクラスのスタイルを合成する。`composes: base;` / `composes: base from './other.module.css';`",
+      "references": [
+        {
+          "name": "CSS Modules - composition",
+          "url": "https://github.com/css-modules/css-modules#composition"
+        }
+      ]
+    }
+  ],
+  "pseudoClasses": [
+    {
+      "name": ":global",
+      "description": "CSS Modules: ハッシュ化を行わずグローバルなセレクタとして扱う"
+    },
+    {
+      "name": ":local",
+      "description": "CSS Modules: ローカルスコープ（ハッシュ化）のセレクタとして扱う"
+    }
+  ]
+}

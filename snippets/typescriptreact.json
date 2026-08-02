@@ -1,0 +1,22 @@
+{
+  "React function component": {
+    "prefix": "rfc",
+    "body": [
+      "type ${1:Name}Props = {",
+      "\t$2",
+      "};",
+      "",
+      "export function ${1:Name}({ $3 }: ${1:Name}Props) {",
+      "\treturn (",
+      "\t\t<div>$0</div>",
+      "\t);",
+      "}"
+    ],
+    "description": "props 型付きの関数コンポーネント"
+  },
+  "CSS Modules import": {
+    "prefix": "cssm",
+    "body": "import styles from './${1:name}.module.css';$0",
+    "description": "CSS Modules の import"
+  }
+}
