@@ -85,6 +85,13 @@ return {
     event = 'VeryLazy',
     dependencies = { 'nvim-tree/nvim-web-devicons' },
     opts = function()
+      -- 控えめな要素はパンくずと同じ色に揃える。WinBar から読むので、
+      -- config/highlights.lua 側で色を変えれば自動的に追従する
+      local function dim()
+        local win_bar = vim.api.nvim_get_hl(0, { name = 'WinBar', link = false })
+        return win_bar.fg and string.format('#%06x', win_bar.fg) or nil
+      end
+
       -- マクロ記録中の表示。q の誤爆で記録が始まった時に気づけるようにする
       local macro = {
         function()
@@ -103,43 +110,88 @@ return {
           end
           return table.concat(names, ' ')
         end,
-        icon = ' ',
+        icon = '',
+        color = { fg = dim() },
         cond = function()
           return #vim.lsp.get_clients({ bufnr = 0 }) > 0
         end,
       }
 
+      -- lualine の全区画の背景を、画面上部のパンくず（winbar）と同じ色に揃える。
+      -- 区画ごとに背景色が変わる既定の見た目をやめ、上下とも同じ黒い帯にする。
+      --
+      -- 元の配色（auto テーマ）はカラースキームから生成されるので、
+      -- それを土台に背景だけ差し替える。モード表示の区画は
+      -- 「濃い文字 + 明るい背景」の作りなので、背景色を文字色へ移して見分けを保つ
+      local function flat_theme()
+        local ok, auto = pcall(require, 'lualine.themes.auto')
+        local win_bar = vim.api.nvim_get_hl(0, { name = 'WinBar', link = false })
+        if not ok or not win_bar.bg then
+          return 'auto'
+        end
+        local bg = string.format('#%06x', win_bar.bg)
+        local theme = vim.deepcopy(auto)
+        for _, mode in pairs(theme) do
+          for name, section in pairs(mode) do
+            if name == 'a' and section.bg then
+              section.fg = section.bg -- モードの色を文字側へ移す
+              section.gui = 'bold'
+            end
+            section.bg = bg
+          end
+        end
+        return theme
+      end
+
       return {
         options = {
-          theme = 'auto', -- カラースキームに追従する
+          theme = flat_theme(),
           globalstatus = true, -- 分割しても画面下に1本だけ
           icons_enabled = true,
           component_separators = { left = '', right = '' },
           section_separators = { left = '', right = '' },
         },
-        -- アイコンは末尾に空白を含めて指定する。既定のままだと
-        -- アイコンと数字が詰まって読みにくいため
         sections = {
           lualine_a = { 'mode' },
-          lualine_b = {
-            { 'branch', icon = ' ' },
+          -- Git 情報は lualine_b ではなく lualine_c に置く。
+          -- lualine_b はテーマ側が専用の背景色を持つ区画で、
+          -- lualine_c なら素の背景のまま表示できる
+          lualine_b = {},
+          lualine_c = {
+            {
+              'branch',
+              -- 他の控えめな要素と同じ色。太字だけ付けてわずかに目立たせる
+              color = { fg = dim(), gui = 'bold' },
+              icon = ' ',
+            },
             {
               'diff',
+              colored = false, -- 追加・変更・削除を色分けしない
+              color = { fg = dim() },
               symbols = { added = ' ', modified = ' ', removed = ' ' },
             },
-          },
-          lualine_c = {
             {
               'diagnostics',
               sources = { 'nvim_diagnostic' },
               update_in_insert = false,
+              -- 目立たせるのはエラーと警告だけにする。
+              -- 情報とヒントは通常の文字色（lualine_c の既定）に揃える
+              diagnostics_color = {
+                info = { fg = dim() },
+                hint = { fg = dim() },
+              },
               -- 記号の列（gitsigns の隣）で使っているものと揃える
               symbols = { error = ' ', warn = ' ', info = ' ', hint = ' ' },
             },
           },
-          lualine_x = { macro, 'searchcount', lsp, { 'filetype', icon_only = false } },
-          lualine_y = { 'progress' },
-          lualine_z = { 'location' },
+          lualine_x = {
+            macro,
+            { 'searchcount', color = { fg = dim() } },
+            lsp,
+            { 'filetype', colored = false, color = { fg = dim() } },
+          },
+          lualine_y = { { 'progress', color = { fg = dim() } } },
+          lualine_z = { { 'location', color = { fg = dim() } } },
         },
         -- oil や trouble のウィンドウでは、それぞれに適した表示へ切り替わる
         extensions = { 'oil', 'trouble', 'lazy', 'quickfix', 'mason', 'fzf' },
