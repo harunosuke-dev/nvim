@@ -23,6 +23,12 @@ return {
         desc = 'パンくずから選択してジャンプ',
       },
     },
+    -- dropbar は読み込み時に 200 以上のハイライトを自前で定義する。
+    -- カラースキーム側のイベントでは取りこぼすため、ここから当て直す
+    config = function(_, opts)
+      require('dropbar').setup(opts)
+      require('config.highlights').apply()
+    end,
     opts = {},
   },
 
