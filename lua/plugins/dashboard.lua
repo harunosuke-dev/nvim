@@ -15,6 +15,14 @@ return {
     priority = 1000, -- 起動画面なので他のプラグインより先に読む
     lazy = false,
     opts = {
+      -- 通知の描画。noice から view = 'snacks' で呼ばれる。
+      -- 画面右上に枠付きで出て、3秒で消える
+      notifier = {
+        enabled = true,
+        timeout = 3000,
+        margin = { top = 0, right = 1, bottom = 0 },
+      },
+
       dashboard = {
         -- 狭いとパスが ~/R/g/H/... のように潰れる
         width = 70,

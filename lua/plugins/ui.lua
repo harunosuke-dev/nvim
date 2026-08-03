@@ -62,7 +62,11 @@ return {
       -- コマンドライン補完の描画は blink.cmp が担当するため、noice 側は使わない。
       -- 両方が有効だとメニューが二重に出る
       popupmenu = { enabled = false },
-      notify = { view = 'mini' },
+      -- 通知は枠付きで右上に出す。mini（右下に小さく1行）より見落としにくい。
+      -- 描画は snacks.nvim の notifier に任せる。noice が持つ 'notify' ビューは
+      -- nvim-notify を要求するが、snacks は起動画面で既に入っているため
+      -- プラグインを増やさずに済む。見逃しても <leader>nh で履歴を遡れる
+      notify = { view = 'snacks' },
       lsp = {
         -- ホバーやシグネチャの Markdown を Treesitter で色付けする
         override = {
