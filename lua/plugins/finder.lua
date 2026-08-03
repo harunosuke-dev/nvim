@@ -22,6 +22,13 @@ return {
     { '<leader>fR', '<cmd>FzfLua resume<cr>', desc = '直前の検索を再開 (Find Resume)' },
     -- 設定・ヘルプ系
     { '<leader>fh', '<cmd>FzfLua helptags<cr>', desc = 'ヘルプを検索 (Find Help)' },
+    {
+      '<leader>fs',
+      function()
+        require('config.snippets').pick()
+      end,
+      desc = 'スニペット一覧 (Find Snippet)',
+    },
     { '<leader>fk', '<cmd>FzfLua keymaps<cr>', desc = 'キーマップ一覧 (Find Keymap)' },
     { '<leader>fc', '<cmd>FzfLua colorschemes<cr>', desc = 'カラースキームを切り替え (Find Colorscheme)' },
     { '<leader>fz', '<cmd>FzfLua<cr>', desc = 'fzf-lua の全コマンド' },
