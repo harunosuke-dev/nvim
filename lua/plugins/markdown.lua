@@ -23,6 +23,9 @@ return {
         width = 'block',
         left_pad = 2,
         right_pad = 2,
+        -- ```ts の行を隠さない。既定は隠して言語名だけを別に出すが、
+        -- 元の記述が見えないと編集しづらい
+        conceal_delimiters = false,
       },
       heading = {
         -- 見出しの背景は敷かない。iceberg の配色に色を足さない方針に合わせる
