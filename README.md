@@ -176,7 +176,42 @@ CSS Modules も追える。`styles.title` の上で `<Space>gd` を押すと `pa
 
 補完の候補は LSP・ファイルパス・自作スニペット・バッファ内の単語から集める。
 
-**スニペットは自作分のみ**。`snippets/<filetype>.json` に VSCode 形式で書く。ファイル名がそのまま filetype になり、`all.json` は全ファイルタイプで有効。`typescriptreact` では `typescript` と `javascript` の分も候補に出る。
+**スニペットは呼び出し方が3つある。** `;` などの接頭辞は使わない。
+
+| 方法 | 使う場面 |
+|---|---|
+| `prefix` をそのまま打つ | 名前を覚えている。補完候補に混ざって出る |
+| `<C-l>`（挿入モード） | うろ覚え。**スニペットだけに絞った一覧**が出る |
+| `<Space>fs` または `:Snippets` | 何があるか分からない。**中身をプレビューしながら選ぶ** |
+
+```
+tsx で  rfc  と打つ  →  補完候補に「rfc  React function component」が出る
+                     →  Tab で確定して展開
+                     →  Tab で次の穴へ（コンポーネント名 → 中身 の順に埋める）
+```
+
+穴の移動は `Tab` / `Shift+Tab`。展開後に穴が残っていれば `Tab` は「次の穴へ」として働く。
+
+現在あるもの。
+
+| filetype | prefix | 内容 |
+|---|---|---|
+| `typescriptreact` | `rfc` | React の関数コンポーネント |
+| `typescriptreact` | `cssm` | CSS Modules の import |
+
+**追加するには `snippets/<filetype>.json` に VSCode 形式で書く。** ファイル名がそのまま filetype になり、`all.json` は全ファイルタイプで有効。`typescriptreact` では `typescript` と `javascript` の分も候補に出る（`scss` なら `css`、`mdx` なら `markdown`）。
+
+```json
+{
+  "Console log": {
+    "prefix": "clg",
+    "body": ["console.log($1);", "$0"],
+    "description": "console.log"
+  }
+}
+```
+
+`$1` `$2` が `Tab` で移動する穴、`$0` が最後にカーソルが止まる位置。`${1:既定値}` で初期値を入れられる。**既製のスニペット集（friendly-snippets）は読み込んでいない**ので、候補に出るのはここに書いたものだけ。
 
 **タグは自動で閉じる。** `<div>` と打つと `</div>` が入り、開始タグを `section` に書き換えると閉じタグも追従する。
 
@@ -364,6 +399,7 @@ quickfix では `j` / `k` で一覧を上下すると、隣のウィンドウが
 | `<Space>fw` | **F**ind **W**ord — カーソル下の単語 |
 | `<Space>fd` | **F**ind **D**iagnostics — 診断 |
 | `<Space>fk` | **F**ind **K**eymap — キーマップ |
+| `<Space>fs` | **F**ind **S**nippet — スニペット |
 | `<Space>fc` | **F**ind **C**olorscheme — 配色 |
 | `<Space>ft` | **F**ind **T**odo — TODO |
 | `<Space>fh` | **F**ind **H**elp — ヘルプ |
