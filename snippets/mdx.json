@@ -1,6 +1,6 @@
 {
   "定義（Definition）": {
-    "prefix": "def",
+    "prefix": "Definition",
     "body": [
       "<Definition id=\"${1:id}\" category=\"${2:分野}\" title=\"${3:定義名}\">",
       "\t$0",
@@ -9,7 +9,7 @@
     "description": "定義のブロック。id / category / title は必須。tags と label は任意で足せる"
   },
   "定理（Theorem）": {
-    "prefix": "thm",
+    "prefix": "Theorem",
     "body": [
       "<Theorem id=\"${1:id}\" category=\"${2:分野}\" title=\"${3:定理名}\">",
       "\t$0",
@@ -18,7 +18,7 @@
     "description": "定理のブロック。id / category / title は必須。tags と label は任意で足せる"
   },
   "補題（Lemma）": {
-    "prefix": "lem",
+    "prefix": "Lemma",
     "body": [
       "<Lemma id=\"${1:id}\" category=\"${2:分野}\" title=\"${3:補題名}\">",
       "\t$0",
@@ -27,7 +27,7 @@
     "description": "補題のブロック。id / category / title は必須。tags と label は任意で足せる"
   },
   "系（Corollary）": {
-    "prefix": "cor",
+    "prefix": "Corollary",
     "body": [
       "<Corollary id=\"${1:id}\" category=\"${2:分野}\" title=\"${3:系名}\">",
       "\t$0",
@@ -36,7 +36,7 @@
     "description": "系のブロック。id / category / title は必須。tags と label は任意で足せる"
   },
   "命題（Proposition）": {
-    "prefix": "prop",
+    "prefix": "Proposition",
     "body": [
       "<Proposition id=\"${1:id}\" category=\"${2:分野}\" title=\"${3:命題名}\">",
       "\t$0",
@@ -45,7 +45,7 @@
     "description": "命題のブロック。id / category / title は必須。tags と label は任意で足せる"
   },
   "公理（Axiom）": {
-    "prefix": "ax",
+    "prefix": "Axiom",
     "body": [
       "<Axiom id=\"${1:id}\" category=\"${2:分野}\" title=\"${3:公理名}\">",
       "\t$0",
@@ -54,7 +54,7 @@
     "description": "公理のブロック。id / category / title は必須。tags と label は任意で足せる"
   },
   "例（Example）": {
-    "prefix": "ex",
+    "prefix": "Example",
     "body": [
       "<Example title=\"${1:例}\">",
       "\t$0",
@@ -63,7 +63,7 @@
     "description": "例のブロック。title は省略可"
   },
   "注意（Remark）": {
-    "prefix": "rem",
+    "prefix": "Remark",
     "body": [
       "<Remark title=\"${1:注意}\">",
       "\t$0",
@@ -72,7 +72,7 @@
     "description": "注意のブロック。title は省略可"
   },
   "参考（Confer）": {
-    "prefix": "cf",
+    "prefix": "Confer",
     "body": [
       "<Confer title=\"${1:参考}\">",
       "\t$0",
@@ -81,7 +81,7 @@
     "description": "参考のブロック。title は省略可"
   },
   "証明（Proof）": {
-    "prefix": "proof",
+    "prefix": "Proof",
     "body": [
       "<Proof title=\"${1:証明}\">",
       "\t$0",
@@ -90,7 +90,7 @@
     "description": "証明のブロック。折りたたみ。defaultOpen を足すと開いた状態で出る"
   },
   "解答（Solution）": {
-    "prefix": "sol",
+    "prefix": "Solution",
     "body": [
       "<Solution title=\"${1:解答}\">",
       "\t$0",
@@ -99,7 +99,7 @@
     "description": "解答のブロック。折りたたみ。defaultOpen を足すと開いた状態で出る"
   },
   "Box: 枠": {
-    "prefix": "box",
+    "prefix": "Box",
     "body": [
       "<Box label=\"${1:ラベル}\">",
       "\t$0",
@@ -108,7 +108,7 @@
     "description": "左上にラベルを出す枠。ラベル不要なら label ごと消す"
   },
   "Box: 枠（色付き）": {
-    "prefix": "box-accent",
+    "prefix": "Box-accent",
     "body": [
       "<Box label=\"${1:ラベル}\" accent=\"${2:#0071e3}\">",
       "\t$0",
@@ -117,7 +117,7 @@
     "description": "枠線とラベルに色を付ける。値は #0071e3 / var(--link-color) / #16a34a など"
   },
   "Callout: 補足": {
-    "prefix": "callout-note",
+    "prefix": "CalloutNote",
     "body": [
       "<CalloutNote title=\"${1:補足}\">",
       "\t$0",
@@ -126,7 +126,7 @@
     "description": "補足の吹き出し（title は省略可）"
   },
   "Callout: コツ": {
-    "prefix": "callout-tip",
+    "prefix": "CalloutTip",
     "body": [
       "<CalloutTip title=\"${1:コツ}\">",
       "\t$0",
@@ -135,7 +135,7 @@
     "description": "コツの吹き出し（title は省略可）"
   },
   "Callout: 注意": {
-    "prefix": "callout-warn",
+    "prefix": "CalloutWarning",
     "body": [
       "<CalloutWarning title=\"${1:注意}\">",
       "\t$0",
@@ -144,49 +144,49 @@
     "description": "注意の吹き出し（title は省略可）"
   },
   "Figure: 画像とキャプション": {
-    "prefix": "fig",
+    "prefix": "Figure",
     "body": [
       "<Figure src=\"${1:/images/}\" alt=\"${2:代替テキスト}\" caption=\"${3:キャプション}\" />$0"
     ],
     "description": "キャプション付きの画像"
   },
   "LinkCard: リンクカード": {
-    "prefix": "linkcard",
+    "prefix": "LinkCard",
     "body": [
       "<LinkCard url=\"${1:https://}\" />$0"
     ],
     "description": "URL をカード状に表示する"
   },
   "LinkPreview: リンクの下敷き": {
-    "prefix": "linkprev",
+    "prefix": "LinkPreview",
     "body": [
       "<LinkPreview url=\"${1:https://}\" />$0"
     ],
     "description": "リンク先の内容を先読みして見せる"
   },
   "Embed: 埋め込み": {
-    "prefix": "embed",
+    "prefix": "Embed",
     "body": [
       "<Embed src=\"${1:https://}\" title=\"${2:タイトル}\" aspectRatio=\"${3:16/9}\" />$0"
     ],
     "description": "任意の iframe を比率つきで埋め込む"
   },
   "YouTube: 動画": {
-    "prefix": "youtube",
+    "prefix": "YouTubeEmbed",
     "body": [
       "<YouTubeEmbed id=\"${1:動画ID}\" />$0"
     ],
     "description": "YouTube の動画を埋め込む"
   },
   "Spacer: 余白": {
-    "prefix": "spacer",
+    "prefix": "Spacer",
     "body": [
       "<Spacer size=\"${1:md}\" />$0"
     ],
     "description": "縦の余白を空ける（sm / md / lg）"
   },
   "Indent: 字下げ": {
-    "prefix": "indent",
+    "prefix": "Indent",
     "body": [
       "<Indent level={${1:1}}>",
       "\t$0",
@@ -195,7 +195,7 @@
     "description": "段落を字下げする"
   },
   "InlineToc: 目次": {
-    "prefix": "toc",
+    "prefix": "InlineToc",
     "body": [
       "<InlineToc />$0"
     ],
