@@ -116,17 +116,17 @@ vim.api.nvim_create_autocmd('FileChangedShellPost', {
   end,
 })
 
--- 文章を書くファイルでは行を折り返す。
+-- 文章を書くファイルで、折り返した時に読める状態を整えておく。
 --
--- コードでは折り返さない方が桁が読みやすいが、文章、特に日本語は画面外へ
--- 流れると読めない。ファイルの種類で分ける。
+-- 折り返し自体は既定で切っている。表や整形された見出しが崩れるため。
+-- 必要な時は <Space>uw で入れる。
 --
--- 折り返しは3つ揃えて初めて実用になる。
---   wrap         折り返す
+-- ここで用意するのは、入れた時に破綻しないための下ごしらえ。
 --   linebreak    単語の途中で切らない
 --   breakindent  折り返した行もインデントを保つ
+-- どちらも wrap が切れている間は何も起こさないので、常に入れておいてよい。
 --
--- あわせて j / k を表示行で動かす。既定は論理行で動くため、折り返された
+-- あわせて j / k を表示行で動かす。折り返しを入れた時、既定のままだと
 -- 長い段落を1回で飛び越してしまう
 local prose_group = augroup('prose_wrap')
 
@@ -134,7 +134,6 @@ vim.api.nvim_create_autocmd('FileType', {
   group = prose_group,
   pattern = { 'markdown', 'mdx', 'text', 'gitcommit', 'gitrebase' },
   callback = function(args)
-    vim.opt_local.wrap = true
     vim.opt_local.linebreak = true
     vim.opt_local.breakindent = true
 
