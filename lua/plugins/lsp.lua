@@ -82,6 +82,12 @@ return {
             return
           end
 
+          -- 色指定（#0d0e14 や rgb(...)）にその場で色を付ける。
+          -- Neovim 0.12 の組み込み機能で、サーバから textDocument/documentColor を
+          -- 受け取って描く。CSS Modules を書く時に効く。
+          -- 対応していないサーバでは何も起きないので、条件を絞らず有効にしてよい
+          vim.lsp.document_color.enable(true, { bufnr = event.buf })
+
           local map = function(keys, fn, desc)
             vim.keymap.set('n', keys, fn, { buffer = event.buf, desc = 'LSP: ' .. desc })
           end
