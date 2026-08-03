@@ -20,10 +20,9 @@ return {
     lazy = false,
     opts = {
       -- 通知の描画。noice から view = 'snacks' で呼ばれる。
-      -- 画面右上に枠付きで出て、2.5秒で消える
+      -- 画面右上に枠付きで出て、既定の3秒で消える（timeout は指定しない）
       notifier = {
         enabled = true,
-        timeout = 2500,
         margin = { top = 0, right = 1, bottom = 0 },
         -- 既定は画面幅の 40% まで。tmux でペインを分割していると
         -- それだけでは足りず、長い文が途中で切れる
