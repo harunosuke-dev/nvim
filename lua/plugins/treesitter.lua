@@ -147,11 +147,14 @@ return {
     dependencies = { 'nvim-treesitter/nvim-treesitter' },
     config = function()
       -- 色相が大きく離れた3色。隣り合う深さを見分けやすい。
-      -- 4段目以降は1段目に戻る（実際のコードで4段を超える入れ子は稀）
+      -- 4段目以降は1段目に戻る（実際のコードで4段を超える入れ子は稀）。
+      --
+      -- 知覚的な明るさ（0.299R + 0.587G + 0.114B）を揃えてある。
+      -- VSCode の金 #ffd700 は 202 と突出しており、そこだけが浮いて見えた
       local palette = {
         RainbowDelimiterViolet = '#da70d6', -- 蘭紫（オーキッド）
         RainbowDelimiterBlue = '#179fff', -- 青
-        RainbowDelimiterYellow = '#ffd700', -- 金
+        RainbowDelimiterYellow = '#c49f2e', -- 金（VSCode の #ffd700 は明るすぎるので落とす）
       }
 
       local function apply()
