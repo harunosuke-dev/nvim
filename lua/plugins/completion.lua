@@ -1,3 +1,6 @@
+--- 文章を書くファイル。補完の出し方をコードと変える
+local PROSE_FILETYPES = { 'markdown', 'mdx', 'text', 'gitcommit', 'gitrebase' }
+
 return {
   'saghen/blink.cmp',
   -- タグ付きリリースにはビルド済みの Rust バイナリが同梱される。
@@ -23,6 +26,37 @@ return {
       -- 穴が残っていない時は nvim-autopairs の <CR>（括弧を開いて改行）へ
       -- 渡すため、fallback ではなく fallback_to_mappings を使う
       ['<CR>'] = { 'snippet_forward', 'fallback_to_mappings' },
+
+      -- ポップアップを出していない時でも候補を送れるようにする。
+      --
+      -- blink の can_select はメニューが閉じていると素通りする作りで、
+      -- on_ghost_text を渡した時だけゴーストテキスト表示中の移動を許す。
+      -- 既定の割り当ては渡していないため、文章のファイル（自動ポップアップ
+      -- なし）で <C-n> / <C-p> が効かなかった
+      ['<C-n>'] = {
+        function(cmp)
+          return cmp.select_next({ on_ghost_text = true })
+        end,
+        'fallback_to_mappings',
+      },
+      ['<C-p>'] = {
+        function(cmp)
+          return cmp.select_prev({ on_ghost_text = true })
+        end,
+        'fallback_to_mappings',
+      },
+      ['<Down>'] = {
+        function(cmp)
+          return cmp.select_next({ on_ghost_text = true })
+        end,
+        'fallback',
+      },
+      ['<Up>'] = {
+        function(cmp)
+          return cmp.select_prev({ on_ghost_text = true })
+        end,
+        'fallback',
+      },
       -- スニペットだけを一覧表示する。名前をうろ覚えのまま呼び出せる。
       -- 通常の補完は英数字を打った時にしか出ず、混ざると探しづらいため分ける
       ['<C-l>'] = {
@@ -37,15 +71,33 @@ return {
 
     completion = {
       documentation = { auto_show = true, auto_show_delay_ms = 200 },
+
       -- 打つそばから1件目が自動選択され、確定後の姿が行内に薄く出る。
       -- auto_insert は false のまま（true にすると候補を移動しただけで
       -- バッファに実際の文字が入ってしまい、ゴーストテキストと役割が重複する）
-      ghost_text = { enabled = true },
+      ghost_text = {
+        enabled = true,
+        -- メニューを開いていなくても、選択が無くても1件目を薄く出す。
+        -- ポップアップを止めた文章のファイルでも、補完が効いていること自体は
+        -- 見えるようにするため
+        show_without_selection = true,
+        show_without_menu = true,
+      },
       menu = {
         border = 'rounded',
         -- 候補の移動はキーボードで行うため不要。
         -- つまみが背景色つきの別ウィンドウとして重なり、右上に四角く見えていた
         scrollbar = false,
+
+        -- 文章を書くファイルではポップアップを自動で出さない。
+        -- 日本語を打っている最中に候補の窓が開いては閉じるのが煩わしい。
+        -- <C-space> を押せばいつでも開ける。
+        --
+        -- コードを書くファイルでは従来どおり自動で出す。型や関数名は
+        -- 覚えていない前提なので、待たずに見えた方がよい
+        auto_show = function()
+          return not vim.tbl_contains(PROSE_FILETYPES, vim.bo.filetype)
+        end,
       },
       list = { selection = { preselect = true, auto_insert = false } },
     },
