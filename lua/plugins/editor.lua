@@ -140,4 +140,21 @@ return {
       },
     },
   },
+
+  -- w / e / b を camelCase・snake_case の区切りで止める。
+  -- getUserName を getUserName の3語として扱えるので、長い識別子の一部だけを
+  -- 直せる。新しいキーは増えず、既存の移動が細かくなるだけ
+  {
+    'chrisgrieser/nvim-spider',
+    keys = {
+      { 'w', function() require('spider').motion('w') end, mode = { 'n', 'o', 'x' }, desc = '次の語へ（camelCase 単位）' },
+      { 'e', function() require('spider').motion('e') end, mode = { 'n', 'o', 'x' }, desc = '語の末尾へ（camelCase 単位）' },
+      { 'b', function() require('spider').motion('b') end, mode = { 'n', 'o', 'x' }, desc = '前の語へ（camelCase 単位）' },
+      { 'ge', function() require('spider').motion('ge') end, mode = { 'n', 'o', 'x' }, desc = '前の語の末尾へ（camelCase 単位）' },
+    },
+    opts = {
+      -- 記号だけの塊は語として数えない。`)` や `;` で細かく止まると煩わしい
+      skipInsignificantPunctuation = true,
+    },
+  }
 }
