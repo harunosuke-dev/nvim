@@ -1,0 +1,141 @@
+{
+  "Box: 汎用の枠": {
+    "prefix": "box",
+    "body": [
+      "<Box${1: label=\"ラベル\"}${2: accent=\"#0071e3\"}>",
+      "\t$0",
+      "</Box>"
+    ],
+    "description": "汎用の枠。Tab で label → accent と選択状態で渡る。不要な属性は Del で消す（属性ごと消えるので label=\"\" は残らない）"
+  },
+  "Callout: 補足": {
+    "prefix": "callout-note",
+    "body": [
+      "<CalloutNote title=\"${1:補足}\">",
+      "\t$0",
+      "</CalloutNote>"
+    ],
+    "description": "補足の吹き出し（title は省略可）"
+  },
+  "Callout: コツ": {
+    "prefix": "callout-tip",
+    "body": [
+      "<CalloutTip title=\"${1:コツ}\">",
+      "\t$0",
+      "</CalloutTip>"
+    ],
+    "description": "コツの吹き出し（title は省略可）"
+  },
+  "Callout: 注意": {
+    "prefix": "callout-warn",
+    "body": [
+      "<CalloutWarning title=\"${1:注意}\">",
+      "\t$0",
+      "</CalloutWarning>"
+    ],
+    "description": "注意の吹き出し（title は省略可）"
+  },
+  "MathReference: 定義を参照": {
+    "prefix": "mref",
+    "body": [
+      "<MathReference id=\"$1\" />$0"
+    ],
+    "description": "別ページの定義へリンクする（id は補完から選ぶ）"
+  },
+  "MathEmbed: 定義を埋め込む": {
+    "prefix": "membed",
+    "body": [
+      "<MathEmbed id=\"$1\" />$0"
+    ],
+    "description": "定義の本文をその場に展開する（id は補完から選ぶ）"
+  },
+  "Figure: 画像とキャプション": {
+    "prefix": "fig",
+    "body": [
+      "<Figure src=\"${1:/images/}\" alt=\"${2:代替テキスト}\" caption=\"${3:キャプション}\" />$0"
+    ],
+    "description": "キャプション付きの画像"
+  },
+  "LinkCard: リンクカード": {
+    "prefix": "linkcard",
+    "body": [
+      "<LinkCard url=\"${1:https://}\" />$0"
+    ],
+    "description": "URL をカード状に表示する"
+  },
+  "LinkPreview: リンクの下敷き": {
+    "prefix": "linkprev",
+    "body": [
+      "<LinkPreview url=\"${1:https://}\" />$0"
+    ],
+    "description": "リンク先の内容を先読みして見せる"
+  },
+  "Embed: 埋め込み": {
+    "prefix": "embed",
+    "body": [
+      "<Embed src=\"${1:https://}\" title=\"${2:タイトル}\" aspectRatio=\"${3:16/9}\" />$0"
+    ],
+    "description": "任意の iframe を比率つきで埋め込む"
+  },
+  "YouTube: 動画": {
+    "prefix": "youtube",
+    "body": [
+      "<YouTubeEmbed id=\"${1:動画ID}\" />$0"
+    ],
+    "description": "YouTube の動画を埋め込む"
+  },
+  "Spacer: 余白": {
+    "prefix": "spacer",
+    "body": [
+      "<Spacer size=\"${1:md}\" />$0"
+    ],
+    "description": "縦の余白を空ける（sm / md / lg）"
+  },
+  "Indent: 字下げ": {
+    "prefix": "indent",
+    "body": [
+      "<Indent level={${1:1}}>",
+      "\t$0",
+      "</Indent>"
+    ],
+    "description": "段落を字下げする"
+  },
+  "InlineToc: 目次": {
+    "prefix": "toc",
+    "body": [
+      "<InlineToc />$0"
+    ],
+    "description": "本文中に目次を差し込む"
+  },
+  "コードブロック": {
+    "prefix": "code",
+    "body": [
+      "```${1:ts}",
+      "$0",
+      "```"
+    ],
+    "description": "言語を指定したコードブロック"
+  },
+  "詳細（折りたたみ）": {
+    "prefix": "details",
+    "body": [
+      "<details>",
+      "<summary>${1:見出し}</summary>",
+      "",
+      "$0",
+      "",
+      "</details>"
+    ],
+    "description": "クリックで開く折りたたみ"
+  },
+  "表": {
+    "prefix": "table",
+    "body": [
+      "| ${1:見出し} | ${2:見出し} |",
+      "|---|---|",
+      "| $3 | $4 |",
+      "$0"
+    ],
+    "description": "2列の表"
+  }
+}
