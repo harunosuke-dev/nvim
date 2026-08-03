@@ -2,11 +2,11 @@
   "Box: 汎用の枠": {
     "prefix": "box",
     "body": [
-      "<Box${1: label=\"ラベル\"}${2: accent=\"#0071e3\"}>",
+      "<Box label=\"${1:ラベル}\"${2: accent=\"#0071e3\"}>",
       "\t$0",
       "</Box>"
     ],
-    "description": "汎用の枠。Tab で label → accent と選択状態で渡る。不要な属性は Del で消す（属性ごと消えるので label=\"\" は残らない）"
+    "description": "汎用の枠。Tab で ラベル → accent → 本文 と渡る。accent は属性ごと穴になっているので Del で消せる（label=\"\" は残らない）"
   },
   "Callout: 補足": {
     "prefix": "callout-note",
