@@ -258,8 +258,10 @@ function M.apply()
   -- 扱うため、そこで latex_block が途切れる。パーサの構造上の制約
   vim.api.nvim_set_hl(0, '@markup.math', { fg = ICEBERG.breadcrumb })
   vim.api.nvim_set_hl(0, '@markup.math.markdown_inline', { fg = ICEBERG.breadcrumb })
-  vim.api.nvim_set_hl(0, '@markup.math.delimiter', { fg = 0x8fbf7f, bold = true })
-  vim.api.nvim_set_hl(0, '@markup.math.delimiter.markdown_inline', { fg = 0x8fbf7f, bold = true })
+  -- 太字にはしない。色だけで十分に区別が付き、$ 1文字を太くしても情報は
+  -- 増えない。区切り記号を強調するのは一般的な慣習とも逆
+  vim.api.nvim_set_hl(0, '@markup.math.delimiter', { fg = 0x8fbf7f })
+  vim.api.nvim_set_hl(0, '@markup.math.delimiter.markdown_inline', { fg = 0x8fbf7f })
 
   -- 記号類も彩度を落とす。コードブロックの言語名とチェック済みの印は
   -- 既定で #b5bf82 のオリーブ
