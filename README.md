@@ -6,7 +6,7 @@ Next.js（TypeScript / React / CSS Modules）での開発を主目的とした N
 - 端末は Ghostty または Alacritty ＋ tmux を想定
 - リーダーキーは `Space`
 
-関連: [tmux の操作](docs/tmux.md)
+関連: [tmux の操作](docs/tmux.md) ／ [ウィンドウ操作（yabai + skhd）](docs/window.md)
 
 ---
 
