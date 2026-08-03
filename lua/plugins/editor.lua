@@ -156,5 +156,23 @@ return {
       -- 記号だけの塊は語として数えない。`)` や `;` で細かく止まると煩わしい
       skipInsignificantPunctuation = true,
     },
-  }
+  },
+
+  -- 括弧・引用符のテキストオブジェクトを賢くする。
+  --
+  -- 関数・クラス・引数（af if ac ic aa ia）は nvim-treesitter-textobjects が
+  -- 持っており、そちらが優先される（Vim は長い方の割り当てを選ぶため、
+  -- af は treesitter、a( は mini.ai に渡る）。
+  --
+  -- mini.ai が足すのは素の Vim より賢い括弧・引用符の扱い。
+  --   ci(  カーソルが括弧の手前にあっても、次の括弧の中を対象にする
+  --   ci"  複数行にまたがる文字列でも効く
+  --   2i(  2つ外側の括弧の中
+  {
+    'echasnovski/mini.ai',
+    event = { 'BufReadPost', 'BufNewFile' },
+    opts = {
+      n_lines = 500, -- 対象を探す範囲。大きなファイルでも関数全体を拾える
+    },
+  },
 }
