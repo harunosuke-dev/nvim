@@ -127,8 +127,15 @@ vim.api.nvim_create_autocmd('FileType', {
   group = augroup('hide_cursor'),
   pattern = { 'dropbar_menu', 'dropbar_menu_fzf' },
   callback = function(args)
-    local sel = vim.api.nvim_get_hl(0, { name = 'PmenuSel', link = false })
-    vim.api.nvim_set_hl(0, 'DropBarMenuCursor', { fg = sel.fg, bg = sel.bg })
+    -- カーソルのある行と同じ色にして溶け込ませる。
+    -- 行の色そのものを読む。以前は PmenuSel から取っていたが、行の
+    -- ハイライトを別の色に変えた際にずれて、帯の途中が暗く欠けて見えた
+    -- 背景だけ行の色に溶かし、文字色は残す。
+    -- fg まで背景色にするとカーソルの下にある文字（フォルダの > など）ごと
+    -- 消えてしまう。ブロックだけを消して中身は読めるようにする
+    local row = vim.api.nvim_get_hl(0, { name = 'DropBarMenuHoverEntry', link = false })
+    local mark = vim.api.nvim_get_hl(0, { name = 'DropBarIconUIIndicator', link = false })
+    vim.api.nvim_set_hl(0, 'DropBarMenuCursor', { fg = mark.fg, bg = row.bg })
     local saved = vim.o.guicursor
     vim.opt.guicursor:append('a:DropBarMenuCursor')
 

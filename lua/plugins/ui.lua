@@ -23,14 +23,9 @@ return {
         desc = 'パンくずから選択してジャンプ',
       },
     },
-    -- TODO: パンくずをクリックして開くメニューの見た目がまだ整っていない。
-    -- 以下は対処済みだが、それでも違和感が残るとの報告あり。原因は未特定。
-    --   - NormalFloat / FloatBorder / Pmenu の背景を #3d425c -> #1f2233
-    --   - PmenuSbar / PmenuThumb（スクロールバー）を暗い色へ
-    --   - PmenuSel（選択行）を #5c638a -> #292e47
-    --   - メニュー内のカーソルを選択行と同色にして隠す（config/autocmds.lua）
-    -- 次に見るとすれば DropBarMenuHoverEntry（IncSearch にリンク）と
-    -- DropBarPreview（Visual にリンク）あたり
+    -- 残っている違和感: パンくず上で選択中の要素（DropBarCurrentContext、
+    -- Visual を継承して #282d43）が、パンくず帯の背景 #07080d と揃わず
+    -- 別の面のように見える。気になれば bg を #1a1d2e あたりに落とす。
     --
     -- dropbar は読み込み時に 200 以上のハイライトを自前で定義する。
     -- カラースキーム側のイベントでは取りこぼすため、ここから当て直す
