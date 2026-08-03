@@ -116,6 +116,41 @@ vim.api.nvim_create_autocmd('FileChangedShellPost', {
   end,
 })
 
+-- 文章を書くファイルでは行を折り返す。
+--
+-- コードでは折り返さない方が桁が読みやすいが、文章、特に日本語は画面外へ
+-- 流れると読めない。ファイルの種類で分ける。
+--
+-- 折り返しは3つ揃えて初めて実用になる。
+--   wrap         折り返す
+--   linebreak    単語の途中で切らない
+--   breakindent  折り返した行もインデントを保つ
+--
+-- あわせて j / k を表示行で動かす。既定は論理行で動くため、折り返された
+-- 長い段落を1回で飛び越してしまう
+local prose_group = augroup('prose_wrap')
+
+vim.api.nvim_create_autocmd('FileType', {
+  group = prose_group,
+  pattern = { 'markdown', 'mdx', 'text', 'gitcommit', 'gitrebase' },
+  callback = function(args)
+    vim.opt_local.wrap = true
+    vim.opt_local.linebreak = true
+    vim.opt_local.breakindent = true
+
+    -- 回数を付けた時（5j など）は論理行のままにする。
+    -- 相対行番号が示すのは論理行なので、数字を打った時はそちらに従う方が合う
+    for _, key in ipairs({ 'j', 'k' }) do
+      vim.keymap.set({ 'n', 'x' }, key, function()
+        return vim.v.count > 0 and key or ('g' .. key)
+      end, { buffer = args.buf, expr = true, desc = '表示行で上下に移動' })
+    end
+    -- 行頭・行末も表示行に合わせる
+    vim.keymap.set({ 'n', 'x' }, '0', 'g0', { buffer = args.buf, desc = '表示行の先頭へ' })
+    vim.keymap.set({ 'n', 'x' }, '$', 'g$', { buffer = args.buf, desc = '表示行の末尾へ' })
+  end,
+})
+
 -- パンくずのメニュー（dropbar）ではカーソルを隠す。
 -- 選択行は別途ハイライトされるためカーソルは不要で、
 -- ブロックカーソルが白い四角として強く目立ってしまう。
