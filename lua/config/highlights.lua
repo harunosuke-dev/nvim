@@ -251,6 +251,16 @@ function M.apply()
     vim.api.nvim_set_hl(0, group, { fg = ICEBERG.breadcrumb })
   end
 
+  -- 数式（$...$）。地の文から浮かせて境目が分かるようにする。
+  -- 中身は明度だけで区別し、区切りの $ にだけ色を付けて範囲を示す。
+  --
+  -- 空行を挟んだ $$...$$ には効かない。Markdown が空行を段落の区切りとして
+  -- 扱うため、そこで latex_block が途切れる。パーサの構造上の制約
+  vim.api.nvim_set_hl(0, '@markup.math', { fg = ICEBERG.breadcrumb })
+  vim.api.nvim_set_hl(0, '@markup.math.markdown_inline', { fg = ICEBERG.breadcrumb })
+  vim.api.nvim_set_hl(0, '@markup.math.delimiter', { fg = 0x8fbf7f, bold = true })
+  vim.api.nvim_set_hl(0, '@markup.math.delimiter.markdown_inline', { fg = 0x8fbf7f, bold = true })
+
   -- 記号類も彩度を落とす。コードブロックの言語名とチェック済みの印は
   -- 既定で #b5bf82 のオリーブ
   vim.api.nvim_set_hl(0, 'RenderMarkdownCodeInfo', { fg = ICEBERG.faint })
