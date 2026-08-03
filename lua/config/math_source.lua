@@ -14,7 +14,7 @@ local M = {}
 local INDEX_PATH = 'public/math-index.json'
 
 --- 読み込み結果を持ち回す。ファイルの更新時刻が変わった時だけ読み直す
-local cache = { path = nil, mtime = nil, items = nil }
+local cache = { path = nil, mtime = nil, bare = nil, full = nil }
 
 --- 種類の表示名。索引の type をそのまま出しても分かりにくい
 local TYPE_LABEL = {
@@ -49,8 +49,8 @@ local function load_items()
   if not stat then
     return {}
   end
-  if cache.path == path and cache.mtime == stat.mtime.sec and cache.items then
-    return cache.items
+  if cache.path == path and cache.mtime == stat.mtime.sec and cache.bare then
+    return cache
   end
 
   local ok, decoded = pcall(function()
@@ -60,34 +60,51 @@ local function load_items()
     return {}
   end
 
-  local items = {}
+  -- 2通りの候補を作る。
+  --   bare  id だけ。既にあるタグの id を書き換える時に使う
+  --   full  タグごと。mref / membed と打った時に一発で完成させる
+  local bare, full = {}, {}
   for _, entry in ipairs(decoded.items or {}) do
     if entry.id then
       local kind = TYPE_LABEL[entry.type] or entry.type or ''
       -- 本文は HTML と TeX が混ざっているので、タグだけ落として要約に使う
       local summary = (entry.content or ''):gsub('<[^>]->', ''):gsub('%s+', ' ')
-      items[#items + 1] = {
+      local detail = ('%s｜%s｜%s'):format(kind, entry.title or '', entry.category or '')
+      local doc = {
+        kind = 'markdown',
+        value = table.concat({
+          ('**%s**  %s'):format(entry.title or entry.id, kind),
+          '',
+          summary,
+          '',
+          ('分野: %s'):format(entry.field or '-'),
+        }, '\n'),
+      }
+      local ref_kind = require('blink.cmp.types').CompletionItemKind.Reference
+
+      bare[#bare + 1] = {
         label = entry.id,
-        -- 候補の右側に出る補助表示。id だけでは何の定義か分からないため
-        detail = ('%s｜%s｜%s'):format(kind, entry.title or '', entry.category or ''),
-        documentation = {
-          kind = 'markdown',
-          value = table.concat({
-            ('**%s**  %s'):format(entry.title or entry.id, kind),
-            '',
-            summary,
-            '',
-            ('分野: %s'):format(entry.field or '-'),
-          }, '\n'),
-        },
-        kind = require('blink.cmp.types').CompletionItemKind.Reference,
+        detail = detail,
+        documentation = doc,
+        kind = ref_kind,
         insertText = entry.id,
       }
+
+      -- label に mref- / membed- を含めることで、そう打った時に絞り込める
+      for prefix, component in pairs({ mref = 'MathReference', membed = 'MathEmbed' }) do
+        full[#full + 1] = {
+          label = ('%s-%s'):format(prefix, entry.id),
+          detail = detail,
+          documentation = doc,
+          kind = ref_kind,
+          insertText = ('<%s id="%s" />'):format(component, entry.id),
+        }
+      end
     end
   end
 
-  cache = { path = path, mtime = stat.mtime.sec, items = items }
-  return items
+  cache = { path = path, mtime = stat.mtime.sec, bare = bare, full = full }
+  return cache
 end
 
 function M.new()
@@ -99,21 +116,45 @@ function M:enabled()
   return vim.tbl_contains({ 'mdx', 'markdown' }, vim.bo.filetype)
 end
 
+--- id=" を打った時点で候補を出す。
+---
+--- 補完は既定では英数字を打った時にしか起動しないため、これが無いと
+--- id=" のあとに1文字打つまで候補が出ない。id は覚えていない前提なので、
+--- 打つ前に一覧が見えないと意味がない。
+---
+--- " は mdx のどこでも打たれるが、id=" の内側以外では get_completions が
+--- 空を返すのでメニューは出ない
+function M:get_trigger_characters()
+  return { '"' }
+end
+
 function M:get_completions(context, callback)
   local before = context.line:sub(1, context.cursor[2])
+  local loaded = load_items()
 
-  -- <MathReference id=" や <MathEmbed id=" の内側にいる時だけ候補を出す。
-  -- 常に出すと通常の文章を書いている最中にも混ざって邪魔になる
-  if not before:match('<Math%a*%s[^>]*id="[^"]*$') then
-    callback({ items = {}, is_incomplete_forward = false, is_incomplete_backward = false })
+  local function done(items)
+    callback({
+      items = items or {},
+      is_incomplete_forward = false,
+      is_incomplete_backward = false,
+    })
+  end
+
+  -- 既にあるタグの id を書き換えている時は、id だけを候補にする
+  if before:match('<Math%a*%s[^>]*id="[^"]*$') then
+    done(loaded.bare)
     return
   end
 
-  callback({
-    items = load_items(),
-    is_incomplete_forward = false,
-    is_incomplete_backward = false,
-  })
+  -- mref / membed と打ち始めた時は、タグごと完成させる候補を出す。
+  -- スニペットで <MathReference id="" /> を展開すると引用符が先に入ってしまい、
+  -- 起動文字が発火しない。補完だけで完結させた方が手数が少ない
+  if before:match('m[a-z]*$') then
+    done(loaded.full)
+    return
+  end
+
+  done({})
 end
 
 return M

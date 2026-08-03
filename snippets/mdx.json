@@ -44,20 +44,6 @@
     ],
     "description": "注意の吹き出し（title は省略可）"
   },
-  "MathReference: 定義を参照": {
-    "prefix": "mref",
-    "body": [
-      "<MathReference id=\"$1\" />$0"
-    ],
-    "description": "別ページの定義へリンクする（id は補完から選ぶ）"
-  },
-  "MathEmbed: 定義を埋め込む": {
-    "prefix": "membed",
-    "body": [
-      "<MathEmbed id=\"$1\" />$0"
-    ],
-    "description": "定義の本文をその場に展開する（id は補完から選ぶ）"
-  },
   "Figure: 画像とキャプション": {
     "prefix": "fig",
     "body": [
