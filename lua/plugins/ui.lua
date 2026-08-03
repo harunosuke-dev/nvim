@@ -211,4 +211,45 @@ return {
       }
     end,
   },
+
+  -- 色指定（#7d8296 や rgb(...)）に、その値の色を背景として敷く。
+  --
+  -- CSS 系は cssls が textDocument/documentColor で同じことをするため除外する。
+  -- 両方が描くと二重になる。ここが受け持つのは LSP が色を返さないファイル
+  -- （Lua の設定、TSX の inline style、Markdown のドキュメントなど）。
+  --
+  -- norcalli/nvim-colorizer.lua は更新が止まっているため、保守されている
+  -- fork を使う
+  {
+    'catgoose/nvim-colorizer.lua',
+    event = { 'BufReadPost', 'BufNewFile' },
+    opts = {
+      filetypes = {
+        'lua',
+        'javascript',
+        'javascriptreact',
+        'typescript',
+        'typescriptreact',
+        'html',
+        'markdown',
+        'mdx',
+        'toml',
+        'yaml',
+        'json',
+        'conf',
+        'sh',
+        'zsh',
+      },
+      user_default_options = {
+        -- 組み込みの document_color と同じ描き方に揃える
+        mode = 'background',
+        -- 'red' や 'blue' といった英単語は着色しない。
+        -- 文章やコード中の普通の単語まで塗られて煩わしいため
+        names = false,
+        RRGGBBAA = true, -- #rrggbbaa（透明度付き）も拾う
+        rgb_fn = true, -- rgb() / rgba()
+        hsl_fn = true, -- hsl() / hsla()
+      },
+    },
+  },
 }
