@@ -2,7 +2,7 @@
 
 この Neovim 設定と組み合わせて使う tmux の操作。設定の実体は [dotfiles](https://github.com/Harunosuke-web/dotfiles) の `packages/tmux/` にある。
 
-関連: [ウィンドウ操作（yabai + skhd）](window.md)
+関連: [Vim / Neovim 入門](vim.md) ／ [ウィンドウ操作（yabai + skhd）](window.md)
 
 **prefix は `Ctrl + b`。** 以下では `C-b` と表記し、`C-b c` は「`Ctrl + b` を押して離してから `c`」を意味する。
 
