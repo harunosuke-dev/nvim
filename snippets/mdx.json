@@ -1,4 +1,103 @@
 {
+  "定義（Definition）": {
+    "prefix": "def",
+    "body": [
+      "<Definition id=\"${1:id}\" category=\"${2:分野}\" title=\"${3:定義名}\">",
+      "\t$0",
+      "</Definition>"
+    ],
+    "description": "定義のブロック。id / category / title は必須。tags と label は任意で足せる"
+  },
+  "定理（Theorem）": {
+    "prefix": "thm",
+    "body": [
+      "<Theorem id=\"${1:id}\" category=\"${2:分野}\" title=\"${3:定理名}\">",
+      "\t$0",
+      "</Theorem>"
+    ],
+    "description": "定理のブロック。id / category / title は必須。tags と label は任意で足せる"
+  },
+  "補題（Lemma）": {
+    "prefix": "lem",
+    "body": [
+      "<Lemma id=\"${1:id}\" category=\"${2:分野}\" title=\"${3:補題名}\">",
+      "\t$0",
+      "</Lemma>"
+    ],
+    "description": "補題のブロック。id / category / title は必須。tags と label は任意で足せる"
+  },
+  "系（Corollary）": {
+    "prefix": "cor",
+    "body": [
+      "<Corollary id=\"${1:id}\" category=\"${2:分野}\" title=\"${3:系名}\">",
+      "\t$0",
+      "</Corollary>"
+    ],
+    "description": "系のブロック。id / category / title は必須。tags と label は任意で足せる"
+  },
+  "命題（Proposition）": {
+    "prefix": "prop",
+    "body": [
+      "<Proposition id=\"${1:id}\" category=\"${2:分野}\" title=\"${3:命題名}\">",
+      "\t$0",
+      "</Proposition>"
+    ],
+    "description": "命題のブロック。id / category / title は必須。tags と label は任意で足せる"
+  },
+  "公理（Axiom）": {
+    "prefix": "ax",
+    "body": [
+      "<Axiom id=\"${1:id}\" category=\"${2:分野}\" title=\"${3:公理名}\">",
+      "\t$0",
+      "</Axiom>"
+    ],
+    "description": "公理のブロック。id / category / title は必須。tags と label は任意で足せる"
+  },
+  "例（Example）": {
+    "prefix": "ex",
+    "body": [
+      "<Example title=\"${1:例}\">",
+      "\t$0",
+      "</Example>"
+    ],
+    "description": "例のブロック。title は省略可"
+  },
+  "注意（Remark）": {
+    "prefix": "rem",
+    "body": [
+      "<Remark title=\"${1:注意}\">",
+      "\t$0",
+      "</Remark>"
+    ],
+    "description": "注意のブロック。title は省略可"
+  },
+  "参考（Confer）": {
+    "prefix": "cf",
+    "body": [
+      "<Confer title=\"${1:参考}\">",
+      "\t$0",
+      "</Confer>"
+    ],
+    "description": "参考のブロック。title は省略可"
+  },
+  "証明（Proof）": {
+    "prefix": "proof",
+    "body": [
+      "<Proof title=\"${1:証明}\">",
+      "\t$0",
+      "</Proof>"
+    ],
+    "description": "証明のブロック。折りたたみ。defaultOpen を足すと開いた状態で出る"
+  },
+  "解答（Solution）": {
+    "prefix": "sol",
+    "body": [
+      "<Solution title=\"${1:解答}\">",
+      "\t$0",
+      "</Solution>"
+    ],
+    "description": "解答のブロック。折りたたみ。defaultOpen を足すと開いた状態で出る"
+  },
   "Box: 枠": {
     "prefix": "box",
     "body": [
