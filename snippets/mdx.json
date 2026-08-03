@@ -2,7 +2,7 @@
   "定義（Definition）": {
     "prefix": "Definition",
     "body": [
-      "<Definition id=\"${1:id}\" category=\"${2:分野}\" title=\"${3:定義名}\">",
+      "<Definition id=\"${1:id}\" title=\"${2:定義名}\" category=\"${3:分野}\">",
       "\t$0",
       "</Definition>"
     ],
@@ -11,7 +11,7 @@
   "定理（Theorem）": {
     "prefix": "Theorem",
     "body": [
-      "<Theorem id=\"${1:id}\" category=\"${2:分野}\" title=\"${3:定理名}\">",
+      "<Theorem id=\"${1:id}\" title=\"${2:定理名}\" category=\"${3:分野}\">",
       "\t$0",
       "</Theorem>"
     ],
@@ -20,7 +20,7 @@
   "補題（Lemma）": {
     "prefix": "Lemma",
     "body": [
-      "<Lemma id=\"${1:id}\" category=\"${2:分野}\" title=\"${3:補題名}\">",
+      "<Lemma id=\"${1:id}\" title=\"${2:補題名}\" category=\"${3:分野}\">",
       "\t$0",
       "</Lemma>"
     ],
@@ -29,7 +29,7 @@
   "系（Corollary）": {
     "prefix": "Corollary",
     "body": [
-      "<Corollary id=\"${1:id}\" category=\"${2:分野}\" title=\"${3:系名}\">",
+      "<Corollary id=\"${1:id}\" title=\"${2:系名}\" category=\"${3:分野}\">",
       "\t$0",
       "</Corollary>"
     ],
@@ -38,7 +38,7 @@
   "命題（Proposition）": {
     "prefix": "Proposition",
     "body": [
-      "<Proposition id=\"${1:id}\" category=\"${2:分野}\" title=\"${3:命題名}\">",
+      "<Proposition id=\"${1:id}\" title=\"${2:命題名}\" category=\"${3:分野}\">",
       "\t$0",
       "</Proposition>"
     ],
@@ -47,7 +47,7 @@
   "公理（Axiom）": {
     "prefix": "Axiom",
     "body": [
-      "<Axiom id=\"${1:id}\" category=\"${2:分野}\" title=\"${3:公理名}\">",
+      "<Axiom id=\"${1:id}\" title=\"${2:公理名}\" category=\"${3:分野}\">",
       "\t$0",
       "</Axiom>"
     ],
