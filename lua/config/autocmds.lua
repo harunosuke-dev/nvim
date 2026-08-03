@@ -86,6 +86,36 @@ if vim.fn.has('mac') == 1 and vim.fn.executable('macism') == 1 then
   })
 end
 
+-- 外部で書き換えられたファイルを読み直す。
+--
+-- autoread は既定で有効だが、これは「変更に気づいた時に読み直す」という設定で、
+-- 気づくきっかけを自分で作る必要がある。checktime を呼ばない限り、nvim に
+-- 留まっている間はバッファが古いまま残る。
+--
+-- AI エージェントや git の操作でファイルが書き換わる場面が増えたため、
+-- 画面に戻った時と手を止めた時に確認する。
+--   FocusGained  他のペインやアプリから戻ってきた時（tmux の focus-events が前提）
+--   BufEnter     別のバッファへ移った時
+--   CursorHold   updatetime のあいだ操作が止まった時
+--
+-- コマンドラインを開いている最中に読み直すと入力が壊れるため避ける
+vim.api.nvim_create_autocmd({ 'FocusGained', 'BufEnter', 'CursorHold', 'TermClose', 'TermLeave' }, {
+  group = augroup('checktime'),
+  callback = function()
+    if vim.o.buftype == '' and vim.fn.mode() ~= 'c' then
+      vim.cmd('checktime')
+    end
+  end,
+})
+
+-- 読み直した時に気づけるよう通知する。黙って中身が変わると混乱するため
+vim.api.nvim_create_autocmd('FileChangedShellPost', {
+  group = augroup('checktime_notify'),
+  callback = function()
+    vim.notify('ファイルが外部で変更されたため読み直しました', vim.log.levels.WARN)
+  end,
+})
+
 -- パンくずのメニュー（dropbar）ではカーソルを隠す。
 -- 選択行は別途ハイライトされるためカーソルは不要で、
 -- ブロックカーソルが白い四角として強く目立ってしまう。
