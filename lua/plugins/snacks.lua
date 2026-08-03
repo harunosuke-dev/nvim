@@ -25,6 +25,20 @@ return {
         enabled = true,
         timeout = 2500,
         margin = { top = 0, right = 1, bottom = 0 },
+        -- 既定は画面幅の 40% まで。tmux でペインを分割していると
+        -- それだけでは足りず、長い文が途中で切れる
+        width = { min = 30, max = 0.6 },
+        height = { min = 1, max = 0.6 },
+      },
+
+      -- 通知の窓そのものの見た目。notifier の設定とは別枠で、
+      -- Snacks.config.style で上書きする
+      styles = {
+        notification = {
+          -- 既定は wrap = false で、幅に収まらない分は黙って切り捨てられる。
+          -- 通知は読めなければ意味がないので折り返す
+          wo = { wrap = true },
+        },
       },
 
       dashboard = {
