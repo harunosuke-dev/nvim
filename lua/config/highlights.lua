@@ -17,7 +17,8 @@ local ICEBERG = {
   body = 0x0d0e14, -- 本文の背景
   gutter = 0x161822, -- 行番号・記号（gitsigns）・折りたたみの列。素の iceberg の本文色
   cursor = 0x1f2233, -- カーソル行。素の iceberg の行番号の列の色
-  breadcrumb = 0x7d8296, -- 画面上部のパンくずの文字。本文より一段落とす
+  breadcrumb = 0x7d8296, -- 補助的な文字。本文より一段落とす
+  linenr = 0x454d73, -- 行番号・パンくず・ステータスラインの文字。3箇所で揃える
   float = 0x1f2233, -- フロートの背景。素の iceberg は #3d425c で本文から浮きすぎる
   faint = 0x555b73, -- 補助的な文字。breadcrumb よりさらに一段落とす
 }
@@ -137,10 +138,14 @@ function M.apply()
   --
   -- DropBarKind* 自体は色を持たず winbar の既定色を継承するため、
   -- WinBar を落とすのが本体。DropBarKind* にも同じ色を当てて、
-  -- 種類ごとに色が付く実装に変わっても揃うようにしておく
+  -- 種類ごとに色が付く実装に変わっても揃うようにしておく。
+  --
+  -- 色は行番号と同じ #454d73。パンくず・行番号・ステータスラインの3箇所を
+  -- ひとつの明度に揃えて、周辺情報として一体に見えるようにする。
+  -- lualine は WinBar の色を読むので、ここを変えれば追従する
   local win_bar = vim.api.nvim_get_hl(0, { name = 'WinBar', link = false })
-  vim.api.nvim_set_hl(0, 'WinBar', { fg = ICEBERG.breadcrumb, bg = win_bar.bg })
-  vim.api.nvim_set_hl(0, 'WinBarNC', { fg = ICEBERG.breadcrumb, bg = win_bar.bg })
+  vim.api.nvim_set_hl(0, 'WinBar', { fg = ICEBERG.linenr, bg = win_bar.bg })
+  vim.api.nvim_set_hl(0, 'WinBarNC', { fg = ICEBERG.linenr, bg = win_bar.bg })
   -- インデントの縦線（indent-blankline）。
   --
   -- 既定では IblIndent に色が設定されておらず、本文と同じ明るさ（#c7c9d1）で
@@ -179,13 +184,14 @@ function M.apply()
 
   for name in pairs(vim.api.nvim_get_hl(0, {})) do
     if name:match('^DropBarKind') then
-      vim.api.nvim_set_hl(0, name, { fg = ICEBERG.breadcrumb })
+      vim.api.nvim_set_hl(0, name, { fg = ICEBERG.linenr })
     end
   end
 end
 
 function M.setup()
   local group = vim.api.nvim_create_augroup('user_highlights', { clear = true })
+
   -- カラースキームを切り替えるたびに当て直す（iceberg 以外では何もしない）
   vim.api.nvim_create_autocmd('ColorScheme', { group = group, callback = M.apply })
   -- プラグインが後から記号のハイライトを定義するため、読み込みのたびに当て直す
