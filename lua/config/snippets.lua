@@ -73,7 +73,13 @@ end
 function M.pick()
   local items = collect()
   if #items == 0 then
-    vim.notify(('%s のスニペットはありません'):format(vim.bo.filetype), vim.log.levels.INFO)
+    -- 「無い」だけでは次に何をすればよいか分からないので、置き場所まで示す。
+    -- all.json は全ファイルタイプで有効
+    local ft = vim.bo.filetype ~= '' and vim.bo.filetype or 'all'
+    vim.notify(
+      ('%s のスニペットはありません\nsnippets/%s.json に追加できます'):format(ft, ft),
+      vim.log.levels.INFO
+    )
     return
   end
 
