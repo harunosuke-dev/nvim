@@ -92,7 +92,12 @@ return {
         local text = vim.treesitter.get_node_text(node, source)
         local lang, filename = text:match('^([^:]*):(.*)$')
         if not lang then
-          return -- : を含まない。標準の扱いに任せる
+          -- : を含まない。```hello.js のようにファイル名だけの場合があるので、
+          -- 拡張子らしきものを持つ時だけ推定に回す。```ts は標準の扱いに任せる
+          if not text:find('%.') then
+            return
+          end
+          lang, filename = '', text
         end
 
         if lang == '' and filename ~= '' then
