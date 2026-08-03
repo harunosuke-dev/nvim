@@ -43,6 +43,16 @@ map('n', '<leader>w', '<cmd>write<CR>', { desc = '保存' })
 map('n', '<leader>q', '<cmd>quit<CR>', { desc = '閉じる' })
 
 -- インデント調整後も選択範囲を保持する
+-- 行の折り返しを切り替える。
+--
+-- 文章のファイルでは既定で折り返すが、表を書いている最中は折り返さない方が
+-- 桁が揃って見やすい。その場で切り替えられるようにする
+map('n', '<leader>uw', function()
+  local on = not vim.wo.wrap
+  vim.wo.wrap = on
+  vim.notify('折り返し: ' .. (on and 'する' or 'しない'))
+end, { desc = '行の折り返しを切り替え (UI Wrap)' })
+
 map('x', '<', '<gv', { desc = 'インデントを減らす' })
 map('x', '>', '>gv', { desc = 'インデントを増やす' })
 
