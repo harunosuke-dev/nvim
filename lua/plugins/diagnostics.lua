@@ -63,4 +63,16 @@ return {
       { '<leader>xq', '<cmd>Trouble qflist toggle<cr>', desc = 'quickfix リスト' },
     },
   },
+
+  -- TypeScript のエラーメッセージを平易な文に置き換える。
+  --
+  -- tsserver のエラーは型の全体を展開して出すため、原因が文章に埋もれる。
+  -- 置き換え後は「何が期待されていて、実際は何が来たのか」が先に来る。
+  --
+  -- 完全に自動で、キー操作は不要。訳出先は日本語ではなく平易な英語
+  {
+    'dmmulroy/ts-error-translator.nvim',
+    ft = { 'typescript', 'typescriptreact', 'javascript', 'javascriptreact' },
+    opts = {},
+  },
 }
