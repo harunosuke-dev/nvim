@@ -18,6 +18,7 @@ local ICEBERG = {
   gutter = 0x161822, -- 行番号・記号（gitsigns）・折りたたみの列。素の iceberg の本文色
   cursor = 0x1f2233, -- カーソル行。素の iceberg の行番号の列の色
   breadcrumb = 0x7d8296, -- 補助的な文字。本文より一段落とす
+  chrome = 0x07080d, -- パンくず・行番号の列・ステータスラインの背景。本文より暗く沈める
   linenr = 0x454d73, -- 行番号・パンくず・ステータスラインの文字。3箇所で揃える
   float = 0x1f2233, -- フロートの背景。素の iceberg は #3d425c で本文から浮きすぎる
   faint = 0x555b73, -- 補助的な文字。breadcrumb よりさらに一段落とす
@@ -52,9 +53,10 @@ function M.apply()
   set('Normal', ICEBERG.body)
   set('NormalNC', ICEBERG.body)
 
-  -- 左端の列。カーソル行以外はすべてこの色になる
+  -- 左端の列。カーソル行以外はすべてこの色になる。
+  -- パンくず・ステータスラインと同じ背景に揃え、周辺情報として一体に見せる
   for _, group in ipairs({ 'LineNr', 'LineNrAbove', 'LineNrBelow', 'SignColumn', 'FoldColumn' }) do
-    set(group, ICEBERG.gutter)
+    set(group, ICEBERG.chrome)
   end
 
   -- カーソル行。本文・行番号・記号・折りたたみを同じ色で揃えて1本の帯にする
@@ -143,9 +145,12 @@ function M.apply()
   -- 色は行番号と同じ #454d73。パンくず・行番号・ステータスラインの3箇所を
   -- ひとつの明度に揃えて、周辺情報として一体に見えるようにする。
   -- lualine は WinBar の色を読むので、ここを変えれば追従する
-  local win_bar = vim.api.nvim_get_hl(0, { name = 'WinBar', link = false })
-  vim.api.nvim_set_hl(0, 'WinBar', { fg = ICEBERG.linenr, bg = win_bar.bg })
-  vim.api.nvim_set_hl(0, 'WinBarNC', { fg = ICEBERG.linenr, bg = win_bar.bg })
+  vim.api.nvim_set_hl(0, 'WinBar', { fg = ICEBERG.linenr, bg = ICEBERG.chrome })
+  vim.api.nvim_set_hl(0, 'WinBarNC', { fg = ICEBERG.linenr, bg = ICEBERG.chrome })
+  -- lualine が塗るのは区画の中だけで、その外側は StatusLine が使われる。
+  -- 揃えておかないと帯の一部だけ色が残る
+  vim.api.nvim_set_hl(0, 'StatusLine', { fg = ICEBERG.linenr, bg = ICEBERG.chrome })
+  vim.api.nvim_set_hl(0, 'StatusLineNC', { fg = ICEBERG.linenr, bg = ICEBERG.chrome })
   -- インデントの縦線（indent-blankline）。
   --
   -- 既定では IblIndent に色が設定されておらず、本文と同じ明るさ（#c7c9d1）で
