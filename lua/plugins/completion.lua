@@ -14,6 +14,15 @@ return {
     -- <C-n> <C-p> または ↑ ↓ で候補移動、<C-e> で取り消し、<C-k> でシグネチャ表示
     keymap = {
       preset = 'super-tab',
+      -- スニペットの穴を Enter でも渡れるようにする。
+      --
+      -- super-tab の Tab はスニペット中だと accept() を先に試す作りで、
+      -- 値を打った拍子に補完メニューが開いていると、そちらの確定に取られて
+      -- 次の穴へ進めない。Enter は super-tab が使っていないので割り当てる。
+      --
+      -- 穴が残っていない時は nvim-autopairs の <CR>（括弧を開いて改行）へ
+      -- 渡すため、fallback ではなく fallback_to_mappings を使う
+      ['<CR>'] = { 'snippet_forward', 'fallback_to_mappings' },
       -- スニペットだけを一覧表示する。名前をうろ覚えのまま呼び出せる。
       -- 通常の補完は英数字を打った時にしか出ず、混ざると探しづらいため分ける
       ['<C-l>'] = {
