@@ -1,12 +1,21 @@
 {
-  "Box: 汎用の枠": {
+  "Box: 枠": {
     "prefix": "box",
     "body": [
-      "<Box label=\"${1:ラベル}\"${2: accent=\"#0071e3\"}>",
+      "<Box label=\"${1:ラベル}\">",
       "\t$0",
       "</Box>"
     ],
-    "description": "汎用の枠。Tab で ラベル → accent → 本文 と渡る。accent は属性ごと穴になっているので Del で消せる（label=\"\" は残らない）"
+    "description": "左上にラベルを出す枠。ラベル不要なら label ごと消す"
+  },
+  "Box: 枠（色付き）": {
+    "prefix": "box-accent",
+    "body": [
+      "<Box label=\"${1:ラベル}\" accent=\"${2:#0071e3}\">",
+      "\t$0",
+      "</Box>"
+    ],
+    "description": "枠線とラベルに色を付ける。値は #0071e3 / var(--link-color) / #16a34a など"
   },
   "Callout: 補足": {
     "prefix": "callout-note",
