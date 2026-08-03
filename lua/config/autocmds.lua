@@ -138,6 +138,7 @@ vim.api.nvim_create_autocmd('FileType', {
     vim.opt_local.linebreak = true
     vim.opt_local.breakindent = true
 
+
     -- 回数を付けた時（5j など）は論理行のままにする。
     -- 相対行番号が示すのは論理行なので、数字を打った時はそちらに従う方が合う
     for _, key in ipairs({ 'j', 'k' }) do
