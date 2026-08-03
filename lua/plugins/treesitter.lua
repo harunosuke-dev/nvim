@@ -133,4 +133,16 @@ return {
     event = 'InsertEnter',
     opts = {},
   },
+
+  -- 対応する括弧をネストの深さごとに色分けする。
+  --
+  -- JSX の入れ子や、深くなったオブジェクトリテラルで対応関係を追いやすくする。
+  --
+  -- 色は既定のまま使う。iceberg の色に寄せると本文に溶けて判別できなくなり、
+  -- 色分けした意味がなくなるため。設定は不要で、入れるだけで動く
+  {
+    'HiPhish/rainbow-delimiters.nvim',
+    event = { 'BufReadPost', 'BufNewFile' },
+    dependencies = { 'nvim-treesitter/nvim-treesitter' },
+  },
 }
