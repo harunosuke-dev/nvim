@@ -7,7 +7,9 @@
 return {
   {
     'MeanderingProgrammer/render-markdown.nvim',
-    ft = { 'markdown', 'markdown_inline' },
+    -- mdx でも効かせる。ブログの記事が .mdx のため。
+    -- JSX の部分（<Box> など）は Markdown ではないので素のまま残る
+    ft = { 'markdown', 'markdown_inline', 'mdx' },
     dependencies = {
       'nvim-treesitter/nvim-treesitter',
       'nvim-tree/nvim-web-devicons',
