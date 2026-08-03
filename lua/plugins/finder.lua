@@ -33,6 +33,20 @@ return {
     { '<leader>fc', '<cmd>FzfLua colorschemes<cr>', desc = 'カラースキームを切り替え (Find Colorscheme)' },
     { '<leader>fz', '<cmd>FzfLua<cr>', desc = 'fzf-lua の全コマンド' },
   },
+  init = function()
+    -- シェルの FZF_DEFAULT_OPTS を引き継がせない。
+    --
+    -- zsh 側で --preview（bat）と --bind（ctrl-n/p をプレビューのスクロールへ）
+    -- を設定しており、fzf-lua がそのまま受け取っていた。その結果、
+    --   - Ctrl+n / Ctrl+p で候補を移動できない
+    --   - fzf-lua 自前のプレビューが bat に置き換わる
+    -- という状態になっていた。
+    --
+    -- 自前のプレビューは treesitter で色分けし、キーマップや LSP の結果など
+    -- ファイル以外の候補にも対応している。bat で置き換わるとそれらが壊れる。
+    -- 端末で直接 fzf を使う時の設定はそのまま残る
+    vim.env.FZF_DEFAULT_OPTS = ''
+  end,
   opts = {
     -- ファイル名を先に、パスを後ろに薄く表示する。
     -- Next.js のように page.tsx が大量にある構成では、これが無いと判別できない
