@@ -34,6 +34,14 @@ local parsers = {
   -- その他
   'regex',
   'dockerfile',
+
+  -- ブログの記事内のコードブロック用。本文では書かないが、
+  -- ```python:hello.py のようなブロックに色を付けるために要る
+  'python',
+  'sql',
+  'rust',
+  'go',
+  'c',
 }
 
 -- 構文木ベースのテキストオブジェクトを登録する。
@@ -63,6 +71,38 @@ return {
     lazy = false,
     build = ':TSUpdate',
     config = function()
+      -- コードブロックの言語名を解決する。
+      --
+      -- ブログでは ```python:hello.py のようにファイル名を添える書き方と、
+      -- ```:hello.py のように言語を省く書き方の両方を使う。標準の定義は
+      -- info_string をそのまま言語名として扱うため、どちらも該当する言語が
+      -- 見つからず、中身が色分けされないまま残る。
+      --
+      -- : の前を言語名として使い、空なら拡張子から推定する。
+      -- 対応表は Neovim の vim.filetype.match に任せる
+      vim.treesitter.query.add_directive('code-language!', function(match, _, source, pred, metadata)
+        local node = match[pred[2]]
+        if type(node) == 'table' then
+          node = node[1]
+        end
+        if not node then
+          return
+        end
+
+        local text = vim.treesitter.get_node_text(node, source)
+        local lang, filename = text:match('^([^:]*):(.*)$')
+        if not lang then
+          return -- : を含まない。標準の扱いに任せる
+        end
+
+        if lang == '' and filename ~= '' then
+          lang = vim.filetype.match({ filename = filename }) or ''
+        end
+        if lang ~= '' then
+          metadata['injection.language'] = lang
+        end
+      end, { force = true, all = false })
+
       require('nvim-treesitter').install(parsers)
 
       -- MDX 専用パーサは無いため markdown パーサを流用する。
