@@ -537,6 +537,7 @@ quickfix では `j` / `k` で一覧を上下すると、隣のウィンドウが
 | `<Space>ub` | 行ブレームの常時表示 |
 | `<Space>uq` | quickfix の開閉 |
 | `<Space>uS` | ステータスラインの表示 |
+| `<Space>uw` | **U**I **W**rap — 行の折り返し |
 
 ### その他
 
