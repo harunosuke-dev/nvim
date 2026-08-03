@@ -12,7 +12,17 @@ return {
     -- zsh の auto-suggestion と同じ操作感にする。
     -- Tab = 候補があれば確定 / スニペットの穴があれば次へ / どちらも無ければインデント
     -- <C-n> <C-p> または ↑ ↓ で候補移動、<C-e> で取り消し、<C-k> でシグネチャ表示
-    keymap = { preset = 'super-tab' },
+    keymap = {
+      preset = 'super-tab',
+      -- スニペットだけを一覧表示する。名前をうろ覚えのまま呼び出せる。
+      -- 通常の補完は英数字を打った時にしか出ず、混ざると探しづらいため分ける
+      ['<C-l>'] = {
+        function(cmp)
+          cmp.show({ providers = { 'snippets' } })
+        end,
+        'fallback',
+      },
+    },
 
     appearance = { nerd_font_variant = 'mono' },
 
