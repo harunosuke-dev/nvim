@@ -19,6 +19,7 @@ local ICEBERG = {
   cursor = 0x1f2233, -- カーソル行。素の iceberg の行番号の列の色
   breadcrumb = 0x7d8296, -- 画面上部のパンくずの文字。本文より一段落とす
   float = 0x1f2233, -- フロートの背景。素の iceberg は #3d425c で本文から浮きすぎる
+  faint = 0x555b73, -- 補助的な文字。breadcrumb よりさらに一段落とす
 }
 
 --- 背景が明るい配色かどうかを、色そのものの明度から判定する
@@ -140,6 +141,29 @@ function M.apply()
   local win_bar = vim.api.nvim_get_hl(0, { name = 'WinBar', link = false })
   vim.api.nvim_set_hl(0, 'WinBar', { fg = ICEBERG.breadcrumb, bg = win_bar.bg })
   vim.api.nvim_set_hl(0, 'WinBarNC', { fg = ICEBERG.breadcrumb, bg = win_bar.bg })
+  -- 起動画面（snacks の dashboard）。
+  --
+  -- 既定では見出しが Title（#e2a578 橙）、ファイル名が Special（#b5bf82 緑）に
+  -- リンクされており、彩度の高いファイル名の方が見出しより前に出てしまう。
+  -- ディレクトリ部分は NonText（#252941）で本文の背景とほぼ同じ明度になり読めない。
+  --
+  -- 色ではなく明度と太字で区別する。診断以外に色を使わない方針に合わせる。
+  local normal = vim.api.nvim_get_hl(0, { name = 'Normal', link = false })
+  -- 見出しと操作の名前は太字。押せるもの・区切りとして先に目に入るようにする
+  vim.api.nvim_set_hl(0, 'SnacksDashboardTitle', { fg = normal.fg, bold = true })
+  vim.api.nvim_set_hl(0, 'SnacksDashboardDesc', { fg = normal.fg, bold = true })
+  vim.api.nvim_set_hl(0, 'SnacksDashboardHeader', { fg = ICEBERG.breadcrumb })
+  vim.api.nvim_set_hl(0, 'SnacksDashboardFooter', { fg = ICEBERG.faint })
+  vim.api.nvim_set_hl(0, 'SnacksDashboardIcon', { fg = ICEBERG.breadcrumb })
+  vim.api.nvim_set_hl(0, 'SnacksDashboardKey', { fg = ICEBERG.breadcrumb })
+  vim.api.nvim_set_hl(0, 'SnacksDashboardSpecial', { fg = ICEBERG.breadcrumb })
+  -- snacks はパスを「前半のディレクトリ」と「末尾の名前」に分けて塗る。
+  -- File はファイル名とプロジェクトのフォルダ名の両方に当たるため、ここを
+  -- 本文と同じ明るさにして、パスの前半だけを背景へ退かせる。
+  -- 見出しは太字なので、明るさが並んでも階層は保たれる
+  vim.api.nvim_set_hl(0, 'SnacksDashboardFile', { fg = normal.fg })
+  vim.api.nvim_set_hl(0, 'SnacksDashboardDir', { fg = ICEBERG.breadcrumb })
+
   for name in pairs(vim.api.nvim_get_hl(0, {})) do
     if name:match('^DropBarKind') then
       vim.api.nvim_set_hl(0, name, { fg = ICEBERG.breadcrumb })
