@@ -90,14 +90,20 @@ local function load_items()
         insertText = entry.id,
       }
 
-      -- label に mref- / membed- を含めることで、そう打った時に絞り込める
-      for prefix, component in pairs({ mref = 'MathReference', membed = 'MathEmbed' }) do
+      -- 短い名前と正式名の両方で引けるようにする。
+      -- 絞り込みは filterText を見るので、候補を二重に作らずに済む
+      for _, spec in ipairs({
+        { short = 'mref', long = 'mathref', component = 'MathReference' },
+        { short = 'membed', long = 'mathembed', component = 'MathEmbed' },
+      }) do
         full[#full + 1] = {
-          label = ('%s-%s'):format(prefix, entry.id),
+          label = ('%s-%s'):format(spec.short, entry.id),
+          -- 表示は短い方だけにして一覧を詰める
+          filterText = ('%s %s %s %s'):format(spec.short, spec.long, entry.id, entry.title or ''),
           detail = detail,
           documentation = doc,
           kind = ref_kind,
-          insertText = ('<%s id="%s" />'):format(component, entry.id),
+          insertText = ('<%s id="%s" />'):format(spec.component, entry.id),
         }
       end
     end
