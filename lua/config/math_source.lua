@@ -82,8 +82,20 @@ local function load_items()
       }
       local ref_kind = require('blink.cmp.types').CompletionItemKind.Reference
 
+      -- 索引にある語をすべて絞り込みの対象にする。id を覚えていなくても、
+      -- タイトル・分野・タグのどれからでも辿れる。
+      -- title / category / tags はいずれも generate:math-index が本文から
+      -- 作るものなので、定義を書けば自動で検索できるようになる
+      local keywords = table.concat({
+        entry.id,
+        entry.title or '',
+        entry.category or '',
+        table.concat(entry.tags or {}, ' '),
+      }, ' ')
+
       bare[#bare + 1] = {
         label = entry.id,
+        filterText = keywords,
         detail = detail,
         documentation = doc,
         kind = ref_kind,
@@ -99,7 +111,7 @@ local function load_items()
         full[#full + 1] = {
           label = ('%s-%s'):format(spec.short, entry.id),
           -- 表示は短い方だけにして一覧を詰める
-          filterText = ('%s %s %s %s'):format(spec.short, spec.long, entry.id, entry.title or ''),
+          filterText = ('%s %s %s'):format(spec.short, spec.long, keywords),
           detail = detail,
           documentation = doc,
           kind = ref_kind,
