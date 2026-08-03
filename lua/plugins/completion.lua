@@ -80,8 +80,15 @@ return {
     snippets = { preset = 'default' },
 
     sources = {
-      default = { 'lsp', 'path', 'snippets', 'buffer', 'lazydev' },
+      default = { 'lsp', 'path', 'snippets', 'buffer', 'lazydev', 'math' },
       providers = {
+        -- 数式定義の id を補完する。blog の public/math-index.json を直接読むので、
+        -- 定義を増やしても再生成が要らない。
+        -- <MathReference id=" の内側にいる時だけ候補を出す
+        math = {
+          name = 'Math',
+          module = 'config.math_source',
+        },
         snippets = {
           opts = {
             -- friendly-snippets の既製スニペットは読み込まない。
