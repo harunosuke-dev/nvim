@@ -138,11 +138,41 @@ return {
   --
   -- JSX の入れ子や、深くなったオブジェクトリテラルで対応関係を追いやすくする。
   --
-  -- 色は既定のまま使う。iceberg の色に寄せると本文に溶けて判別できなくなり、
-  -- 色分けした意味がなくなるため。設定は不要で、入れるだけで動く
+  -- 色は VSCode の括弧色分けと同じ3色を循環させる。iceberg の色に寄せると
+  -- 本文に溶けて判別できなくなり、色分けした意味がなくなる。素の
+  -- rainbow-delimiters の7色（gruvbox 系）は色数が多く騒がしい。
   {
     'HiPhish/rainbow-delimiters.nvim',
     event = { 'BufReadPost', 'BufNewFile' },
     dependencies = { 'nvim-treesitter/nvim-treesitter' },
+    config = function()
+      -- 色相が大きく離れた3色。隣り合う深さを見分けやすい。
+      -- 4段目以降は1段目に戻る（実際のコードで4段を超える入れ子は稀）
+      local palette = {
+        RainbowDelimiterViolet = '#da70d6', -- 蘭紫（オーキッド）
+        RainbowDelimiterBlue = '#179fff', -- 青
+        RainbowDelimiterYellow = '#ffd700', -- 金
+      }
+
+      local function apply()
+        for name, color in pairs(palette) do
+          vim.api.nvim_set_hl(0, name, { fg = color })
+        end
+      end
+      apply()
+      -- カラースキームを切り替えると独自のハイライトが消えるため当て直す
+      vim.api.nvim_create_autocmd('ColorScheme', {
+        group = vim.api.nvim_create_augroup('user_rainbow', { clear = true }),
+        callback = apply,
+      })
+
+      vim.g.rainbow_delimiters = {
+        highlight = {
+          'RainbowDelimiterViolet',
+          'RainbowDelimiterBlue',
+          'RainbowDelimiterYellow',
+        },
+      }
+    end,
   },
 }
