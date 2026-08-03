@@ -151,6 +151,52 @@ function M.apply()
   -- 揃えておかないと帯の一部だけ色が残る
   vim.api.nvim_set_hl(0, 'StatusLine', { fg = ICEBERG.linenr, bg = ICEBERG.chrome })
   vim.api.nvim_set_hl(0, 'StatusLineNC', { fg = ICEBERG.linenr, bg = ICEBERG.chrome })
+  -- 補完メニューとその周辺（blink.cmp）。
+  --
+  -- 既定は Pmenu を継ぐので、カーソル行と同じ #1f2233 になり本文より明るい。
+  -- パンくず・行番号の列・ステータスラインと同じ色に揃えて、「本文ではない面」
+  -- として一体に見せる。本文（#0d0e14）より暗いので内容と UI が分かれる。
+  --
+  -- 選択行だけは一段持ち上げて位置が分かるようにする
+  for _, group in ipairs({
+    'BlinkCmpMenu',
+    'BlinkCmpMenuBorder',
+    'BlinkCmpDoc',
+    'BlinkCmpDocBorder',
+    'BlinkCmpDocSeparator',
+    'BlinkCmpSignatureHelp',
+    'BlinkCmpSignatureHelpBorder',
+  }) do
+    set(group, ICEBERG.chrome)
+  end
+  set('BlinkCmpMenuSelection', ICEBERG.cursor)
+  set('BlinkCmpDocCursorLine', ICEBERG.cursor)
+
+  -- 文字の明るさに階層をつける。
+  --
+  -- 既定はどれも本文と同じ #c7c9d1 で、候補名も種類も出どころも同列に
+  -- 並んで主張が強い。読む必要があるのは「候補名のどこが一致したか」で、
+  -- 種類や出どころは目に入れば足りる。
+  --
+  --   一致した部分  本文と同じ明るさ … ここだけ拾えばよい
+  --   候補名        一段落とす
+  --   種類・詳細    さらに落とす
+  local normal_fg = vim.api.nvim_get_hl(0, { name = 'Normal', link = false }).fg
+  vim.api.nvim_set_hl(0, 'BlinkCmpLabelMatch', { fg = normal_fg, bold = true })
+  vim.api.nvim_set_hl(0, 'BlinkCmpLabel', { fg = ICEBERG.breadcrumb })
+  vim.api.nvim_set_hl(0, 'BlinkCmpDoc', { fg = ICEBERG.breadcrumb, bg = ICEBERG.chrome })
+  for _, group in ipairs({
+    'BlinkCmpLabelDetail',
+    'BlinkCmpLabelDescription',
+    'BlinkCmpKind',
+    'BlinkCmpSource',
+  }) do
+    vim.api.nvim_set_hl(0, group, { fg = ICEBERG.faint })
+  end
+  -- スクロールバーは出さない設定だが、軌道が明るいままだと枠に線が見える
+  set('BlinkCmpScrollBarGutter', ICEBERG.chrome)
+  set('BlinkCmpScrollBarThumb', ICEBERG.gutter)
+
   -- インデントの縦線（indent-blankline）。
   --
   -- 既定では IblIndent に色が設定されておらず、本文と同じ明るさ（#c7c9d1）で
