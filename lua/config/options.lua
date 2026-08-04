@@ -70,8 +70,12 @@ vim.g.loaded_ruby_provider = 0
 vim.g.loaded_perl_provider = 0
 vim.g.loaded_node_provider = 0
 
--- システムクリップボードと yank/paste を共有する
--- ※ nvim 内のコピーが常に OS のクリップボードを上書きします。不要なら削除してください
-vim.schedule(function()
-  opt.clipboard = 'unnamedplus'
-end)
+-- clipboard は既定（空）のまま使う。
+--
+-- unnamedplus を入れると、ヘルプに明記されている通り yank だけでなく
+-- delete・change・put まで OS のクリップボードを経由する。そのため
+-- 「コピーした語を貼ろうとしたら、途中で消した行に変わっていた」という
+-- 事故が起きる。d でクリップボードを上書きして嬉しい場面はほとんどない。
+--
+-- 代わりに y だけを "+ へ送る（lua/config/keymaps.lua）。d や x の内容は
+-- Vim のレジスタに残るので p で貼れるが、OS 側は汚さない
