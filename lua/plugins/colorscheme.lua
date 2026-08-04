@@ -17,7 +17,20 @@ return {
   -- tokyonight / tokyonight-night / tokyonight-storm / tokyonight-moon / tokyonight-day
   -- kanagawa / kanagawa-wave / kanagawa-dragon / kanagawa-lotus
   -- github_dark / github_dark_default / github_dark_dimmed / github_dark_high_contrast
+  -- everforest
+  -- gruvbox-material
+  -- gruvbox
   { 'folke/tokyonight.nvim', lazy = false },
   { 'rebelot/kanagawa.nvim', lazy = false },
   { 'projekt0n/github-nvim-theme', name = 'github-theme', lazy = false },
+
+  -- 明るさは vim.g.everforest_background で 'hard' / 'medium' / 'soft'
+  { 'neanias/everforest-nvim', lazy = false },
+
+  -- 同じ作者の gruvbox-material。vim.g.gruvbox_material_background で明るさ、
+  -- vim.g.gruvbox_material_foreground で 'material' / 'mix' / 'original'
+  { 'sainnhe/gruvbox-material', lazy = false },
+
+  -- 素の gruvbox（Lua 移植版）
+  { 'ellisonleao/gruvbox.nvim', lazy = false },
 }
