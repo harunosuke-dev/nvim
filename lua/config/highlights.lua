@@ -272,6 +272,11 @@ function M.apply()
   vim.api.nvim_set_hl(0, 'RenderMarkdownTableHead', { fg = ICEBERG.breadcrumb })
   vim.api.nvim_set_hl(0, 'RenderMarkdownTableRow', { fg = ICEBERG.faint })
 
+  -- --- を横線として描く時の色。既定は LineNr へのリンクだが、こちらで
+  -- 行番号の列の背景を本文より暗くしているため、その背景ごと引き継いで
+  -- 横線の1行だけ帯状に沈んで見えていた。文字色だけ受け取り、背景は敷かない
+  vim.api.nvim_set_hl(0, 'RenderMarkdownDash', { fg = ICEBERG.linenr })
+
   -- 起動画面（snacks の dashboard）。
   --
   -- 既定では見出しが Title（#e2a578 橙）、ファイル名が Special（#b5bf82 緑）に
