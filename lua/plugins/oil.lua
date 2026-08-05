@@ -6,8 +6,9 @@ return {
   -- netrw を置き換えるため遅延ロードしない（起動直後に nvim . で開けるように）
   lazy = false,
   keys = {
+    -- oil の定番は - だが、素の Vim では「前の行の先頭へ」という移動キー。
+    -- <leader>e と同じ動作を2箇所に置いても得るものが無いので、こちらだけ残す
     { '<leader>e', '<cmd>Oil<cr>', desc = 'ファイラを開く' },
-    { '-', '<cmd>Oil<cr>', desc = '親ディレクトリを開く' },
   },
   opts = {
     default_file_explorer = true,
