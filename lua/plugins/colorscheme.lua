@@ -21,7 +21,15 @@ return {
   -- gruvbox-material
   -- gruvbox
   { 'folke/tokyonight.nvim', lazy = false },
-  { 'rebelot/kanagawa.nvim', lazy = false },
+  {
+    'rebelot/kanagawa.nvim',
+    lazy = false,
+    opts = {
+      -- 非アクティブなウィンドウを沈ませる。NormalNC・WinSeparator・WinBarNC の
+      -- 背景が bg_dim になる。tmux のペインで同じことをしているのと揃う
+      dimInactive = true,
+    },
+  },
   { 'projekt0n/github-nvim-theme', name = 'github-theme', lazy = false },
 
   -- 明るさは vim.g.everforest_background で 'hard' / 'medium' / 'soft'

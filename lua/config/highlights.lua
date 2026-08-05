@@ -39,6 +39,14 @@ local function set(group, bg, extra)
   vim.api.nvim_set_hl(0, group, vim.tbl_extend('force', { fg = current.fg, bg = bg }, extra or {}))
 end
 
+--- 色を暗い方へ寄せる。ratio が 0.75 なら 25% 沈む
+local function dim(color, ratio)
+  local r = math.floor(math.floor(color / 65536) % 256 * ratio)
+  local g = math.floor(math.floor(color / 256) % 256 * ratio)
+  local b = math.floor(color % 256 * ratio)
+  return r * 65536 + g * 256 + b
+end
+
 function M.apply()
   if vim.g.colors_name ~= 'iceberg' then
     return -- 他のテーマには手を入れない
@@ -52,7 +60,17 @@ function M.apply()
   end
 
   set('Normal', ICEBERG.body)
-  set('NormalNC', ICEBERG.body)
+
+  -- 非アクティブなウィンドウを沈ませる（kanagawa の dimInactive と同じこと）。
+  -- テーマ固有の機能ではなく NormalNC を変えているだけなので、iceberg でもできる。
+  --
+  -- 背景はパンくず・行番号の列と同じ chrome まで落とす。その窓は行番号の列と
+  -- 一続きの色になり、周辺情報として背景に退く。文字は tmux の非アクティブな
+  -- ペインと同じ 25% 沈める
+  vim.api.nvim_set_hl(0, 'NormalNC', {
+    fg = dim(normal.fg, 0.75),
+    bg = ICEBERG.chrome,
+  })
 
   -- 左端の列。カーソル行以外はすべてこの色になる。
   -- パンくず・ステータスラインと同じ背景に揃え、周辺情報として一体に見せる
