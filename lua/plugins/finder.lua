@@ -1,3 +1,76 @@
+-- ホーム以下を検索する時に飛ばすもの。
+--
+-- ディレクトリは生成物と外部から取ってきたもの。拡張子は nvim で開いても
+-- 意味の無いもの（写真・フォント・書庫・バイナリのデータ）。
+-- これを外すと写真とデータだけで4万件を超え、目的のファイルが埋もれる。
+local IGNORE_DIRS = {
+  '.git',
+  '.jj',
+  'node_modules',
+  '.next',
+  'dist',
+  'build',
+  '.cache',
+  '.venv',
+  '__pycache__',
+  'Library',
+  '.Trash',
+  '.local/share',
+}
+
+local IGNORE_EXTS = {
+  -- 画像
+  'jpg', 'jpeg', 'png', 'gif', 'webp', 'heic', 'bmp', 'tiff', 'ico', 'icns',
+  -- 動画・音声
+  'mp4', 'mov', 'avi', 'mkv', 'mp3', 'wav', 'flac', 'm4a',
+  -- フォント
+  'ttf', 'otf', 'woff', 'woff2', 'eot',
+  -- 書庫・配布物
+  'zip', 'gz', 'bz2', 'xz', 'tar', 'dmg', 'pkg', 'app', 'pdf',
+  -- バイナリ・データ
+  'dat', 'toc', 'journal', 'thm', 'plist', 'sqlite', 'sqlite3', 'db',
+  'o', 'so', 'dylib', 'a', 'class', 'pyc', 'wasm',
+}
+
+--- 拡張子は大文字も弾く。カメラから来たファイルは .JPG や .HEIC のことが多く、
+--- fd の --exclude は大文字小文字を区別する
+local function ext_globs()
+  local globs = {}
+  for _, ext in ipairs(IGNORE_EXTS) do
+    globs[#globs + 1] = '*.' .. ext
+    globs[#globs + 1] = '*.' .. ext:upper()
+  end
+  return globs
+end
+
+local function fd_excludes()
+  local args = {}
+  for _, dir in ipairs(IGNORE_DIRS) do
+    args[#args + 1] = '--exclude ' .. vim.fn.shellescape(dir)
+  end
+  for _, glob in ipairs(ext_globs()) do
+    args[#args + 1] = '--exclude ' .. vim.fn.shellescape(glob)
+  end
+  return table.concat(args, ' ')
+end
+
+local function rg_excludes()
+  local args = {}
+  for _, dir in ipairs(IGNORE_DIRS) do
+    args[#args + 1] = "--glob '!" .. dir .. "/**'"
+  end
+  for _, glob in ipairs(ext_globs()) do
+    args[#args + 1] = "--glob '!" .. glob .. "'"
+  end
+  return table.concat(args, ' ')
+end
+
+local HOME_FD_OPTS = '--color=never --type f --type l ' .. fd_excludes()
+
+local HOME_RG_OPTS = '--column --line-number --no-heading --color=always --smart-case '
+  .. '--max-columns=4096 '
+  .. rg_excludes()
+
 return {
   'ibhagwan/fzf-lua',
   cmd = 'FzfLua',
@@ -7,6 +80,68 @@ return {
     { '<leader>fg', '<cmd>FzfLua live_grep<cr>', desc = '全文検索 (Find Grep)' },
     { '<leader>fb', '<cmd>FzfLua buffers<cr>', desc = 'バッファ一覧 (Find Buffer)' },
     { '<leader>fr', '<cmd>FzfLua oldfiles<cr>', desc = '最近開いたファイル (Find Recent)' },
+
+    -- 検索の範囲を今いるディレクトリの外へ広げる3つ。
+    --
+    -- ff / fg は「今いるディレクトリ配下」しか見ない。別のプロジェクトを触りたい
+    -- 時は、まず fp で移動先を選ぶ。zoxide はシェルで z を使うたびに訪問先を
+    -- 覚えているので、よく行く場所ほど上に出る。
+    --
+    -- fF / fG はホーム以下を直接なめる。設定ファイルや別プロジェクトを
+    -- 「どこにあるか思い出せないまま」探す時用。
+    {
+      '<leader>fp',
+      function()
+        local projects = require('config.projects').list()
+        -- 表示は ~ を短縮した形。zoxide のスコアは出さない（並び順で意味は足りる）
+        local labels = vim.tbl_map(function(path)
+          return vim.fn.fnamemodify(path, ':~')
+        end, projects)
+
+        require('fzf-lua').fzf_exec(labels, {
+          prompt = 'Project❯ ',
+          -- 表示は ~ を短縮した形なので、プレビューに渡す前に実体へ戻す
+          preview = 'dir=$(printf %s {} | sed "s|^~|$HOME|"); '
+            .. 'eza --tree --level=2 --color=always "$dir" 2>/dev/null || ls -la "$dir"',
+          actions = {
+            -- 選んだディレクトリへ移動し、そのままファイル検索へ繋ぐ
+            ['default'] = function(selected)
+              if not selected or not selected[1] then
+                return
+              end
+              local dir = vim.fn.expand(selected[1])
+              vim.cmd.tcd(vim.fn.fnameescape(dir))
+              vim.notify('移動しました: ' .. vim.fn.fnamemodify(dir, ':~'))
+              require('fzf-lua').files()
+            end,
+          },
+        })
+      end,
+      desc = 'プロジェクトを選んで移動 (Find Project)',
+    },
+    {
+      '<leader>fF',
+      function()
+        require('fzf-lua').files({
+          cwd = vim.env.HOME,
+          prompt = 'Home❯ ',
+          fd_opts = HOME_FD_OPTS,
+        })
+      end,
+      desc = 'ホーム以下のファイル検索 (Find File in home)',
+    },
+    {
+      '<leader>fG',
+      function()
+        require('fzf-lua').live_grep({
+          cwd = vim.env.HOME,
+          prompt = 'Home❯ ',
+          rg_opts = HOME_RG_OPTS,
+        })
+      end,
+      desc = 'ホーム以下を全文検索 (Find Grep in home)',
+    },
+
     -- カーソル下の単語をそのまま検索。調べ物の起点として使用頻度が高い
     { '<leader>fw', '<cmd>FzfLua grep_cword<cr>', desc = 'カーソル下の単語を検索 (Find Word)' },
     { '<leader>fw', '<cmd>FzfLua grep_visual<cr>', mode = 'x', desc = '選択範囲を検索 (Find Word)' },
