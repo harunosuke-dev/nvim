@@ -218,10 +218,10 @@ function M.apply()
   -- 非アクティブなウィンドウのパンくずは、その窓の本文と同じ明るさまで
   -- 持ち上げて一体に見せる。文字はさらに沈めて、読む場所ではないと示す
   vim.api.nvim_set_hl(0, 'WinBarNC', { fg = dim(ICEBERG.linenr, 0.75), bg = ICEBERG.gutter })
-  -- lualine が塗るのは区画の中だけで、その外側は StatusLine が使われる。
-  -- 揃えておかないと帯の一部だけ色が残る
-  vim.api.nvim_set_hl(0, 'StatusLine', { fg = ICEBERG.linenr, bg = ICEBERG.body })
-  vim.api.nvim_set_hl(0, 'StatusLineNC', { fg = ICEBERG.linenr, bg = ICEBERG.body })
+  -- ステータスラインの文字色だけここで決める。背景は M.match_statusline()
+  -- がテーマを問わず本文に合わせる
+  vim.api.nvim_set_hl(0, 'StatusLine', { fg = ICEBERG.linenr })
+  vim.api.nvim_set_hl(0, 'StatusLineNC', { fg = ICEBERG.linenr })
   -- 補完メニューとその周辺（blink.cmp）。
   --
   -- 既定は Pmenu を継ぐので、カーソル行と同じ #1f2233 になり本文より明るい。
@@ -238,7 +238,7 @@ function M.apply()
     'BlinkCmpSignatureHelp',
     'BlinkCmpSignatureHelpBorder',
   }) do
-    set(group, ICEBERG.chrome)
+    set(group, ICEBERG.body)
   end
   set('BlinkCmpMenuSelection', ICEBERG.cursor)
   set('BlinkCmpDocCursorLine', ICEBERG.cursor)
@@ -255,7 +255,7 @@ function M.apply()
   local normal_fg = vim.api.nvim_get_hl(0, { name = 'Normal', link = false }).fg
   vim.api.nvim_set_hl(0, 'BlinkCmpLabelMatch', { fg = normal_fg, bold = true })
   vim.api.nvim_set_hl(0, 'BlinkCmpLabel', { fg = ICEBERG.breadcrumb })
-  vim.api.nvim_set_hl(0, 'BlinkCmpDoc', { fg = ICEBERG.breadcrumb, bg = ICEBERG.chrome })
+  vim.api.nvim_set_hl(0, 'BlinkCmpDoc', { fg = ICEBERG.breadcrumb, bg = ICEBERG.body })
   for _, group in ipairs({
     'BlinkCmpLabelDetail',
     'BlinkCmpLabelDescription',
@@ -265,7 +265,7 @@ function M.apply()
     vim.api.nvim_set_hl(0, group, { fg = ICEBERG.faint })
   end
   -- スクロールバーは出さない設定だが、軌道が明るいままだと枠に線が見える
-  set('BlinkCmpScrollBarGutter', ICEBERG.chrome)
+  set('BlinkCmpScrollBarGutter', ICEBERG.body)
   set('BlinkCmpScrollBarThumb', ICEBERG.gutter)
 
   -- インデントの縦線（indent-blankline）。
@@ -427,11 +427,78 @@ function M.apply()
   end
 end
 
+--- lualine の配色を組み立てる。
+---
+--- 全区画の背景を本文（Normal）と同じ色に揃え、区画ごとに色が変わる既定の
+--- 見た目をやめる。本文と地続きの面にして、文字だけが乗って見えるようにする。
+---
+--- 本文の色はテーマによって違うので決め打ちにしない。iceberg では本文を
+--- 塗っていない（端末の色を透けさせている）ため、塗らない指定になる。
+---
+--- 元の配色（auto テーマ）はカラースキームから生成されるので、それを土台に
+--- 背景だけ差し替える。モード表示の区画は「濃い文字 + 明るい背景」の作りなので、
+--- 背景色を文字色へ移して見分けを保つ
+function M.lualine_theme()
+  local ok, auto = pcall(require, 'lualine.themes.auto')
+  if not ok then
+    return 'auto'
+  end
+  local normal = vim.api.nvim_get_hl(0, { name = 'Normal', link = false })
+  local bg = normal.bg and string.format('#%06x', normal.bg) or 'NONE'
+  local theme = vim.deepcopy(auto)
+  for _, mode in pairs(theme) do
+    for name, section in pairs(mode) do
+      if name == 'a' and section.bg then
+        section.fg = section.bg -- モードの色を文字側へ移す
+        section.gui = 'bold'
+      end
+      section.bg = bg
+    end
+  end
+  return theme
+end
+
+--- ステータスラインの背景を本文（Normal）に合わせる。
+---
+--- テーマごとに独自の色を持っているが、それだと帯だけ浮いて見える。
+--- 本文と同じ面にして、文字だけが乗っている状態にしたい。
+---
+--- iceberg では本文を塗っていない（端末の色を透けさせている）ため、
+--- 塗らない指定になる。どのテーマでも「本文と同じ」という結果は変わらない。
+---
+--- lualine は区画ごとに自前の背景を持つので、そちらのテーマも作り直す
+--- （lua/plugins/ui.lua の flat_theme が Normal を読む）
+function M.match_statusline()
+  local normal = vim.api.nvim_get_hl(0, { name = 'Normal', link = false })
+  for _, group in ipairs({ 'StatusLine', 'StatusLineNC' }) do
+    local current = vim.api.nvim_get_hl(0, { name = group, link = false })
+    vim.api.nvim_set_hl(0, group, { fg = current.fg, bg = normal.bg or 'NONE' })
+  end
+
+  -- lualine は区画ごとに自前の背景を持つので、そちらも作り直す。
+  -- 現在の設定を取り出してテーマだけ差し替える（lazy.nvim の opts は
+  -- キャッシュされていて評価し直せない）
+  if package.loaded['lualine'] then
+    local lualine = require('lualine')
+    local config = lualine.get_config()
+    config.options = config.options or {}
+    config.options.theme = M.lualine_theme()
+    pcall(lualine.setup, config)
+  end
+end
+
 function M.setup()
   local group = vim.api.nvim_create_augroup('user_highlights', { clear = true })
 
   -- カラースキームを切り替えるたびに当て直す（iceberg 以外では何もしない）
-  vim.api.nvim_create_autocmd('ColorScheme', { group = group, callback = M.apply })
+  vim.api.nvim_create_autocmd('ColorScheme', {
+    group = group,
+    callback = function()
+      M.apply()
+      -- テーマを問わず、ステータスラインを本文に合わせる
+      vim.schedule(M.match_statusline)
+    end,
+  })
   -- プラグインが後から記号のハイライトを定義するため、読み込みのたびに当て直す
   vim.api.nvim_create_autocmd('User', {
     group = group,

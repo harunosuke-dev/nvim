@@ -125,35 +125,11 @@ return {
         end,
       }
 
-      -- lualine の全区画の背景を、画面上部のパンくず（winbar）と同じ色に揃える。
-      -- 区画ごとに背景色が変わる既定の見た目をやめ、上下とも同じ黒い帯にする。
-      --
-      -- 元の配色（auto テーマ）はカラースキームから生成されるので、
-      -- それを土台に背景だけ差し替える。モード表示の区画は
-      -- 「濃い文字 + 明るい背景」の作りなので、背景色を文字色へ移して見分けを保つ
-      local function flat_theme()
-        local ok, auto = pcall(require, 'lualine.themes.auto')
-        local win_bar = vim.api.nvim_get_hl(0, { name = 'WinBar', link = false })
-        if not ok or not win_bar.bg then
-          return 'auto'
-        end
-        local bg = string.format('#%06x', win_bar.bg)
-        local theme = vim.deepcopy(auto)
-        for _, mode in pairs(theme) do
-          for name, section in pairs(mode) do
-            if name == 'a' and section.bg then
-              section.fg = section.bg -- モードの色を文字側へ移す
-              section.gui = 'bold'
-            end
-            section.bg = bg
-          end
-        end
-        return theme
-      end
-
       return {
         options = {
-          theme = flat_theme(),
+          -- 配色は lua/config/highlights.lua が組み立てる。
+          -- カラースキームを切り替えた時も、同じ関数で作り直す
+          theme = require('config.highlights').lualine_theme(),
           globalstatus = true, -- 分割しても画面下に1本だけ
           icons_enabled = true,
           component_separators = { left = '', right = '' },
