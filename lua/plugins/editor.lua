@@ -164,8 +164,16 @@ return {
       { 'ge', function() require('spider').motion('ge') end, mode = { 'n', 'o', 'x' }, desc = '前の語の末尾へ（camelCase 単位）' },
     },
     opts = {
-      -- 記号だけの塊は語として数えない。`)` や `;` で細かく止まると煩わしい
-      skipInsignificantPunctuation = true,
+      -- 記号を語として数える。
+      --
+      -- true にすると `)` や `;` で止まらなくなる代わりに、記号を飛び越えて
+      -- 次の語まで進んでしまう。(a, b) の a の上で cw すると `, ` まで
+      -- 消えるのがそれで、Vim にある「cw は語の末尾で止まる」という
+      -- 特別扱いが失われる。
+      --
+      -- false でも w の停止位置は実測でほとんど変わらなかった。単独の記号は
+      -- もともと語として扱われないため
+      skipInsignificantPunctuation = false,
     },
   },
 
