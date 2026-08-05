@@ -76,6 +76,22 @@ function M.apply()
     bg = ICEBERG.gutter,
   })
 
+  -- 非アクティブなウィンドウの左端の列。LineNrNC のような標準のグループは
+  -- 無いので、winhighlight で窓ごとに読み替える（lua/config/autocmds.lua）。
+  -- 本文と同じ明るさまで持ち上げ、文字はさらに沈める
+  -- 相対行番号では LineNr ではなく LineNrAbove / LineNrBelow が使われるので、
+  -- そちらも用意しないと行番号だけ色が変わらない
+  for _, group in ipairs({
+    'LineNrNC',
+    'LineNrAboveNC',
+    'LineNrBelowNC',
+    'CursorLineNrNC',
+    'SignColumnNC',
+    'FoldColumnNC',
+  }) do
+    vim.api.nvim_set_hl(0, group, { fg = dim(ICEBERG.linenr, 0.75), bg = ICEBERG.gutter })
+  end
+
   -- 左端の列。カーソル行以外はすべてこの色になる。
   -- パンくず・ステータスラインと同じ背景に揃え、周辺情報として一体に見せる
   for _, group in ipairs({ 'LineNr', 'LineNrAbove', 'LineNrBelow', 'SignColumn', 'FoldColumn' }) do
@@ -169,7 +185,9 @@ function M.apply()
   -- ひとつの明度に揃えて、周辺情報として一体に見えるようにする。
   -- lualine は WinBar の色を読むので、ここを変えれば追従する
   vim.api.nvim_set_hl(0, 'WinBar', { fg = ICEBERG.linenr, bg = ICEBERG.chrome })
-  vim.api.nvim_set_hl(0, 'WinBarNC', { fg = ICEBERG.linenr, bg = ICEBERG.chrome })
+  -- 非アクティブなウィンドウのパンくずは、その窓の本文と同じ明るさまで
+  -- 持ち上げて一体に見せる。文字はさらに沈めて、読む場所ではないと示す
+  vim.api.nvim_set_hl(0, 'WinBarNC', { fg = dim(ICEBERG.linenr, 0.75), bg = ICEBERG.gutter })
   -- lualine が塗るのは区画の中だけで、その外側は StatusLine が使われる。
   -- 揃えておかないと帯の一部だけ色が残る
   vim.api.nvim_set_hl(0, 'StatusLine', { fg = ICEBERG.linenr, bg = ICEBERG.chrome })

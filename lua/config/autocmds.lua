@@ -240,3 +240,57 @@ vim.api.nvim_create_autocmd('BufWritePre', {
     vim.fn.winrestview(view)
   end,
 })
+
+-- 非アクティブなウィンドウの左端の列（行番号・記号・折りたたみ）を沈ませる。
+--
+-- 本文は NormalNC、パンくずは WinBarNC という標準のグループがあるが、
+-- 行番号にあたる LineNrNC は存在しない。ハイライトの定義はウィンドウごとに
+-- 変わらないため、winhighlight でその窓だけ読み替える。
+--
+-- dropbar が同じ仕組みで DropBar* を読み替えているので、値は上書きせず
+-- 自分の指定だけを足し引きする。通常のファイルを開いている窓に限り、
+-- フロート窓には触らない。色の定義は lua/config/highlights.lua
+local GUTTER_NC = {
+  -- statuscolumn が %#Normal# を明示しているので、その窓では Normal 自体も
+  -- 読み替える。行番号と本文の間の余白がアクティブ側の色で残るのを防ぐ
+  'Normal:NormalNC',
+  'LineNr:LineNrNC',
+  -- 相対行番号ではこの2つが使われる。LineNr だけでは行番号の色が変わらない
+  'LineNrAbove:LineNrAboveNC',
+  'LineNrBelow:LineNrBelowNC',
+  'CursorLineNr:CursorLineNrNC',
+  'SignColumn:SignColumnNC',
+  'FoldColumn:FoldColumnNC',
+}
+
+--- 自分が足した指定を取り除いた winhighlight を返す
+local function without_gutter_nc(value)
+  local kept = {}
+  for item in vim.gsplit(value, ',', { trimempty = true }) do
+    if not vim.tbl_contains(GUTTER_NC, item) then
+      kept[#kept + 1] = item
+    end
+  end
+  return kept
+end
+
+local function dim_inactive_gutter()
+  local current = vim.api.nvim_get_current_win()
+  for _, win in ipairs(vim.api.nvim_tabpage_list_wins(0)) do
+    if vim.api.nvim_win_is_valid(win) and vim.api.nvim_win_get_config(win).relative == '' then
+      local buf = vim.api.nvim_win_get_buf(win)
+      if vim.bo[buf].buftype == '' then
+        local items = without_gutter_nc(vim.wo[win].winhighlight)
+        if win ~= current then
+          vim.list_extend(items, GUTTER_NC)
+        end
+        vim.wo[win].winhighlight = table.concat(items, ',')
+      end
+    end
+  end
+end
+
+vim.api.nvim_create_autocmd({ 'WinEnter', 'WinNew', 'WinClosed', 'BufWinEnter', 'VimEnter' }, {
+  group = augroup('dim_inactive_gutter'),
+  callback = vim.schedule_wrap(dim_inactive_gutter),
+})
