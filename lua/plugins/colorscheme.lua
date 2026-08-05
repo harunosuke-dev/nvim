@@ -28,6 +28,20 @@ return {
       -- 非アクティブなウィンドウを沈ませる。NormalNC・WinSeparator・WinBarNC の
       -- 背景が bg_dim になる。tmux のペインで同じことをしているのと揃う
       dimInactive = true,
+
+      -- 既定は非アクティブ側を暗くするが、こちらは逆に明るくする。iceberg で
+      -- 同じことをしているのに揃え、tmux のペイン（アクティブが暗く、非アクティブが
+      -- 明るい）とも向きを合わせる。差は 1.09 倍前後。
+      --
+      -- 文字も 25% 沈める。既定の fg_dim（oldWhite #c8c093）は本文とほぼ同じ
+      -- 明るさで（dragon では 1.10 倍）、色味が変わるだけで沈まないため。
+      -- 背景の 1.09 倍だけでは見分けられない
+      colors = {
+        theme = {
+          wave = { ui = { bg_dim = '#262630', fg_dim = '#a5a18c' } },
+          dragon = { ui = { bg_dim = '#201e1e', fg_dim = '#939693' } },
+        },
+      },
     },
   },
   { 'projekt0n/github-nvim-theme', name = 'github-theme', lazy = false },
