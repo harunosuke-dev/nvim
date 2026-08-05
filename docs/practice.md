@@ -34,7 +34,7 @@ Neovim の中で次を打つ。
 
 | | 内容 | 主に扱うもの |
 |---|---|---|
-| [01 基本操作](practice/01-basics.md) | 開く・分ける・移る | `<Space>ff` `<Space>\` `Ctrl+h/j/k/l` `Shift+h/l` |
+| [01 基本操作](practice/01-basics.md) | 開く・分ける・移る | `<Space>ff` `<Space>\` `Ctrl+h/j/k/l` `]b` `[b` |
 | [02 ノーマルモード](practice/02-normal.md) | 動詞 + 移動 | `dw` `ct)` `dd` `.` `3w` |
 | [03 挿入モード](practice/03-insert.md) | どこから打ち始めるか | `i` `a` `I` `A` `o` `O` `jk` `Ctrl+n` |
 | [04 ビジュアルモード](practice/04-visual.md) | 選んでから決める | `v` `V` `Ctrl+v` `J` `K` `gv` |

@@ -16,8 +16,9 @@ map('n', '<leader>-', '<C-w>s', { desc = '横に分割' })
 map('n', '<leader>\\', '<C-w>v', { desc = '縦に分割' })
 
 -- バッファ操作
-map('n', '<S-h>', '<cmd>bprevious<CR>', { desc = '前のバッファ' })
-map('n', '<S-l>', '<cmd>bnext<CR>', { desc = '次のバッファ' })
+-- バッファの移動は Neovim 0.11 標準の ]b / [b を使う。
+-- H / L に割り当てる設定は広く見かけるが、素の Vim では「画面の最上行 /
+-- 最下行へ」という毎日使う移動キーで、潰すと素の環境で戸惑う
 map('n', '<leader>bd', '<cmd>bdelete<CR>', { desc = 'バッファを閉じる (Buffer Delete)' })
 
 -- quickfix（検索結果などの一覧）の開閉。移動は標準の ]q / [q
