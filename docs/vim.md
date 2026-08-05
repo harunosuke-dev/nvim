@@ -421,8 +421,8 @@ ci(   括弧の中を書き換える（カーソルが手前にあっても効�
 
 | キー | 動作 |
 |---|---|
-| `<Space>\` | 左右に分割 |
-| `<Space>-` | 上下に分割 |
+| `<Space>wv` | 左右に分割（**W**indow **V**ertical） |
+| `<Space>ws` | 上下に分割（**W**indow **S**plit） |
 
 tmux と同じ形（`\|` `\` が縦、`-` が横）で覚えられる。
 
@@ -652,8 +652,6 @@ Esc         ← ここで全行に反映される
 | キー | 動作 |
 |---|---|
 | `<Space>e` | ファイラを開く（**e**xplorer） |
-| `<Space>w` | 保存（**w**rite） |
-| `<Space>q` | 閉じる（**q**uit） |
 | `<Space>cf` | 整形（**c**ode **f**ormat） |
 | `<Space>j` | 1行 ⇄ 複数行 を切り替え（**j**oin / split） |
 | `<Space>ss` | セッションを復元（**s**ession） |

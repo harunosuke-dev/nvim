@@ -11,9 +11,12 @@ map('n', '<C-j>', '<C-w>j', { desc = '下のウィンドウへ' })
 map('n', '<C-k>', '<C-w>k', { desc = '上のウィンドウへ' })
 map('n', '<C-l>', '<C-w>l', { desc = '右のウィンドウへ' })
 
--- ウィンドウ分割
-map('n', '<leader>-', '<C-w>s', { desc = '横に分割' })
-map('n', '<leader>\\', '<C-w>v', { desc = '縦に分割' })
+-- ウィンドウ操作。素の Vim の Ctrl+w に全部揃っているので、そちらを覚えるのが
+-- 本筋。ただし分割は使用頻度が高いので、押しやすい場所にも置く。
+-- 一覧では機能ごとに1箇所へまとまる
+map('n', '<leader>ws', '<C-w>s', { desc = '横に分割 (Window Split)' })
+map('n', '<leader>wv', '<C-w>v', { desc = '縦に分割 (Window Vertical)' })
+-- 閉じる・サイズ変更は Ctrl+w q / Ctrl+w o / Ctrl+w = などに揃っている
 
 -- バッファ操作
 -- バッファの移動は Neovim 0.11 標準の ]b / [b を使う。
@@ -39,9 +42,9 @@ map('n', '<leader>uS', function()
   vim.notify('ステータスライン: ' .. (vim.o.laststatus == 0 and '非表示' or '表示'))
 end, { desc = 'ステータスラインの表示 (UI Statusline)' })
 
--- 保存・終了
-map('n', '<leader>w', '<cmd>write<CR>', { desc = '保存' })
-map('n', '<leader>q', '<cmd>quit<CR>', { desc = '閉じる' })
+-- 保存と終了は標準どおりコマンドラインから（:w / :q）。
+-- ノーマルモードに「保存だけ」のキーは無く、ZZ が保存して終了、
+-- ZQ が保存せず終了。ウィンドウを閉じるのは Ctrl+w q
 
 -- インデント調整後も選択範囲を保持する
 -- 行の折り返しを切り替える。

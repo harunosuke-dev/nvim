@@ -51,6 +51,7 @@ return {
       { '<leader>s', group = 'Session セッション' },
       { '<leader>sn', group = 'NPM パッケージ' },
       { '<leader>u', group = 'UI 表示の切り替え' },
+      { '<leader>w', group = 'Window ウィンドウ' },
       { '<leader>x', group = '一覧（trouble の慣例）' },
       { ']', group = '次へ' },
       { '[', group = '前へ' },
