@@ -12,6 +12,16 @@ return {
   },
   opts = {
     default_file_explorer = true,
+    -- ファイラのバッファを一覧に載せる。既定では載らないため、閉じると
+    -- 戻る手段が無くなる。載せておけば ]b / <Space>fb で戻れるうえ、
+    -- sessionoptions に buffers が入っているのでセッション復元でも残る
+    buf_options = {
+      buflisted = true,
+      bufhidden = 'hide',
+    },
+    -- 隠れたファイラのバッファを消さない。既定は2秒後に削除するため、
+    -- ファイラからファイルを開いて少し経つと戻り先が無くなっていた
+    cleanup_delay_ms = false,
     delete_to_trash = true, -- 削除は :w 時にゴミ箱へ（復元可能）
     skip_confirm_for_simple_edits = false, -- 変更内容の確認は必ず出す
     view_options = {

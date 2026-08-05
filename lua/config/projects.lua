@@ -4,10 +4,11 @@
 --- 重複するものは zoxide 側を出さないので、こちらの並びが優先される。
 local M = {}
 
---- 配下を1階層ぶん並べるディレクトリ。中のディレクトリがそれぞれ1件になる
+--- 配下を1階層ぶん並べるディレクトリ。
+--- そのディレクトリ自身も1件として、配下より先に並ぶ
 M.roots = {
-  '~/Repos/github.com/Harunosuke-web',
   '~/Projects',
+  '~/Repos/github.com/Harunosuke-web',
 }
 
 --- 単体で足したいもの。上の roots に当てはまらない場所
@@ -51,6 +52,7 @@ function M.list()
 
   for _, root in ipairs(M.roots) do
     local expanded = vim.fn.expand(root)
+    add(expanded)
     local children = vim.fn.readdir(expanded, function(name)
       return vim.fn.isdirectory(expanded .. '/' .. name) == 1 and 1 or 0
     end)

@@ -217,11 +217,11 @@ CSS Modules も追える。`styles.title` の上で `<Space>gd` を押すと `pa
 
 候補は LSP・ファイルパス・自作スニペット・バッファ内の単語・数式定義の id から集める。
 
-**検索の範囲は今いるディレクトリ配下。** 別のプロジェクトを触る時は `<Space>fp` で移動する。`lua/config/projects.lua` に書いたディレクトリが上に並び、その後ろに zoxide が覚えている訪問先が続く（重複するものは出ない）。選ぶとそこへ移動し、そのままファイル検索が開く。
+**検索の範囲は今いるディレクトリ配下。** 別のプロジェクトを触る時は `<Space>fp` で移動する。`lua/config/projects.lua` に書いたディレクトリが上に並び、その後ろに zoxide が覚えている訪問先が続く（重複するものは出ない）。選ぶとそこへ移動し、**ファイラ（oil）が開く**。中身を見ながら辿れて、バッファとして残るので閉じても `]b` や `<Space>fb` で戻れる。セッションを復元した時も残る。
 
 ```lua
 -- lua/config/projects.lua
-M.roots = { '~/Repos/github.com/Harunosuke-web', '~/Projects' }  -- 配下を1階層ぶん並べる
+M.roots = { '~/Projects', '~/Repos/github.com/Harunosuke-web' }  -- 自身と配下を並べる
 M.paths = { '~/.dotfiles' }                                       -- 単体で足す
 ```
 

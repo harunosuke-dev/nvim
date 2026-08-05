@@ -112,7 +112,9 @@ return {
               local dir = vim.fn.expand(selected[1])
               vim.cmd.tcd(vim.fn.fnameescape(dir))
               vim.notify('移動しました: ' .. vim.fn.fnamemodify(dir, ':~'))
-              require('fzf-lua').files()
+              -- ファイル一覧ではなくファイラで開く。中身を見ながら辿れるうえ、
+              -- バッファとして残るので閉じても ]b や <Space>fb で戻れる
+              require('oil').open(dir)
             end,
           },
         })
