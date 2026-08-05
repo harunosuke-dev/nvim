@@ -294,6 +294,14 @@ function M.apply()
   vim.api.nvim_set_hl(0, 'RenderMarkdownTableHead', { fg = ICEBERG.breadcrumb })
   vim.api.nvim_set_hl(0, 'RenderMarkdownTableRow', { fg = ICEBERG.faint })
 
+  -- コードブロックの行で、ブロックの幅を超えた右側の余白を塗るためのもの。
+  -- render-markdown の padding.highlight から参照される（lua/plugins/markdown.lua）。
+  --
+  -- 既定では Normal が使われるが、ハイライトの定義はウィンドウごとに変わらない
+  -- ため、非アクティブなウィンドウでもそこだけ減光されず帯状に明るく残っていた。
+  -- 背景を持たせなければ、その窓の地の色（NormalNC）が透ける
+  vim.api.nvim_set_hl(0, 'RenderMarkdownPadding', {})
+
   -- --- を横線として描く時の色。既定は LineNr へのリンクだが、こちらで
   -- 行番号の列の背景を本文より暗くしているため、その背景ごと引き継いで
   -- 横線の1行だけ帯状に沈んで見えていた。文字色だけ受け取り、背景は敷かない
