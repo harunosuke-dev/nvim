@@ -152,31 +152,6 @@ return {
     },
   },
 
-  -- w / e / b を camelCase・snake_case の区切りで止める。
-  -- getUserName を getUserName の3語として扱えるので、長い識別子の一部だけを
-  -- 直せる。新しいキーは増えず、既存の移動が細かくなるだけ
-  {
-    'chrisgrieser/nvim-spider',
-    keys = {
-      { 'w', function() require('spider').motion('w') end, mode = { 'n', 'o', 'x' }, desc = '次の語へ（camelCase 単位）' },
-      { 'e', function() require('spider').motion('e') end, mode = { 'n', 'o', 'x' }, desc = '語の末尾へ（camelCase 単位）' },
-      { 'b', function() require('spider').motion('b') end, mode = { 'n', 'o', 'x' }, desc = '前の語へ（camelCase 単位）' },
-      { 'ge', function() require('spider').motion('ge') end, mode = { 'n', 'o', 'x' }, desc = '前の語の末尾へ（camelCase 単位）' },
-    },
-    opts = {
-      -- 記号を語として数える。
-      --
-      -- true にすると `)` や `;` で止まらなくなる代わりに、記号を飛び越えて
-      -- 次の語まで進んでしまう。(a, b) の a の上で cw すると `, ` まで
-      -- 消えるのがそれで、Vim にある「cw は語の末尾で止まる」という
-      -- 特別扱いが失われる。
-      --
-      -- false でも w の停止位置は実測でほとんど変わらなかった。単独の記号は
-      -- もともと語として扱われないため
-      skipInsignificantPunctuation = false,
-    },
-  },
-
   -- 括弧・引用符のテキストオブジェクトを賢くする。
   --
   -- 関数・クラス・引数（af if ac ic aa ia）は nvim-treesitter-textobjects が
