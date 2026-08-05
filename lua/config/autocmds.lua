@@ -261,6 +261,14 @@ local GUTTER_NC = {
   'CursorLineNr:CursorLineNrNC',
   'SignColumn:SignColumnNC',
   'FoldColumn:FoldColumnNC',
+  -- カーソル行の帯と、カーソル下の単語のハイライト（illuminate）は消す。
+  -- 読む場所ではない窓で「どこにカーソルがあるか」を示す必要はない
+  'CursorLine:CursorLineNC',
+  'CursorLineSign:CursorLineSignNC',
+  'CursorLineFold:CursorLineFoldNC',
+  'IlluminatedWordText:IlluminatedWordTextNC',
+  'IlluminatedWordRead:IlluminatedWordReadNC',
+  'IlluminatedWordWrite:IlluminatedWordWriteNC',
 }
 
 --- 自分が足した指定を取り除いた winhighlight を返す
@@ -275,13 +283,17 @@ local function without_gutter_nc(value)
 end
 
 local function dim_inactive_gutter()
+  -- 読み替え先のグループは iceberg 用にしか定義していない。他のテーマでは
+  -- 未定義のグループを指すことになり、行番号などが素の色に化ける。
+  -- テーマ側に同じ仕組み（kanagawa の dimInactive）があるので任せる
+  local enabled = vim.g.colors_name == 'iceberg'
   local current = vim.api.nvim_get_current_win()
   for _, win in ipairs(vim.api.nvim_tabpage_list_wins(0)) do
     if vim.api.nvim_win_is_valid(win) and vim.api.nvim_win_get_config(win).relative == '' then
       local buf = vim.api.nvim_win_get_buf(win)
       if vim.bo[buf].buftype == '' then
         local items = without_gutter_nc(vim.wo[win].winhighlight)
-        if win ~= current then
+        if enabled and win ~= current then
           vim.list_extend(items, GUTTER_NC)
         end
         vim.wo[win].winhighlight = table.concat(items, ',')
@@ -290,7 +302,7 @@ local function dim_inactive_gutter()
   end
 end
 
-vim.api.nvim_create_autocmd({ 'WinEnter', 'WinNew', 'WinClosed', 'BufWinEnter', 'VimEnter' }, {
+vim.api.nvim_create_autocmd({ 'WinEnter', 'WinNew', 'WinClosed', 'BufWinEnter', 'VimEnter', 'ColorScheme' }, {
   group = augroup('dim_inactive_gutter'),
   callback = vim.schedule_wrap(dim_inactive_gutter),
 })

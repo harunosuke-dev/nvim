@@ -92,6 +92,22 @@ function M.apply()
     vim.api.nvim_set_hl(0, group, { fg = dim(ICEBERG.linenr, 0.75), bg = ICEBERG.gutter })
   end
 
+  -- 非アクティブなウィンドウでは、カーソル行の帯と、カーソル下の単語の
+  -- ハイライト（illuminate）を消す。そこは今読む場所ではないので、
+  -- 「どこにカーソルがあるか」はアクティブなウィンドウだけで示せばよい。
+  --
+  -- 空の定義にすると属性を持たないので、その窓の地の色がそのまま出る
+  for _, group in ipairs({
+    'CursorLineNC',
+    'CursorLineSignNC',
+    'CursorLineFoldNC',
+    'IlluminatedWordTextNC',
+    'IlluminatedWordReadNC',
+    'IlluminatedWordWriteNC',
+  }) do
+    vim.api.nvim_set_hl(0, group, {})
+  end
+
   -- 左端の列。カーソル行以外はすべてこの色になる。
   -- パンくず・ステータスラインと同じ背景に揃え、周辺情報として一体に見せる
   for _, group in ipairs({ 'LineNr', 'LineNrAbove', 'LineNrBelow', 'SignColumn', 'FoldColumn' }) do
