@@ -14,11 +14,11 @@
 local M = {}
 
 local ICEBERG = {
-  body = 0x0d0e14, -- 本文の背景
+  body = 0x0d0e14, -- 行番号の列・パンくず・ステータスライン。本文（端末の色）より一段明るい
   gutter = 0x161822, -- 行番号・記号（gitsigns）・折りたたみの列。素の iceberg の本文色
   cursor = 0x1f2233, -- カーソル行。素の iceberg の行番号の列の色
   breadcrumb = 0x7d8296, -- 補助的な文字。本文より一段落とす
-  chrome = 0x07080d, -- パンくず・行番号の列・ステータスラインの背景。本文より暗く沈める
+  chrome = 0x07080d, -- 端末の背景と同じ値。透過しない構成に戻した時のための控え
   linenr = 0x454d73, -- 行番号・パンくず・ステータスラインの文字。3箇所で揃える
   float = 0x1f2233, -- フロートの背景。素の iceberg は #3d425c で本文から浮きすぎる
   faint = 0x555b73, -- 補助的な文字。breadcrumb よりさらに一段落とす
@@ -59,7 +59,13 @@ function M.apply()
     return
   end
 
-  set('Normal', ICEBERG.body)
+  -- 本文の背景。vim.g.transparent_background が真なら塗らず、端末の背景を
+  -- そのまま見せる。tmux の中では tmux のペインの背景が見えることになる
+  if vim.g.transparent_background then
+    vim.api.nvim_set_hl(0, 'Normal', { fg = normal.fg, bg = 'NONE' })
+  else
+    set('Normal', ICEBERG.body)
+  end
 
   -- 非アクティブなウィンドウを見分けられるようにする（kanagawa の dimInactive と
   -- 同じこと）。テーマ固有の機能ではなく NormalNC を変えているだけなので、
@@ -109,9 +115,12 @@ function M.apply()
   end
 
   -- 左端の列。カーソル行以外はすべてこの色になる。
-  -- パンくず・ステータスラインと同じ背景に揃え、周辺情報として一体に見せる
+  -- パンくず・ステータスラインと同じ背景に揃え、周辺情報として一体に見せる。
+  --
+  -- 本文は塗らずに端末の色（#07080d）を透けさせているので、こちらを一段
+  -- 明るくすることで本文との境界が出る。透過を入れる前は逆の関係だった
   for _, group in ipairs({ 'LineNr', 'LineNrAbove', 'LineNrBelow', 'SignColumn', 'FoldColumn' }) do
-    set(group, ICEBERG.chrome)
+    set(group, ICEBERG.body)
   end
 
   -- カーソル行。本文・行番号・記号・折りたたみを同じ色で揃えて1本の帯にする
@@ -205,14 +214,14 @@ function M.apply()
   -- 色は行番号と同じ #454d73。パンくず・行番号・ステータスラインの3箇所を
   -- ひとつの明度に揃えて、周辺情報として一体に見えるようにする。
   -- lualine は WinBar の色を読むので、ここを変えれば追従する
-  vim.api.nvim_set_hl(0, 'WinBar', { fg = ICEBERG.linenr, bg = ICEBERG.chrome })
+  vim.api.nvim_set_hl(0, 'WinBar', { fg = ICEBERG.linenr, bg = ICEBERG.body })
   -- 非アクティブなウィンドウのパンくずは、その窓の本文と同じ明るさまで
   -- 持ち上げて一体に見せる。文字はさらに沈めて、読む場所ではないと示す
   vim.api.nvim_set_hl(0, 'WinBarNC', { fg = dim(ICEBERG.linenr, 0.75), bg = ICEBERG.gutter })
   -- lualine が塗るのは区画の中だけで、その外側は StatusLine が使われる。
   -- 揃えておかないと帯の一部だけ色が残る
-  vim.api.nvim_set_hl(0, 'StatusLine', { fg = ICEBERG.linenr, bg = ICEBERG.chrome })
-  vim.api.nvim_set_hl(0, 'StatusLineNC', { fg = ICEBERG.linenr, bg = ICEBERG.chrome })
+  vim.api.nvim_set_hl(0, 'StatusLine', { fg = ICEBERG.linenr, bg = ICEBERG.body })
+  vim.api.nvim_set_hl(0, 'StatusLineNC', { fg = ICEBERG.linenr, bg = ICEBERG.body })
   -- 補完メニューとその周辺（blink.cmp）。
   --
   -- 既定は Pmenu を継ぐので、カーソル行と同じ #1f2233 になり本文より明るい。

@@ -31,6 +31,12 @@ opt.hlsearch = true
 opt.inccommand = 'split' -- :%s/foo/bar の置換結果をプレビュー表示
 
 -- 表示
+--
+-- 本文の背景を塗らず、端末の背景を透けさせる。
+-- ここで nvim_set_hl を直接呼んでも、この後に読まれるカラースキームが
+-- Normal を塗り直すため効かない。フラグを見て lua/config/highlights.lua が
+-- 最後に適用する
+vim.g.transparent_background = true
 opt.termguicolors = true
 opt.wrap = false
 opt.splitright = true -- 縦分割は右に開く
@@ -50,6 +56,7 @@ opt.foldtext = '' -- 折りたたみ行も通常のハイライトで表示す�
 opt.undofile = true -- Neovim を閉じても undo 履歴を保持
 opt.swapfile = false
 opt.backup = false
+opt.autoread = true
 
 -- 動作
 opt.mouse = 'a'
