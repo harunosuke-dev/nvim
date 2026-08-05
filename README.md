@@ -6,7 +6,7 @@ Next.js（TypeScript / React / CSS Modules）での開発を主目的とした N
 - 端末は Ghostty または Alacritty ＋ tmux を想定
 - リーダーキーは `Space`
 
-関連: [Vim / Neovim 入門](docs/vim.md) ／ [tmux の操作](docs/tmux.md) ／ [ウィンドウ操作（yabai + skhd）](docs/window.md)
+関連: [Vim / Neovim 入門](docs/vim.md) ／ [操作の練習](docs/practice.md) ／ [tmux の操作](docs/tmux.md) ／ [ウィンドウ操作（yabai + skhd）](docs/window.md)
 
 ---
 
@@ -108,7 +108,7 @@ LSP サーバと整形ツールは mason が自動導入する。手動操作は
 
 ## 使い方
 
-Vim そのものの操作（モード、`d` / `c` / `y` と範囲の組み合わせ、テキストオブジェクト）は [Vim / Neovim 入門](docs/vim.md) にまとめてある。ここではこの設定に固有の使い方を扱う。
+Vim そのものの操作（モード、`d` / `c` / `y` と範囲の組み合わせ、テキストオブジェクト）は [Vim / Neovim 入門](docs/vim.md) にまとめてある。手を動かして覚えたい時は `:Practice`（→ [操作の練習](docs/practice.md)）。ここではこの設定に固有の使い方を扱う。
 
 ### 起動する
 
