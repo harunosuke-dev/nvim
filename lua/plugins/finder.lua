@@ -102,7 +102,7 @@ return {
           prompt = 'Project❯ ',
           -- 表示は ~ を短縮した形なので、プレビューに渡す前に実体へ戻す
           preview = 'dir=$(printf %s {} | sed "s|^~|$HOME|"); '
-            .. 'eza --tree --level=2 --color=always "$dir" 2>/dev/null || ls -la "$dir"',
+            .. 'eza --tree --level=2 --icons=always --color=always "$dir" 2>/dev/null || ls -la "$dir"',
           actions = {
             -- 選んだディレクトリへ移動し、そのままファイル検索へ繋ぐ
             ['default'] = function(selected)
