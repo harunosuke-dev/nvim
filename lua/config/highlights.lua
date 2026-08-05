@@ -151,6 +151,11 @@ function M.apply()
   for _, group in ipairs({ 'NormalFloat', 'FloatBorder', 'Pmenu' }) do
     set(group, ICEBERG.float)
   end
+  -- 枠の左上に出る見出し（which-key の押下中のキーなど）。
+  -- 既定は背景を持たないため本文の色が透け、枠の中だけ色が違って見える。
+  -- 枠と同じ背景を敷いて一続きにする。文字も橙から補助的な色へ落とす
+  vim.api.nvim_set_hl(0, 'FloatTitle', { fg = ICEBERG.breadcrumb, bg = ICEBERG.float })
+  vim.api.nvim_set_hl(0, 'FloatFooter', { fg = ICEBERG.faint, bg = ICEBERG.float })
   -- スクロールバー。既定のつまみは #c7c9d1（ほぼ白）で、暗くした本文の上では
   -- 白い四角として強く目立つ。軌道はフロート背景、つまみは gutter 程度に抑える
   set('PmenuSbar', ICEBERG.float)
