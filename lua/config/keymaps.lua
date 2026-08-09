@@ -1,28 +1,47 @@
 -- ここにはプラグインに依存しないキーマップだけを置く。
 -- プラグイン固有のものは lua/plugins/*.lua の keys = {} に書く（遅延ロードを効かせるため）
+--
+-- desc の書き方（この設定全体の規則。プラグイン側の keys = {} にも同じものを使う）
+--
+--   [U]I [W]rap : toggle line wrap
+--   └ 括弧を拾うとキー ┘ └ 動作の説明 ┘
+--
+-- 1. 括弧に入れた文字を順に読むとキーそのものになる（kickstart.nvim の流儀）。
+--    <leader>ws → [W]indow [S]plit、gd → [G]o to [D]efinition。
+--    ただし語呂が成り立つ時だけ。こじつけになるなら括弧を使わず説明だけ書く
+--    （<leader>gg → Open lazygit）
+-- 2. ` : ` は「何をするか」の説明の前にだけ置く。
+--    範囲や対象の限定は説明ではないので、区切らずそのまま続ける。
+--      [F]ind [F]ile under home        ← 範囲。: を使わない
+--      [U]I [W]rap : toggle line wrap  ← 動作。: を使う
+-- 3. 全体で 49 桁まで。which-key（helix preset）は win.width.max = 60 で、
+--    行に使えるのは box_width - layout.spacing = 57 桁（view.lua:346）。
+--    そこからキー列・区切り・アイコン列を引いた残りが desc に回る
+-- 4. 日本語は混ぜない。1文字で2桁を食うため、途中で切れて読めなくなる
+--    （説明を厚くしたい時は :help か、この設定のコメント側に書く）
 local map = vim.keymap.set
 
 -- 検索ハイライトを消す
-map('n', '<Esc>', '<cmd>nohlsearch<CR>', { desc = '検索ハイライト解除' })
+map('n', '<Esc>', '<cmd>nohlsearch<CR>', { desc = 'Clear search highlight' })
 
 -- ウィンドウ間の移動
-map('n', '<C-h>', '<C-w>h', { desc = '左のウィンドウへ' })
-map('n', '<C-j>', '<C-w>j', { desc = '下のウィンドウへ' })
-map('n', '<C-k>', '<C-w>k', { desc = '上のウィンドウへ' })
-map('n', '<C-l>', '<C-w>l', { desc = '右のウィンドウへ' })
+map('n', '<C-h>', '<C-w>h', { desc = 'Move focus to the left window' })
+map('n', '<C-j>', '<C-w>j', { desc = 'Move focus to the lower window' })
+map('n', '<C-k>', '<C-w>k', { desc = 'Move focus to the upper window' })
+map('n', '<C-l>', '<C-w>l', { desc = 'Move focus to the right window' })
 
 -- ウィンドウ操作。素の Vim の Ctrl+w に全部揃っているので、そちらを覚えるのが
 -- 本筋。ただし分割は使用頻度が高いので、押しやすい場所にも置く。
 -- 一覧では機能ごとに1箇所へまとまる
-map('n', '<leader>ws', '<C-w>s', { desc = '横に分割 (Window Split)' })
-map('n', '<leader>wv', '<C-w>v', { desc = '縦に分割 (Window Vertical)' })
+map('n', '<leader>ws', '<C-w>s', { desc = '[W]indow [S]plit horizontal' })
+map('n', '<leader>wv', '<C-w>v', { desc = '[W]indow split [V]ertical' })
 -- 閉じる・サイズ変更は Ctrl+w q / Ctrl+w o / Ctrl+w = などに揃っている
 
 -- バッファ操作
 -- バッファの移動は Neovim 0.11 標準の ]b / [b を使う。
 -- H / L に割り当てる設定は広く見かけるが、素の Vim では「画面の最上行 /
 -- 最下行へ」という毎日使う移動キーで、潰すと素の環境で戸惑う
-map('n', '<leader>bd', '<cmd>bdelete<CR>', { desc = 'バッファを閉じる (Buffer Delete)' })
+map('n', '<leader>bd', '<cmd>bdelete<CR>', { desc = '[B]uffer [D]elete' })
 
 -- quickfix（検索結果などの一覧）の開閉。移動は標準の ]q / [q
 map('n', '<leader>uq', function()
@@ -33,14 +52,14 @@ map('n', '<leader>uq', function()
     end
   end
   vim.cmd(open and 'cclose' or 'copen')
-end, { desc = '検索結果の一覧を開閉 (UI Quickfix)' })
+end, { desc = '[U]I [Q]uickfix : toggle the list' })
 
 -- ステータスラインの表示を切り替える。画面を1行広く使いたい時や、
 -- 表示が邪魔に感じた時にすぐ消せるようにしている
 map('n', '<leader>uS', function()
   vim.o.laststatus = vim.o.laststatus == 0 and 3 or 0
   vim.notify('ステータスライン: ' .. (vim.o.laststatus == 0 and '非表示' or '表示'))
-end, { desc = 'ステータスラインの表示 (UI Statusline)' })
+end, { desc = '[U]I [S]tatusline : toggle' })
 
 -- 保存と終了は標準どおりコマンドラインから（:w / :q）。
 -- ノーマルモードに「保存だけ」のキーは無く、ZZ が保存して終了、
@@ -55,20 +74,20 @@ map('n', '<leader>uw', function()
   local on = not vim.wo.wrap
   vim.wo.wrap = on
   vim.notify('折り返し: ' .. (on and 'する' or 'しない'))
-end, { desc = '行の折り返しを切り替え (UI Wrap)' })
+end, { desc = '[U]I [W]rap : toggle line wrap' })
 
-map('x', '<', '<gv', { desc = 'インデントを減らす' })
-map('x', '>', '>gv', { desc = 'インデントを増やす' })
+map('x', '<', '<gv', { desc = 'Indent left : keep selection' })
+map('x', '>', '>gv', { desc = 'Indent right : keep selection' })
 
 -- 選択した行をまとめて上下に移動する
-map('x', 'J', ":m '>+1<CR>gv=gv", { desc = '選択行を下へ移動' })
-map('x', 'K', ":m '<-2<CR>gv=gv", { desc = '選択行を上へ移動' })
+map('x', 'J', ":m '>+1<CR>gv=gv", { desc = 'Move selection down' })
+map('x', 'K', ":m '<-2<CR>gv=gv", { desc = 'Move selection up' })
 
 -- スクロール・検索移動のあとカーソルを画面中央に寄せる
-map('n', '<C-d>', '<C-d>zz', { desc = '半画面下スクロール' })
-map('n', '<C-u>', '<C-u>zz', { desc = '半画面上スクロール' })
-map('n', 'n', 'nzzzv', { desc = '次の検索結果' })
-map('n', 'N', 'Nzzzv', { desc = '前の検索結果' })
+map('n', '<C-d>', '<C-d>zz', { desc = 'Scroll down : keep cursor centered' })
+map('n', '<C-u>', '<C-u>zz', { desc = 'Scroll up : keep cursor centered' })
+map('n', 'n', 'nzzzv', { desc = 'Next match : keep cursor centered' })
+map('n', 'N', 'Nzzzv', { desc = 'Prev match : keep cursor centered' })
 
 -- yank だけを OS のクリップボードへ送る。
 --
@@ -80,9 +99,9 @@ map('n', 'N', 'Nzzzv', { desc = '前の検索結果' })
 -- そちらは OS には出て行かない。
 --
 -- 逆向き（他のアプリでコピーしたものを貼る）は "+p
-map({ 'n', 'x' }, 'y', '"+y', { desc = 'コピー（OS のクリップボードへも）' })
-map('n', 'Y', '"+y$', { desc = '行末までコピー（OS のクリップボードへも）' })
-map('x', 'Y', '"+Y', { desc = '行ごとコピー（OS のクリップボードへも）' })
+map({ 'n', 'x' }, 'y', '"+y', { desc = 'Yank to system clipboard' })
+map('n', 'Y', '"+y$', { desc = 'Yank to end of line into clipboard' })
+map('x', 'Y', '"+Y', { desc = 'Yank whole lines into clipboard' })
 
 -- * / g* を「その場に留まる」動きにする。
 --
@@ -91,8 +110,8 @@ map('x', 'Y', '"+Y', { desc = '行ごとコピー（OS のクリップボード�
 --
 -- keepjumps を通すのは、行って戻る2回ぶんがジャンプリストに載るのを防ぐため。
 -- Ctrl-o の戻り先が * を押すたびに埋まらない
-map('n', '*', '<Cmd>keepjumps normal! *N<CR>', { desc = 'カーソル下の語を検索（その場に留まる）' })
-map('n', 'g*', '<Cmd>keepjumps normal! g*N<CR>', { desc = 'カーソル下の語を部分一致で検索（その場に留まる）' })
+map('n', '*', '<Cmd>keepjumps normal! *N<CR>', { desc = 'Search word : stay in place' })
+map('n', 'g*', '<Cmd>keepjumps normal! g*N<CR>', { desc = 'Search partial word : stay in place' })
 
 -- 挿入モードを抜ける。ホームポジションから手を動かさずに済む。
 -- jk（隣の指へ転がす）と jj（同じ指を2回）のどちらでも抜けられるようにしている。
@@ -102,8 +121,8 @@ map('n', 'g*', '<Cmd>keepjumps normal! g*N<CR>', { desc = 'カーソル下の語
 -- 日本語入力中は IME が j を握って nvim に届かないためこの割り当ては働かない
 -- （その場合は <Esc> を2回押す。1回目は IME の変換取り消しに使われる）
 for _, lhs in ipairs({ 'jk', 'jj' }) do
-  map('i', lhs, '<Esc>', { desc = '挿入モードを抜ける' })
+  map('i', lhs, '<Esc>', { desc = 'Exit insert mode' })
 end
 
 -- ターミナルモードから抜ける
-map('t', '<Esc><Esc>', '<C-\\><C-n>', { desc = 'ターミナルモードを抜ける' })
+map('t', '<Esc><Esc>', '<C-\\><C-n>', { desc = 'Exit terminal mode' })

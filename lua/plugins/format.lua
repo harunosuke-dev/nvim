@@ -37,7 +37,7 @@ return {
         require('conform').format({ async = true })
       end,
       mode = { 'n', 'x' },
-      desc = 'ファイル・選択範囲を整形 (Code Format)',
+      desc = '[C]ode [F]ormat',
     },
   },
   opts = {
@@ -63,11 +63,11 @@ return {
       else
         vim.g.disable_autoformat = true -- 全体
       end
-    end, { desc = '保存時整形を無効化（! でカレントバッファのみ）', bang = true })
+    end, { desc = 'Disable format on save (! for this buffer)', bang = true })
 
     vim.api.nvim_create_user_command('FormatEnable', function()
       vim.b.disable_autoformat = false
       vim.g.disable_autoformat = false
-    end, { desc = '保存時整形を有効化' })
+    end, { desc = 'Enable format on save' })
   end,
 }

@@ -8,7 +8,7 @@ return {
   keys = {
     -- oil の定番は - だが、素の Vim では「前の行の先頭へ」という移動キー。
     -- <leader>e と同じ動作を2箇所に置いても得るものが無いので、こちらだけ残す
-    { '<leader>e', '<cmd>Oil<cr>', desc = 'ファイラを開く' },
+    { '<leader>e', '<cmd>Oil<cr>', desc = 'Open the file explorer' },
   },
   opts = {
     default_file_explorer = true,
@@ -35,7 +35,8 @@ return {
       ['<CR>'] = 'actions.select',
       ['<C-s>'] = { 'actions.select', opts = { vertical = true } },
       ['<C-h>'] = false, -- ウィンドウ移動を優先するため無効化
-      ['<C-t>'] = { 'actions.select', opts = { tab = true } },
+      -- <C-t>（タブで開く）は張らない。タブページを使わない構成で、gT も
+      -- 型定義ジャンプに充てているため
       ['<C-p>'] = 'actions.preview',
       ['<C-c>'] = 'actions.close',
       ['<C-l>'] = false, -- 同上（更新は <C-r> を使う）

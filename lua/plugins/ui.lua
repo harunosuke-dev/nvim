@@ -20,7 +20,7 @@ return {
         function()
           require('dropbar.api').pick()
         end,
-        desc = 'パンくずから選択してジャンプ',
+        desc = 'Pick from the breadcrumb bar',
       },
     },
     -- 残っている違和感: パンくず上で選択中の要素（DropBarCurrentContext、
@@ -78,10 +78,10 @@ return {
       },
     },
     keys = {
-      { '<leader>nh', '<cmd>Noice history<cr>', desc = 'メッセージ・通知の履歴 (Notification History)' },
-      { '<leader>nl', '<cmd>Noice last<cr>', desc = '直前のメッセージ (Notification Last)' },
-      { '<leader>nd', '<cmd>Noice dismiss<cr>', desc = '表示中の通知を消す (Notification Dismiss)' },
-      { '<leader>ne', '<cmd>Noice errors<cr>', desc = 'エラーだけ抽出 (Notification Errors)' },
+      { '<leader>nh', '<cmd>Noice history<cr>', desc = '[N]otification [h]istory' },
+      { '<leader>nl', '<cmd>Noice last<cr>', desc = '[N]otification [l]ast message' },
+      { '<leader>nd', '<cmd>Noice dismiss<cr>', desc = '[N]otification [d]ismiss all' },
+      { '<leader>ne', '<cmd>Noice errors<cr>', desc = '[N]otification [e]rrors only' },
     },
   },
 

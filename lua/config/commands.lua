@@ -20,4 +20,4 @@ vim.api.nvim_create_user_command('ConfigReload', function()
     require(mod)
   end
   vim.notify('設定を再読込しました: ' .. table.concat(reloadable, ', '), vim.log.levels.INFO)
-end, { desc = '設定（lua/config/*）を再読込する' })
+end, { desc = 'Reload lua/config/* modules' })

@@ -19,20 +19,20 @@ return {
       },
     },
     keys = {
-      { '<leader>ft', '<cmd>TodoFzfLua<cr>', desc = 'TODO 一覧を検索 (Find Todo)' },
+      { '<leader>ft', '<cmd>TodoFzfLua<cr>', desc = '[F]ind [T]odo in this project' },
       {
         ']t',
         function()
           require('todo-comments').jump_next()
         end,
-        desc = '次の TODO へ',
+        desc = 'Next TODO comment',
       },
       {
         '[t',
         function()
           require('todo-comments').jump_prev()
         end,
-        desc = '前の TODO へ',
+        desc = 'Prev TODO comment',
       },
     },
   },
@@ -47,20 +47,20 @@ return {
       focus = true, -- 開いたらそのウィンドウにカーソルを移す
     },
     keys = {
-      { '<leader>xx', '<cmd>Trouble diagnostics toggle<cr>', desc = '診断一覧（プロジェクト全体）' },
+      { '<leader>xx', '<cmd>Trouble diagnostics toggle<cr>', desc = 'Diagnostics list in project' },
       {
         '<leader>xX',
         '<cmd>Trouble diagnostics toggle filter.buf=0<cr>',
-        desc = '診断一覧（このファイル）',
+        desc = 'Diagnostics list in this file',
       },
       {
         '<leader>xs',
         '<cmd>Trouble symbols toggle win.position=right<cr>',
-        desc = 'シンボルの階層を右に表示',
+        desc = 'Symbol tree on the right',
       },
-      { '<leader>xl', '<cmd>Trouble lsp toggle win.position=right<cr>', desc = '定義・参照を右に表示' },
-      { '<leader>xt', '<cmd>Trouble todo toggle<cr>', desc = 'TODO 一覧' },
-      { '<leader>xq', '<cmd>Trouble qflist toggle<cr>', desc = 'quickfix リスト' },
+      { '<leader>xl', '<cmd>Trouble lsp toggle win.position=right<cr>', desc = 'LSP defs and refs on the right' },
+      { '<leader>xt', '<cmd>Trouble todo toggle<cr>', desc = 'TODO list, keep it open' },
+      { '<leader>xq', '<cmd>Trouble qflist toggle<cr>', desc = 'Quickfix list in trouble' },
     },
   },
 

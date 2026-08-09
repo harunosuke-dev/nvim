@@ -12,14 +12,14 @@ return {
         function()
           require('grug-far').open({ transient = true })
         end,
-        desc = 'プロジェクト全体を検索・置換 (Replace)',
+        desc = '[R]eplace across the project',
       },
       {
         '<leader>rw',
         function()
           require('grug-far').open({ transient = true, prefills = { search = vim.fn.expand('<cword>') } })
         end,
-        desc = 'カーソル下の単語を置換 (Replace Word)',
+        desc = '[R]eplace [w]ord under cursor',
       },
       {
         '<leader>rf',
@@ -29,7 +29,7 @@ return {
             prefills = { paths = vim.fn.expand('%') },
           })
         end,
-        desc = 'このファイル内を置換 (Replace in File)',
+        desc = '[R]eplace in this [f]ile',
       },
     },
   },
@@ -46,7 +46,7 @@ return {
         function()
           require('treesj').toggle()
         end,
-        desc = '1行 ⇄ 複数行 を切り替え',
+        desc = '[J]oin or split into lines',
       },
     },
     opts = {
@@ -65,27 +65,25 @@ return {
       package_manager = 'npm',
     },
     keys = {
-      -- <leader>n は通知（noice）が使うため、npm 関連は <leader>sn 配下に置く
+      -- <leader>n は通知（noice）が使うため、npm 関連は <leader>sn 配下に置く。
+      --
+      -- 行末への表示は autostart（既定で有効）が package.json を開いた時に
+      -- 自動で行う。sns はそれを手動で出し直すためのもの。
+      -- バージョンを選んで変える change_version は張らない。使う場面が稀で、
+      -- 番号を直接書き換えて npm install した方が結果が見える
       {
         '<leader>sns',
         function()
           require('package-info').show({ force = true })
         end,
-        desc = '依存の最新版を表示',
+        desc = 'Show npm dependency versions',
       },
       {
         '<leader>snu',
         function()
           require('package-info').update()
         end,
-        desc = 'カーソル行の依存を更新',
-      },
-      {
-        '<leader>snc',
-        function()
-          require('package-info').change_version()
-        end,
-        desc = 'バージョンを選んで変更',
+        desc = 'Update dependency on this line',
       },
     },
   },

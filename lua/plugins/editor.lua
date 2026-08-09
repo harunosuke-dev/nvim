@@ -4,22 +4,9 @@ return {
   {
     'RRethy/vim-illuminate',
     event = { 'BufReadPost', 'BufNewFile' },
-    keys = {
-      {
-        ']]',
-        function()
-          require('illuminate').goto_next_reference(false)
-        end,
-        desc = '次の同じ識別子へ',
-      },
-      {
-        '[[',
-        function()
-          require('illuminate').goto_prev_reference(false)
-        end,
-        desc = '前の同じ識別子へ',
-      },
-    },
+    -- 移動用のキーマップ（]] / [[ で同じ識別子へ）は張らない。
+    -- 素の Vim ではセクション移動に割り当てられており、基本方針として標準は潰さない。
+    -- このプラグインの主目的である「同じ識別子を薄く光らせる」表示だけを使う
     config = function()
       require('illuminate').configure({
         delay = 200,
@@ -100,7 +87,7 @@ return {
         function()
           require('flash').jump()
         end,
-        desc = '画面内の任意の位置へジャンプ',
+        desc = 'Jump anywhere on screen',
       },
       {
         '<leader><CR>',
@@ -108,7 +95,7 @@ return {
         function()
           require('flash').treesitter()
         end,
-        desc = '構文ノード単位で選択を広げる',
+        desc = 'Expand selection by syntax node',
       },
       {
         'r',
@@ -116,7 +103,7 @@ return {
         function()
           require('flash').remote()
         end,
-        desc = '離れた位置を操作対象にする（例: yr で遠くの単語をコピー）',
+        desc = '[R]emote flash, then a motion (yr + iw)',
       },
       {
         '<C-s>',
@@ -124,7 +111,7 @@ return {
         function()
           require('flash').toggle()
         end,
-        desc = '検索中に Flash を切り替える',
+        desc = 'Toggle flash labels while searching',
       },
     },
   },

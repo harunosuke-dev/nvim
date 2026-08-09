@@ -47,21 +47,19 @@ local parsers = {
 -- 構文木ベースのテキストオブジェクトを登録する。
 -- select は「選択・編集の対象」、move は「ジャンプ先」
 local select_maps = {
-  ['af'] = { '@function.outer', '関数（宣言ごと）' },
-  ['if'] = { '@function.inner', '関数の中身' },
-  ['ac'] = { '@class.outer', 'クラス／コンポーネント（宣言ごと）' },
-  ['ic'] = { '@class.inner', 'クラス／コンポーネントの中身' },
-  ['aa'] = { '@parameter.outer', '引数（区切りのカンマごと）' },
-  ['ia'] = { '@parameter.inner', '引数そのもの' },
+  ['af'] = { '@function.outer', '[a]round [f]unction' },
+  ['if'] = { '@function.inner', '[i]nner [f]unction body' },
+  ['ac'] = { '@class.outer', '[a]round [c]lass' },
+  ['ic'] = { '@class.inner', '[i]nner [c]lass body' },
+  ['aa'] = { '@parameter.outer', '[a]round [a]rgument with comma' },
+  ['ia'] = { '@parameter.inner', '[i]nner [a]rgument' },
 }
 
 local move_maps = {
-  [']f'] = { 'goto_next_start', '@function.outer', '次の関数の先頭へ' },
-  ['[f'] = { 'goto_previous_start', '@function.outer', '前の関数の先頭へ' },
-  [']F'] = { 'goto_next_end', '@function.outer', '次の関数の末尾へ' },
-  ['[F'] = { 'goto_previous_end', '@function.outer', '前の関数の末尾へ' },
-  [']a'] = { 'goto_next_start', '@parameter.inner', '次の引数へ' },
-  ['[a'] = { 'goto_previous_start', '@parameter.inner', '前の引数へ' },
+  [']f'] = { 'goto_next_start', '@function.outer', 'Next function start' },
+  ['[f'] = { 'goto_previous_start', '@function.outer', 'Prev function start' },
+  [']F'] = { 'goto_next_end', '@function.outer', 'Next function end' },
+  ['[F'] = { 'goto_previous_end', '@function.outer', 'Prev function end' },
 }
 
 return {
@@ -162,13 +160,8 @@ return {
         end, { desc = spec[3] })
       end
 
-      -- 引数の並び替え。foo(a, b) にカーソルを置いて <leader>an で foo(b, a)
-      vim.keymap.set('n', '<leader>an', function()
-        require('nvim-treesitter-textobjects.swap').swap_next('@parameter.inner')
-      end, { desc = '次の引数と入れ替え (Argument Next)' })
-      vim.keymap.set('n', '<leader>ap', function()
-        require('nvim-treesitter-textobjects.swap').swap_previous('@parameter.inner')
-      end, { desc = '前の引数と入れ替え (Argument Previous)' })
+      -- 引数の並び替え（swap）と引数間の移動（]a / [a）は張らない。
+      -- 並び替えは dia して貼り直せば足り、移動は cia / daa で直接編集できるため
     end,
   },
 

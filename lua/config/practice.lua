@@ -82,7 +82,7 @@ function M.setup()
     complete = function()
       return vim.tbl_map(vim.fs.basename, entries())
     end,
-    desc = '操作の練習用ファイルを開く',
+    desc = 'Open a scratch copy for practice',
   })
 end
 

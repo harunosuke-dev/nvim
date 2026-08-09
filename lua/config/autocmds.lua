@@ -137,17 +137,16 @@ vim.api.nvim_create_autocmd('FileType', {
     vim.opt_local.linebreak = true
     vim.opt_local.breakindent = true
 
-
     -- 回数を付けた時（5j など）は論理行のままにする。
     -- 相対行番号が示すのは論理行なので、数字を打った時はそちらに従う方が合う
     for _, key in ipairs({ 'j', 'k' }) do
       vim.keymap.set({ 'n', 'x' }, key, function()
         return vim.v.count > 0 and key or ('g' .. key)
-      end, { buffer = args.buf, expr = true, desc = '表示行で上下に移動' })
+      end, { buffer = args.buf, expr = true, desc = 'Move by display line' })
     end
     -- 行頭・行末も表示行に合わせる
-    vim.keymap.set({ 'n', 'x' }, '0', 'g0', { buffer = args.buf, desc = '表示行の先頭へ' })
-    vim.keymap.set({ 'n', 'x' }, '$', 'g$', { buffer = args.buf, desc = '表示行の末尾へ' })
+    vim.keymap.set({ 'n', 'x' }, '0', 'g0', { buffer = args.buf, desc = 'Start of the display line' })
+    vim.keymap.set({ 'n', 'x' }, '$', 'g$', { buffer = args.buf, desc = 'End of the display line' })
   end,
 })
 
@@ -195,11 +194,11 @@ vim.api.nvim_create_autocmd('FileType', {
     -- flash.nvim が <CR> をグローバルに奪うため標準動作に戻す。
     -- quickfix の <CR>（該当箇所へジャンプ）はマッピングではなく Vim 組み込みの
     -- 挙動なので、グローバルマップがあると上書きされてしまう
-    vim.keymap.set('n', '<CR>', '<CR>', { buffer = args.buf, remap = false, desc = '該当箇所へジャンプ' })
+    vim.keymap.set('n', '<CR>', '<CR>', { buffer = args.buf, remap = false, desc = 'Jump to the entry' })
 
     -- q で閉じる。未割り当てだと q がマクロ記録の開始になり、
     -- 一覧を閉じたつもりで記録が始まる事故が起きる
-    vim.keymap.set('n', 'q', '<cmd>cclose<CR>', { buffer = args.buf, desc = '一覧を閉じる' })
+    vim.keymap.set('n', 'q', '<cmd>cclose<CR>', { buffer = args.buf, desc = 'Close the list' })
 
     -- j / k で一覧を上下するだけで、対象の位置を隣のウィンドウに追従表示する。
     -- 標準では <CR> を押すまで移動しないため、内容を確かめながら流し読みできない

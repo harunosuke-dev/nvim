@@ -37,24 +37,24 @@ return {
       scroll_up = '<C-p>',
     },
 
-    -- グループ名には由来の英単語を添える。どの頭文字から来ているかが分かると
-    -- 覚え直さずに思い出せる（例: f は Find なので ff = Find File）
+    -- グループ名も desc と同じ規則で書く（lua/config/keymaps.lua の冒頭を参照）。
+    -- 括弧の文字がそのままキーになるので、どの頭文字から来ているかが分かる。
+    -- 語呂が成り立たない x（trouble の慣例）や ] [ は括弧を使わず平文にする
     spec = {
-      { '<leader>a', group = 'Argument 引数' },
-      { '<leader>b', group = 'Buffer バッファ' },
-      { '<leader>c', group = 'Code コード' },
-      { '<leader>f', group = 'Find 探す' },
-      { '<leader>g', group = 'Go to 移動 / Git' },
-      { '<leader>h', group = 'Hunk 変更のかたまり' },
-      { '<leader>n', group = 'Notification 通知' },
-      { '<leader>r', group = 'Replace 置換' },
-      { '<leader>s', group = 'Session セッション' },
-      { '<leader>sn', group = 'NPM パッケージ' },
-      { '<leader>u', group = 'UI 表示の切り替え' },
-      { '<leader>w', group = 'Window ウィンドウ' },
-      { '<leader>x', group = '一覧（trouble の慣例）' },
-      { ']', group = '次へ' },
-      { '[', group = '前へ' },
+      { '<leader>b', group = '[B]uffer' },
+      { '<leader>c', group = '[C]ode' },
+      { '<leader>f', group = '[F]ind' },
+      { '<leader>g', group = '[G]o to / [G]it' },
+      { '<leader>h', group = '[H]unk' },
+      { '<leader>n', group = '[N]otification' },
+      { '<leader>r', group = '[R]eplace' },
+      { '<leader>s', group = '[S]ession' },
+      { '<leader>sn', group = '[N]pm packages' },
+      { '<leader>u', group = '[U]I toggles' },
+      { '<leader>w', group = '[W]indow' },
+      { '<leader>x', group = 'Lists that stay open' },
+      { ']', group = 'Next' },
+      { '[', group = 'Prev' },
     },
   },
   keys = {
@@ -63,7 +63,7 @@ return {
       function()
         require('which-key').show({ global = false })
       end,
-      desc = 'このバッファで使えるキーマップ',
+      desc = 'Keymaps for this buffer',
     },
   },
 }

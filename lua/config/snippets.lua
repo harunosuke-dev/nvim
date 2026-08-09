@@ -142,7 +142,7 @@ end
 
 function M.setup()
   vim.api.nvim_create_user_command('Snippets', M.pick, {
-    desc = 'スニペットを一覧から選んで挿入する',
+    desc = 'Pick a snippet and insert it',
   })
 end
 
