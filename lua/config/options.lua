@@ -38,7 +38,9 @@ opt.inccommand = 'split' -- :%s/foo/bar の置換結果をプレビュー表示
 -- 最後に適用する
 vim.g.transparent_background = true
 opt.termguicolors = true
-opt.wrap = false
+-- 長い行は折り返す。j / k は表示行で動かし、回数を付けた時だけ論理行にするので
+-- （lua/config/keymaps.lua）、折り返していても相対行番号とずれない
+opt.wrap = true
 opt.splitright = true -- 縦分割は右に開く
 opt.splitbelow = true -- 横分割は下に開く
 opt.list = true

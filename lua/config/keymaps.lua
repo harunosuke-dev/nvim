@@ -76,6 +76,18 @@ map('n', '<leader>uw', function()
   vim.notify('折り返し: ' .. (on and 'する' or 'しない'))
 end, { desc = '[U]I [W]rap : toggle line wrap' })
 
+-- j / k は表示行で動かす。ただし回数を付けた時（5j など）は論理行のままにする。
+-- 相対行番号が示すのは論理行なので、数字を打った時はそちらに従う方が合う。
+-- 折り返しを切っている間は gj と j が同じ動作になるので、常に入れておいてよい
+for _, key in ipairs({ 'j', 'k' }) do
+  map({ 'n', 'x' }, key, function()
+    return vim.v.count > 0 and key or ('g' .. key)
+  end, { expr = true, desc = 'Move by display line' })
+end
+-- 行頭・行末も表示行に合わせる
+map({ 'n', 'x' }, '0', 'g0', { desc = 'Start of the display line' })
+map({ 'n', 'x' }, '$', 'g$', { desc = 'End of the display line' })
+
 map('x', '<', '<gv', { desc = 'Indent left : keep selection' })
 map('x', '>', '>gv', { desc = 'Indent right : keep selection' })
 
@@ -113,16 +125,20 @@ map('x', 'Y', '"+Y', { desc = 'Yank whole lines into clipboard' })
 map('n', '*', '<Cmd>keepjumps normal! *N<CR>', { desc = 'Search word : stay in place' })
 map('n', 'g*', '<Cmd>keepjumps normal! g*N<CR>', { desc = 'Search partial word : stay in place' })
 
--- 挿入モードを抜ける。ホームポジションから手を動かさずに済む。
--- jk（隣の指へ転がす）と jj（同じ指を2回）のどちらでも抜けられるようにしている。
--- どちらも1文字目が j なので、待ち時間の挙動は同じ。
+-- 挿入モードの行頭・行末。ここだけ emacs 方式を入れる。
 --
--- 注: j を1文字だけ打って手を止めると、2文字目を待つ間（timeoutlen）表示が遅れる。
--- 日本語入力中は IME が j を握って nvim に届かないためこの割り当ては働かない
--- （その場合は <Esc> を2回押す。1回目は IME の変換取り消しに使われる）
-for _, lhs in ipairs({ 'jk', 'jj' }) do
-  map('i', lhs, '<Esc>', { desc = 'Exit insert mode' })
-end
+-- 潰す標準（i_CTRL-A = 直前に挿入したテキストを再挿入、i_CTRL-E = 下の行の
+-- 同じ桁の文字をコピー）はどちらも出番が少ない。一方ノーマルの <C-a>
+-- （数値を増やす）は Vim の看板機能なので標準のまま残す。
+--
+-- 挿入中に行頭・行末へ飛ぶ標準の手段は <Esc>I / <Esc>A でモードを抜けるしかなく、
+-- ここは実用上の穴になっている
+map('i', '<C-a>', '<C-o>I', { desc = 'Start of line' })
+map('i', '<C-e>', '<End>', { desc = 'End of line' })
+
+-- 挿入モードを抜けるのは <Esc> / <C-[> だけにする。
+-- jj / jk は j を1文字打って手を止めた時に timeoutlen ぶん表示が遅れるうえ、
+-- 日本語入力中は IME が j を握るため働かない
 
 -- ターミナルモードから抜ける
 map('t', '<Esc><Esc>', '<C-\\><C-n>', { desc = 'Exit terminal mode' })

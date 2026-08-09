@@ -116,37 +116,24 @@ vim.api.nvim_create_autocmd('FileChangedShellPost', {
   end,
 })
 
--- 文章を書くファイルで、折り返した時に読める状態を整えておく。
+-- 文章を書くファイルで、折り返しの見た目を整える。
 --
--- 折り返し自体は既定で切っている。表や整形された見出しが崩れるため。
--- 必要な時は <Space>uw で入れる。
+-- 折り返し自体は全ファイルで有効（lua/config/options.lua）。表が崩れる時は
+-- <Space>uw で切る。
 --
--- ここで用意するのは、入れた時に破綻しないための下ごしらえ。
 --   linebreak    単語の途中で切らない
 --   breakindent  折り返した行もインデントを保つ
--- どちらも wrap が切れている間は何も起こさないので、常に入れておいてよい。
 --
--- あわせて j / k を表示行で動かす。折り返しを入れた時、既定のままだと
--- 長い段落を1回で飛び越してしまう
+-- コードでは単語の途中で切れた方が桁が揃うため、文章系にだけ入れる。
+-- j / k と 0 / $ の表示行対応は全ファイル共通なので keymaps.lua にある
 local prose_group = augroup('prose_wrap')
 
 vim.api.nvim_create_autocmd('FileType', {
   group = prose_group,
   pattern = { 'markdown', 'mdx', 'text', 'gitcommit', 'gitrebase' },
-  callback = function(args)
+  callback = function()
     vim.opt_local.linebreak = true
     vim.opt_local.breakindent = true
-
-    -- 回数を付けた時（5j など）は論理行のままにする。
-    -- 相対行番号が示すのは論理行なので、数字を打った時はそちらに従う方が合う
-    for _, key in ipairs({ 'j', 'k' }) do
-      vim.keymap.set({ 'n', 'x' }, key, function()
-        return vim.v.count > 0 and key or ('g' .. key)
-      end, { buffer = args.buf, expr = true, desc = 'Move by display line' })
-    end
-    -- 行頭・行末も表示行に合わせる
-    vim.keymap.set({ 'n', 'x' }, '0', 'g0', { buffer = args.buf, desc = 'Start of the display line' })
-    vim.keymap.set({ 'n', 'x' }, '$', 'g$', { buffer = args.buf, desc = 'End of the display line' })
   end,
 })
 
