@@ -47,23 +47,54 @@ local function dim(color, ratio)
   return r * 65536 + g * 256 + b
 end
 
+--- 記号（診断・gitsigns・TODO）のハイライトから背景色を外す。
+---
+--- これらは記号の列と同じ背景色を持たされている。列の色を変えたり透過させたり
+--- すると、記号のある行だけ左端の色が変わり、カーソル行でも光らない
+--- （kanagawa-dragon の GitSignsChange など）。
+--- 背景を外して SignColumn / CursorLineSign から受け継がせる。
+---
+--- 末尾が Ln のものは「行全体の着色」用で、記号の列とは役割が違うため除外する
+local function clear_sign_backgrounds()
+  for name in pairs(vim.api.nvim_get_hl(0, {})) do
+    local is_gutter_sign = name:find('Sign')
+      and name ~= 'SignColumn'
+      and name ~= 'CursorLineSign'
+      and not name:match('Ln$')
+    if is_gutter_sign then
+      -- link = false で解決してから見る。GitSignsChange のように
+      -- 別グループ（GitGutterChange）へのリンクとして定義されているものがあり、
+      -- リンクのまま判定すると背景色の有無が分からない
+      local resolved = vim.api.nvim_get_hl(0, { name = name, link = false })
+      if resolved.bg ~= nil then
+        resolved.bg = nil
+        -- nvim_get_hl は default = true を含めて返す。そのまま渡すと
+        -- 「既存定義があれば何もしない」書き込みになり、上書きできない
+        resolved.default = nil
+        vim.api.nvim_set_hl(0, name, resolved)
+      end
+    end
+  end
+end
+
 function M.apply()
   if vim.g.colors_name ~= 'iceberg' then
     return -- 他のテーマには手を入れない
   end
 
   -- iceberg / iceberg-dark / iceberg-light はどれも colors_name が 'iceberg' に
-  -- なるため名前では区別できない。暗い配色にだけ適用する
+  -- なるため名前では区別できない。暗い配色にだけ適用する。
+  --
+  -- 背景を透過させていると Normal に bg が無く、色から明暗を判定できない。
+  -- その場合は 'background' の値を見る
   local normal = vim.api.nvim_get_hl(0, { name = 'Normal', link = false })
-  if not normal.bg or is_light(normal.bg) then
+  local light = normal.bg and is_light(normal.bg) or (not normal.bg and vim.o.background == 'light')
+  if light then
     return
   end
 
-  -- 本文の背景。vim.g.transparent_background が真なら塗らず、端末の背景を
-  -- そのまま見せる。tmux の中では tmux のペインの背景が見えることになる
-  if vim.g.transparent_background then
-    vim.api.nvim_set_hl(0, 'Normal', { fg = normal.fg, bg = 'NONE' })
-  else
+  -- 本文の背景。透過が有効なら M.transparent() が既に外しているので触らない
+  if not vim.g.transparent_background then
     set('Normal', ICEBERG.body)
   end
 
@@ -129,30 +160,8 @@ function M.apply()
   set('CursorLineSign', ICEBERG.cursor)
   set('CursorLineFold', ICEBERG.cursor)
 
-  -- 記号（診断・gitsigns・TODO）のハイライトは個別に背景色を持たされている。
-  -- そのままだと記号のある行だけ左端の色が変わり、カーソル行でも光らない。
-  -- 背景の指定を消して SignColumn / CursorLineSign から受け継がせる。
-  --
-  -- 末尾が Ln のものは「行全体の着色」用で、記号の列とは役割が違うため除外する
-  for name in pairs(vim.api.nvim_get_hl(0, {})) do
-    local is_gutter_sign = name:find('Sign')
-      and name ~= 'SignColumn'
-      and name ~= 'CursorLineSign'
-      and not name:match('Ln$')
-    if is_gutter_sign then
-      -- link = false で解決してから見る。GitSignsChange のように
-      -- 別グループ（GitGutterChange）へのリンクとして定義されているものがあり、
-      -- リンクのまま判定すると背景色の有無が分からない
-      local resolved = vim.api.nvim_get_hl(0, { name = name, link = false })
-      if resolved.bg ~= nil then
-        resolved.bg = nil
-        -- nvim_get_hl は default = true を含めて返す。そのまま渡すと
-        -- 「既存定義があれば何もしない」書き込みになり、上書きできない
-        resolved.default = nil
-        vim.api.nvim_set_hl(0, name, resolved)
-      end
-    end
-  end
+  -- 記号の列を塗り直したので、記号側の背景も外し直す
+  clear_sign_backgrounds()
 
   -- フロート（補完メニュー・ホバー・which-key・noice のコマンドライン）の背景。
   -- 素の iceberg は #3d425c で、本文を #0d0e14 まで暗くした構成では明るすぎる。
@@ -427,6 +436,74 @@ function M.apply()
   end
 end
 
+--- どのテーマでも、面を塗らずに端末の背景を透けさせる。
+---
+--- 本文だけでなく、左端の列（行番号・記号・折りたたみ）やステータスライン、
+--- パンくずも対象にする。テーマによってはこれらに独自の色が付いており、
+--- 本文だけ透過すると左端に明るい帯が残る（kanagawa-dragon の #282727 など）。
+---
+--- iceberg では、この後に M.apply() が階層を作り直す。あちらは本文を端末の色に
+--- 委ねたまま、左端の列とパンくずだけを一段明るく塗る。
+---
+--- NormalNC と NormalFloat は入れない。前者は非アクティブなウィンドウの
+--- 減光（kanagawa の dimInactive など）、後者はポップアップの面で、
+--- どちらも「背景として塗られていること」に意味がある
+local TRANSPARENT_GROUPS = {
+  'Normal',
+  'SignColumn',
+  'LineNr',
+  'LineNrAbove',
+  'LineNrBelow',
+  'FoldColumn',
+  'StatusLine',
+  'StatusLineNC',
+  'WinBar',
+  'WinBarNC',
+  'EndOfBuffer',
+}
+
+--- カーソル行の帯を左端の列まで伸ばす。
+---
+--- 多くのテーマは本文の部分（CursorLine）にしか色を持たせておらず、行番号・
+--- 記号・折りたたみの列で帯が途切れる。CursorLine の背景をそれらにも与えて
+--- 1本の帯にする。
+---
+--- 文字色はテーマの指定をそのまま残す。行番号だけ色を変えて現在行を示す
+--- テーマがあるため
+function M.match_cursorline()
+  local cursor = vim.api.nvim_get_hl(0, { name = 'CursorLine', link = false })
+  if not cursor.bg then
+    return
+  end
+  for _, group in ipairs({ 'CursorLineNr', 'CursorLineSign', 'CursorLineFold' }) do
+    local current = vim.api.nvim_get_hl(0, { name = group, link = false })
+    current.bg = cursor.bg
+    -- nvim_get_hl は default = true を含めて返す。そのまま渡すと
+    -- 「既存定義があれば何もしない」書き込みになり、上書きできない
+    current.default = nil
+    vim.api.nvim_set_hl(0, group, current)
+  end
+end
+
+function M.transparent()
+  if not vim.g.transparent_background then
+    return
+  end
+  for _, group in ipairs(TRANSPARENT_GROUPS) do
+    local current = vim.api.nvim_get_hl(0, { name = group, link = false })
+    current.bg = 'NONE'
+    -- 反転（reverse）だけは残さない。fg と bg を入れ替える指定なので、
+    -- 背景を外した状態では文字色が背景として塗られ、透過にならない。
+    -- 太字・イタリック・下線はテーマの指定をそのまま活かす
+    current.reverse = nil
+    -- nvim_get_hl は default = true を含めて返す。そのまま渡すと
+    -- 「既存定義があれば何もしない」書き込みになり、上書きできない
+    current.default = nil
+    vim.api.nvim_set_hl(0, group, current)
+  end
+  clear_sign_backgrounds()
+end
+
 --- lualine の配色を組み立てる。
 ---
 --- 全区画の背景を本文（Normal）と同じ色に揃え、区画ごとに色が変わる既定の
@@ -439,6 +516,11 @@ end
 --- 背景だけ差し替える。モード表示の区画は「濃い文字 + 明るい背景」の作りなので、
 --- 背景色を文字色へ移して見分けを保つ
 function M.lualine_theme()
+  -- auto テーマは読み込み時のカラースキームから生成され、その結果が
+  -- モジュールとしてキャッシュされる。テーマを切り替えても作り直されないので、
+  -- 明示的に捨ててから読み込む。これをしないとモード表示の色が
+  -- 最初のテーマのまま固定される
+  package.loaded['lualine.themes.auto'] = nil
   local ok, auto = pcall(require, 'lualine.themes.auto')
   if not ok then
     return 'auto'
@@ -494,8 +576,13 @@ function M.setup()
   vim.api.nvim_create_autocmd('ColorScheme', {
     group = group,
     callback = function()
+      -- 1. どのテーマでも面を透過させる
+      M.transparent()
+      -- 2. カーソル行の帯を左端の列まで伸ばす
+      M.match_cursorline()
+      -- 3. iceberg だけ、その上に階層（左端の列・パンくず）を作り直す
       M.apply()
-      -- テーマを問わず、ステータスラインを本文に合わせる
+      -- 4. ステータスラインと lualine を本文に合わせる
       vim.schedule(M.match_statusline)
     end,
   })
