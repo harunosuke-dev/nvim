@@ -73,29 +73,6 @@ return {
     opts = {},
   },
 
-  -- インデントの深さを縦線で示す。scope は現在のブロックだけを強調する
-  {
-    'lukas-reineke/indent-blankline.nvim',
-    main = 'ibl',
-    event = { 'BufReadPost', 'BufNewFile' },
-    opts = {
-      indent = { char = '│' },
-      scope = { enabled = true, show_start = false, show_end = false },
-      exclude = {
-        filetypes = {
-          'help',
-          'lazy',
-          'mason',
-          'oil',
-          'trouble',
-          'checkhealth',
-          'gitcommit',
-          'markdown',
-        },
-      },
-    },
-  },
-
   -- 2文字打つと画面内の該当箇所にラベルが出て、そのラベルキーで飛べる。
   -- f/t の1文字移動も強化され、行をまたいで検索できるようになる
   {

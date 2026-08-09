@@ -277,19 +277,6 @@ function M.apply()
   set('BlinkCmpScrollBarGutter', ICEBERG.body)
   set('BlinkCmpScrollBarThumb', ICEBERG.gutter)
 
-  -- インデントの縦線（indent-blankline）。
-  --
-  -- 既定では IblIndent に色が設定されておらず、本文と同じ明るさ（#c7c9d1）で
-  -- 描かれる。一方で強調したいスコープ線は IblScope（#454d73）とそれより暗い。
-  -- 全ての行に本文と同じ濃さの線が並ぶうえ、目立たせたい方が沈んでいた。
-  --
-  -- 通常の線は背景に沈め、カーソルのあるブロックの線だけを浮かせる。
-  -- 色は足さず明度だけで区別する
-  local non_text = vim.api.nvim_get_hl(0, { name = 'NonText', link = false })
-  vim.api.nvim_set_hl(0, 'IblIndent', { fg = non_text.fg })
-  vim.api.nvim_set_hl(0, 'IblWhitespace', { fg = non_text.fg })
-  vim.api.nvim_set_hl(0, 'IblScope', { fg = ICEBERG.breadcrumb })
-
   -- Markdown の整形表示（render-markdown）。
   --
   -- 既定では H1 から H6 まで6段階すべてが @markup.heading.N.markdown を継ぎ、

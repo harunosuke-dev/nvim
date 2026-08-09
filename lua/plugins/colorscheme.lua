@@ -1,5 +1,6 @@
 -- メインは iceberg。他は :colorscheme <name> で即座に切り替えられるよう
--- rtp には載せておき、起動時の処理は走らせない（lazy = false / config なし）
+-- rtp には載せておく。lazy.nvim は既定で遅延しないので、読み込みの指定は要らない。
+-- config は書かない（配色を当てるのは iceberg だけ）
 return {
   {
     'oahlen/iceberg.nvim', -- Lua 移植版。Treesitter / LSP セマンティックトークン対応
@@ -12,18 +13,15 @@ return {
     end,
   },
 
-  -- 以下は試用candidate。:colorscheme で切り替えて確認する
-  -- iceberg / iceberg-light
-  -- tokyonight / tokyonight-night / tokyonight-storm / tokyonight-moon / tokyonight-day
-  -- kanagawa / kanagawa-wave / kanagawa-dragon / kanagawa-lotus
-  -- github_dark / github_dark_default / github_dark_dimmed / github_dark_high_contrast
+  -- iceberg
+  -- tokyonight
+  -- kanagawa
+  -- github_dark
   -- everforest
-  -- gruvbox-material
-  -- gruvbox
-  { 'folke/tokyonight.nvim', lazy = false },
+  -- gruvbox, gruvbox-material, gruvbox-minor
+  { 'folke/tokyonight.nvim' },
   {
     'rebelot/kanagawa.nvim',
-    lazy = false,
     opts = {
       -- 非アクティブなウィンドウを沈ませる。NormalNC・WinSeparator・WinBarNC の
       -- 背景が bg_dim になる。tmux のペインで同じことをしているのと揃う
@@ -44,15 +42,10 @@ return {
       },
     },
   },
-  { 'projekt0n/github-nvim-theme', name = 'github-theme', lazy = false },
-
-  -- 明るさは vim.g.everforest_background で 'hard' / 'medium' / 'soft'
-  { 'neanias/everforest-nvim', lazy = false },
-
-  -- 同じ作者の gruvbox-material。vim.g.gruvbox_material_background で明るさ、
-  -- vim.g.gruvbox_material_foreground で 'material' / 'mix' / 'original'
-  { 'sainnhe/gruvbox-material', lazy = false },
-
-  -- 素の gruvbox（Lua 移植版）
-  { 'ellisonleao/gruvbox.nvim', lazy = false },
+  { 'projekt0n/github-nvim-theme', name = 'github-theme' },
+  { 'neanias/everforest-nvim' },
+  { 'sainnhe/gruvbox-material' },
+  { 'ellisonleao/gruvbox.nvim' }, -- 素の gruvbox（Lua 移植版）
+  { 'ricardoraposo/gruvbox-minor.nvim' },
+  { 'vague-theme/vague.nvim' },
 }
