@@ -5,8 +5,8 @@ return {
     cmd = { 'LazyGit', 'LazyGitCurrentFile', 'LazyGitFilter', 'LazyGitFilterCurrentFile' },
     dependencies = { 'nvim-lua/plenary.nvim' },
     keys = {
-      { '<leader>gg', '<cmd>LazyGit<cr>', desc = 'LazyGit を開く' },
-      { '<leader>gG', '<cmd>LazyGitFilterCurrentFile<cr>', desc = 'このファイルのコミット履歴' },
+      { '<leader>gg', '<cmd>LazyGit<cr>', desc = 'Open lazygit' },
+      { '<leader>gG', '<cmd>LazyGitFilterCurrentFile<cr>', desc = 'Git history in this file' },
     },
   },
 
@@ -16,8 +16,8 @@ return {
     event = { 'BufReadPre', 'BufNewFile' },
     opts = {
       signs = {
-        add = { text = '│' },
-        change = { text = '│' },
+        add = { text = '+' },
+        change = { text = '~' },
         delete = { text = '_' },
         topdelete = { text = '‾' },
         changedelete = { text = '~' },
@@ -34,6 +34,11 @@ return {
           vim.keymap.set(mode, key, fn, { buffer = bufnr, desc = 'Git: ' .. desc })
         end
 
+        -- ステージングは張らない。コミットを組み立てる作業は lazygit（<leader>gg）に
+        -- 任せる方が、全ファイルを見渡しながら選べて速い。
+        -- ここに残すのは「今開いているバッファのカーソル位置」に紐づくものだけ。
+        -- その文脈は lazygit へ移った時点で失われるため、代替が効かない
+
         -- 変更箇所（hunk）の移動。差分モード中は標準の ]c / [c に委ねる
         map('n', ']c', function()
           if vim.wo.diff then
@@ -41,42 +46,37 @@ return {
           else
             gs.nav_hunk('next')
           end
-        end, '次の変更箇所へ')
+        end, 'Next change')
         map('n', '[c', function()
           if vim.wo.diff then
             vim.cmd.normal({ '[c', bang = true })
           else
             gs.nav_hunk('prev')
           end
-        end, '前の変更箇所へ')
+        end, 'Prev change')
 
-        -- hunk 単位の操作。ビジュアル選択中は選んだ行だけが対象になる
-        map('n', '<leader>hs', gs.stage_hunk, 'この変更をステージ (Hunk Stage)')
-        map('n', '<leader>hr', gs.reset_hunk, 'この変更を取り消す (Hunk Reset)')
-        map('x', '<leader>hs', function()
-          gs.stage_hunk({ vim.fn.line('.'), vim.fn.line('v') })
-        end, '選択範囲をステージ')
+        -- 取り消し。u で戻れない状況（保存後や他の編集を挟んだ後）の救済として残す。
+        -- ビジュアル選択中は選んだ行だけが対象になる
+        map('n', '<leader>hr', gs.reset_hunk, '[H]unk [R]eset : discard changes')
         map('x', '<leader>hr', function()
           gs.reset_hunk({ vim.fn.line('.'), vim.fn.line('v') })
-        end, '選択範囲の変更を取り消す')
-        map('n', '<leader>hS', gs.stage_buffer, 'ファイル全体をステージ (Hunk Stage buffer)')
-        map('n', '<leader>hR', gs.reset_buffer, 'ファイル全体を取り消す (Hunk Reset buffer)')
+        end, '[H]unk [R]eset on selected lines')
 
         -- 確認系
-        map('n', '<leader>hp', gs.preview_hunk, 'この変更を確認 (Hunk Preview)')
+        map('n', '<leader>hp', gs.preview_hunk, '[H]unk [P]review')
         map('n', '<leader>hb', function()
           gs.blame_line({ full = true })
-        end, 'この行を書いたコミット (Hunk Blame)')
-        map('n', '<leader>hd', gs.diffthis, '直前のコミットとの差分 (Hunk Diff)')
+        end, '[H]unk [B]lame : commit for line')
+        map('n', '<leader>hd', gs.diffthis, '[H]unk [D]iff against index')
         map('n', '<leader>hD', function()
           gs.diffthis('~')
-        end, 'HEAD~ との差分')
+        end, '[H]unk [D]iff against HEAD~')
 
         -- 表示の切り替え
-        map('n', '<leader>ub', gs.toggle_current_line_blame, '行ブレームの常時表示 (UI Blame)')
+        map('n', '<leader>ub', gs.toggle_current_line_blame, '[U]I [B]lame : toggle inline')
 
         -- テキストオブジェクト。dih で変更箇所を丸ごと捨てる、といった操作ができる
-        vim.keymap.set({ 'o', 'x' }, 'ih', gs.select_hunk, { buffer = bufnr, desc = 'Git: 変更箇所' })
+        vim.keymap.set({ 'o', 'x' }, 'ih', gs.select_hunk, { buffer = bufnr, desc = 'Git: [i]nner [h]unk' })
       end,
     },
   },
