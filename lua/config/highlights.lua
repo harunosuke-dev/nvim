@@ -38,14 +38,16 @@ local ICEBERG = {
 --- 行を丸ごと書き換えた時はその行全体がこの色になるが、「全部変わった」という
 --- 意味なので筋は通る。行の追加は DiffAdd になるのでこの色にはならない。
 ---
---- 文字色は指定しない。差分の中でも構文強調が見えた方が読みやすく、
---- 指定すると DiffText が行全体を覆った時にその行が一色に潰れる
+--- 文字色は変わった部分（DiffText）にだけ与える。iceberg の構文の色は
+--- 彩度の低い淡色で、暗く彩度の高い赤や緑の上では沈んで読みにくい。
+--- 行全体には与えない。与えるとその行が一色に潰れて構文が読めなくなる
 local DIFF = {
   add = 0x015f00, -- 追加された行・変更行の地（新しい側）
   delete = 0x5f0000, -- 削除された行・変更行の地（古い側）
   add_word = 0x018700, -- 変更行の中で実際に変わった部分（新しい側）
   delete_word = 0x870000, -- 変更行の中で実際に変わった部分（古い側）
   fill = 0x7a3a3a, -- 削除側に並ぶ埋め文字。今は空白なので実質使わない
+  word_fg = 0xffffff, -- 変わった部分の文字色。地の色に負けないよう白にする
 }
 
 --- 背景が明るい配色かどうかを、色そのものの明度から判定する
@@ -488,10 +490,10 @@ function M.diff()
   vim.api.nvim_set_hl(0, 'DiffChange', { bg = DIFF.delete })
   vim.api.nvim_set_hl(0, 'DiffChangeOld', { bg = DIFF.delete })
   vim.api.nvim_set_hl(0, 'DiffChangeNew', { bg = DIFF.add })
-  vim.api.nvim_set_hl(0, 'DiffText', { bg = DIFF.delete_word })
-  vim.api.nvim_set_hl(0, 'DiffTextOld', { bg = DIFF.delete_word })
-  vim.api.nvim_set_hl(0, 'DiffTextNew', { bg = DIFF.add_word })
-  vim.api.nvim_set_hl(0, 'DiffTextAdd', { bg = DIFF.add_word })
+  vim.api.nvim_set_hl(0, 'DiffText', { bg = DIFF.delete_word, fg = DIFF.word_fg })
+  vim.api.nvim_set_hl(0, 'DiffTextOld', { bg = DIFF.delete_word, fg = DIFF.word_fg })
+  vim.api.nvim_set_hl(0, 'DiffTextNew', { bg = DIFF.add_word, fg = DIFF.word_fg })
+  vim.api.nvim_set_hl(0, 'DiffTextAdd', { bg = DIFF.add_word, fg = DIFF.word_fg })
   -- 削除側だけは文字色も指定する。ここに並ぶのは filler の埋め文字で、
   -- 本文と同じ明るさだと「何も無い場所」が一番目立つことになる
   vim.api.nvim_set_hl(0, 'DiffDelete', { bg = DIFF.delete, fg = DIFF.fill })
