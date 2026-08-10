@@ -28,7 +28,9 @@ return {
       show_hidden = true, -- .env や .github を隠さない
     },
     win_options = {
-      signcolumn = 'yes:2', -- gitsigns の変更マークを出す余地を作る
+      -- git の状態を出す列。gitsigns は oil のバッファ（oil:// という実ファイルで
+      -- ない名前）に attach しないので、lua/config/oil-git.lua が自分で置く
+      signcolumn = 'yes:2',
     },
     keymaps = {
       ['g?'] = 'actions.show_help',
@@ -50,4 +52,10 @@ return {
     },
     use_default_keymaps = false, -- 上の定義だけを使う（既定との二重定義を避ける）
   },
+  config = function(_, opts)
+    require('oil').setup(opts)
+    -- 変更のあるファイルを符号列で示す。oil の公開 API（get_entry_on_line と
+    -- User OilEnter）だけで動くので、oil 側の設定には手を入れない
+    require('config.oil-git').setup()
+  end,
 }
