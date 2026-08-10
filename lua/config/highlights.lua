@@ -25,6 +25,29 @@ local ICEBERG = {
   select = 0x3a4160, -- 一覧の中でカーソルがある行。他の選択色より一段明るくする
 }
 
+--- 差分表示（:diffthis / <leader>hd）の配色。
+---
+--- テーマに依らず同じ色を使う。差分は「何が変わったか」を読むための表示で、
+--- カラースキームごとに見え方が変わると読み方を切り替えることになるため。
+---
+--- 色は Claude Code の画面から実測した値。バイナリ内の定義は
+--- rgb(122,41,54) / rgb(34,92,43) だが、実際の表示はこの値になる。
+--- 端末側の扱いが絡んでいるらしく、定義から表示値は導けなかったため実測を採る。
+---
+--- 変わった文字（DiffText）は地より一段明るくして、行のどこが変わったかを示す。
+--- 行を丸ごと書き換えた時はその行全体がこの色になるが、「全部変わった」という
+--- 意味なので筋は通る。行の追加は DiffAdd になるのでこの色にはならない。
+---
+--- 文字色は指定しない。差分の中でも構文強調が見えた方が読みやすく、
+--- 指定すると DiffText が行全体を覆った時にその行が一色に潰れる
+local DIFF = {
+  add = 0x015f00, -- 追加された行・変更行の地（新しい側）
+  delete = 0x5f0000, -- 削除された行・変更行の地（古い側）
+  add_word = 0x018700, -- 変更行の中で実際に変わった部分（新しい側）
+  delete_word = 0x870000, -- 変更行の中で実際に変わった部分（古い側）
+  fill = 0x7a3a3a, -- 削除側に並ぶ埋め文字。今は空白なので実質使わない
+}
+
 --- 背景が明るい配色かどうかを、色そのものの明度から判定する
 local function is_light(color)
   local r = math.floor(color / 65536) % 256
@@ -449,6 +472,31 @@ local TRANSPARENT_GROUPS = {
   'EndOfBuffer',
 }
 
+--- 差分表示の配色を当てる。テーマに依らず同じ色にする。
+---
+--- 追加は緑・削除は赤という git の慣例に寄せる。Neovim は「変更行」という
+--- 状態を持つが、git や GitHub は変更を「削除（赤）+ 追加（緑）」の組で表すので、
+--- 変更行の地と変わった文字は窓ごとに赤と緑へ振り分ける
+--- （lua/config/autocmds.lua が winhighlight で読み替える）。
+--- ここで定義する Old / New はその読み替え先。
+---
+--- 行全体を塗るものには文字色を指定しない。差分の中でも構文強調が見えた方が
+--- 読みやすい。実際に変わった文字だけは白くして浮かせる。数文字ぶんしか
+--- 塗られないので、構文の色を失う代償が小さい
+function M.diff()
+  vim.api.nvim_set_hl(0, 'DiffAdd', { bg = DIFF.add })
+  vim.api.nvim_set_hl(0, 'DiffChange', { bg = DIFF.delete })
+  vim.api.nvim_set_hl(0, 'DiffChangeOld', { bg = DIFF.delete })
+  vim.api.nvim_set_hl(0, 'DiffChangeNew', { bg = DIFF.add })
+  vim.api.nvim_set_hl(0, 'DiffText', { bg = DIFF.delete_word })
+  vim.api.nvim_set_hl(0, 'DiffTextOld', { bg = DIFF.delete_word })
+  vim.api.nvim_set_hl(0, 'DiffTextNew', { bg = DIFF.add_word })
+  vim.api.nvim_set_hl(0, 'DiffTextAdd', { bg = DIFF.add_word })
+  -- 削除側だけは文字色も指定する。ここに並ぶのは filler の埋め文字で、
+  -- 本文と同じ明るさだと「何も無い場所」が一番目立つことになる
+  vim.api.nvim_set_hl(0, 'DiffDelete', { bg = DIFF.delete, fg = DIFF.fill })
+end
+
 --- カーソル行の帯を左端の列まで伸ばす。
 ---
 --- 多くのテーマは本文の部分（CursorLine）にしか色を持たせておらず、行番号・
@@ -567,9 +615,11 @@ function M.setup()
       M.transparent()
       -- 2. カーソル行の帯を左端の列まで伸ばす
       M.match_cursorline()
-      -- 3. iceberg だけ、その上に階層（左端の列・パンくず）を作り直す
+      -- 3. どのテーマでも差分の配色を揃える
+      M.diff()
+      -- 4. iceberg だけ、その上に階層（左端の列・パンくず）を作り直す
       M.apply()
-      -- 4. ステータスラインと lualine を本文に合わせる
+      -- 5. ステータスラインと lualine を本文に合わせる
       vim.schedule(M.match_statusline)
     end,
   })

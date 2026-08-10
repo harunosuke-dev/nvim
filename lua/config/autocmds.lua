@@ -108,6 +108,63 @@ vim.api.nvim_create_autocmd({ 'FocusGained', 'BufEnter', 'CursorHold', 'TermClos
   end,
 })
 
+-- 差分モードの間はカーソル行の強調を切る。
+--
+-- CursorLine は文字色を持たないと「低優先度」になり（:help hl-CursorLine）、
+-- DiffAdd などの背景に負けて色が出ない。その代わりに下線として描かれ、
+-- 追加・削除の色に重なって読みにくくなる。
+--
+-- 差分を見ている間はどの行を見ているかより、どこが変わったかの方が重要なので
+-- 強調ごと切る。差分を閉じれば戻る。
+--
+-- あわせて、変更行の色を左右で塗り分ける。
+--
+-- Neovim は変更行の地（DiffChange）も、その中で変わった文字（DiffText）も、
+-- 左右の窓で同じグループを使う。グループの定義だけでは分けられないので、
+-- 窓ごとに効く winhighlight で読み替える。
+--   古い側（gitsigns:// で始まるインデックスの写し） → 赤
+--   新しい側（編集中のファイル）                     → 緑
+--
+-- git や GitHub は変更を「削除（赤）+ 追加（緑）」の組として表すので、これで揃う
+-- DiffTextAdd（変更行の中で挿入された文字）も左右どちらにも出るので同じ扱いにする。
+-- 名前から新しい側だけかと思えるが、実際は古い側にも現れて赤の中に緑が混ざる
+local DIFF_WINHL = {
+  old = { 'DiffChange:DiffChangeOld', 'DiffText:DiffTextOld', 'DiffTextAdd:DiffTextOld' },
+  new = { 'DiffChange:DiffChangeNew', 'DiffText:DiffTextNew', 'DiffTextAdd:DiffTextNew' },
+}
+
+--- 自分が足した読み替えを取り除いた winhighlight を返す
+local function without_diff_winhl(value)
+  local mine = {}
+  for _, list in pairs(DIFF_WINHL) do
+    for _, item in ipairs(list) do
+      mine[item] = true
+    end
+  end
+  local kept = {}
+  for item in vim.gsplit(value, ',', { trimempty = true }) do
+    if not mine[item] then
+      kept[#kept + 1] = item
+    end
+  end
+  return kept
+end
+
+vim.api.nvim_create_autocmd('OptionSet', {
+  group = augroup('diff_window'),
+  pattern = 'diff',
+  callback = function()
+    vim.wo.cursorline = not vim.wo.diff
+
+    local kept = without_diff_winhl(vim.wo.winhighlight)
+    if vim.wo.diff then
+      local side = vim.api.nvim_buf_get_name(0):match('^gitsigns://') and 'old' or 'new'
+      vim.list_extend(kept, DIFF_WINHL[side])
+    end
+    vim.wo.winhighlight = table.concat(kept, ',')
+  end,
+})
+
 -- 読み直した時に気づけるよう通知する。黙って中身が変わると混乱するため
 vim.api.nvim_create_autocmd('FileChangedShellPost', {
   group = augroup('checktime_notify'),

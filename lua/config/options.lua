@@ -13,8 +13,22 @@ opt.signcolumn = 'yes' -- 診断アイコンの出入りで画面が横にずれ
 --
 -- カーソル行だけは本文と同じ色にして、帯が行番号の列から本文まで
 -- 途切れずに繋がるようにする。
--- %{% %} は評価結果をさらに書式として解釈するので、行によって色を変えられる
-opt.statuscolumn = "%s%l %{% v:relnum == 0 ? '%#CursorLine#' : '%#LineNr#' %} "
+--
+-- 差分表示中は、その行の差分の色で記号の列から余白まで通しで塗る。
+-- 本文だけ色が付いて左端が素のままだと、どこまでが変更なのか読み取りにくい。
+--
+-- diff_hlID() はその行の差分ハイライトを返すが、桁1が変更された文字に当たると
+-- DiffText を返す。行全体の地としては DiffChange が正しいので読み替える。
+-- DiffChange は窓ごとに DiffChangeOld / New へ振り分けられる（lua/config/autocmds.lua）
+-- &cursorline も見る。差分モードでは帯そのものを切っている
+-- （lua/config/autocmds.lua）ため、これを見ないと行番号の右の1桁だけが
+-- 塗られて取り残される。
+--
+-- 差分の色で行番号の列まで塗ることは諦めた。%l は「行番号の列」を描く項目で
+-- 自前で LineNr 系のハイライトを当てるため、先に %#...# を置いても上書きされる。
+-- 番号を自分で描けば色は乗るが、桁幅と LineNr / LineNrAbove / LineNrBelow /
+-- CursorLineNr の振り分けまで再現することになり、見合わない
+opt.statuscolumn = "%s%l %{% v:relnum == 0 && &cursorline ? '%#CursorLine#' : '%#LineNr#' %} "
 opt.scrolloff = 8 -- カーソル上下に最低8行を残す
 
 -- インデント
@@ -45,6 +59,11 @@ opt.splitright = true -- 縦分割は右に開く
 opt.splitbelow = true -- 横分割は下に開く
 opt.list = true
 opt.listchars = { tab = '» ', trail = '·', nbsp = '␣' } -- 不可視文字の可視化
+
+-- 差分表示で、片側にしか無い行の反対側に敷かれる埋め文字。
+-- 既定は - で、削除された量だけ ---------- が並んで目を引く。
+-- 空白にすると、その分の高さだけ空いて位置合わせだけが残る
+opt.fillchars:append({ diff = ' ' })
 opt.winborder = 'rounded' -- Neovim 0.11+ : フローティングウィンドウの枠を一括指定
 
 -- 折りたたみ（Treesitter の構文木を使う）

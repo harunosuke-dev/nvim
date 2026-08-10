@@ -67,9 +67,36 @@ return {
         map('n', '<leader>hb', function()
           gs.blame_line({ full = true })
         end, '[H]unk [B]lame : commit for line')
-        map('n', '<leader>hd', gs.diffthis, '[H]unk [D]iff against index')
+        -- 差分表示は開閉のトグルにする。
+        --
+        -- diffthis は縦分割でインデックス側のバッファ（名前が gitsigns:// で始まる）を
+        -- 開くが、カーソルは元のファイル側に残る。そこで :q を押すと「自分のファイルの
+        -- 窓」が閉じ、インデックス側だけが残る。中身がほぼ同じなので気づきにくく、
+        -- 「gitsigns の記号が消えた」ように見えてしまう。
+        -- 実際には差分ゼロの読み取り用バッファを見ているだけで、壊れてはいない
+        local function close_diff()
+          local closed = false
+          for _, win in ipairs(vim.api.nvim_list_wins()) do
+            local buf = vim.api.nvim_win_get_buf(win)
+            if vim.api.nvim_buf_get_name(buf):match('^gitsigns://') then
+              closed = pcall(vim.api.nvim_win_close, win, false) or closed
+            end
+          end
+          if closed then
+            vim.cmd('diffoff')
+          end
+          return closed
+        end
+
+        map('n', '<leader>hd', function()
+          if not close_diff() then
+            gs.diffthis()
+          end
+        end, '[H]unk [D]iff against index')
         map('n', '<leader>hD', function()
-          gs.diffthis('~')
+          if not close_diff() then
+            gs.diffthis('~')
+          end
         end, '[H]unk [D]iff against HEAD~')
 
         -- 表示の切り替え
