@@ -232,6 +232,13 @@ return {
     files = { formatter = 'path.filename_first' },
     grep = { formatter = 'path.filename_first' },
     oldfiles = { formatter = 'path.filename_first', include_current_session = true },
+    buffers = { formatter = 'path.filename_first' },
+    -- f/ と / のバッファ内検索だけプレビューを畳む。今開いているファイルなので
+    -- 候補行の周りは画面にそのまま見えている。
+    --
+    -- previewer = false ではなく hidden にしているのは、こちらは窓を隠すだけで
+    -- <F4> でその場に出せるため（previewer = false はトグルごと殺す）
+    blines = { winopts = { preview = { hidden = true } } },
     winopts = {
       height = 0.85,
       width = 0.85,
