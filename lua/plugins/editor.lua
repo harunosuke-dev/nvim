@@ -69,6 +69,11 @@ return {
     event = { 'BufReadPost', 'BufNewFile' },
     opts = {
       n_lines = 500, -- mini.ai と揃える。対象を探す範囲
+      -- 探索は既定の 'cover'（カーソルを覆っている囲みだけ）。外にいる時は
+      -- n / l を挟んで向きを指定する（sdn" で次、sdl" で前）。
+      -- 打鍵を減らしたくなったら下を有効にする。覆っていない時に前方を探すので
+      -- n を省ける。代わりにどこが対象か目で確かめずに打つことになる
+      -- search_method = 'cover_or_next',
     },
   },
 
