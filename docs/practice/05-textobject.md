@@ -147,7 +147,7 @@ name の上で      ciw fullName Esc
 |---|---|---|
 | `dia` `daa` | 引数1つ（`daa` はカンマごと） | mini.ai |
 | `dif` `daf` | 関数の中身 / 関数ごと | treesitter |
-| `ysiw"` `cs"'` `ds(` | 囲みを足す・変える・外す | nvim-surround |
+| `saiw)` `sr"'` `sd(` | 囲みを足す・変える・外す | mini.surround |
 
 **引数と関数は [07](07-editor.md)、囲みは [08](08-surround.md) で扱う。**
 どれも ssh 先の素の `vim` では通らない。

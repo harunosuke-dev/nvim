@@ -52,12 +52,24 @@ return {
     },
   },
 
-  -- 囲み文字の操作。ys=追加 / ds=削除 / cs=変更
-  -- 例: ysiw" で単語を "" で囲む、cs"' で "..." を '...' に変える、ds" で外す
+  -- 囲み文字の操作。sa=追加 / sd=削除 / sr=置換 / sf=端へ飛ぶ / sh=光らせる
+  -- 例: saiw) で単語を () で囲む、sr"' で "..." を '...' に変える、sd" で外す
+  --
+  -- vim-surround 系（nvim-surround の ys / cs / ds）から乗り換えた。
+  -- ys の y は「you surround」の語呂で、yank とは無関係。読み違えやすい。
+  -- こちらは surround add / replace / delete がそのまま語になっている。
+  --
+  -- 前置が s なので、素の Vim の s（1文字消して挿入）は単独で押すと
+  -- timeoutlen ぶん待ってから動く。消えるわけではない。
+  -- この設定は timeoutlen = 150 なので遅延は 0.15 秒（実測で確認済み）。
+  --
+  -- mini.ai と同じ n（次）/ l（前）の修飾子が使えるのも揃っていて良い
   {
-    'kylechui/nvim-surround',
-    event = 'VeryLazy',
-    opts = {},
+    'echasnovski/mini.surround',
+    event = { 'BufReadPost', 'BufNewFile' },
+    opts = {
+      n_lines = 500, -- mini.ai と揃える。対象を探す範囲
+    },
   },
 
   -- 2文字打つと画面内の該当箇所にラベルが出て、そのラベルキーで飛べる。
