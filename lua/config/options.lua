@@ -82,10 +82,18 @@ opt.autoread = true
 -- 動作
 opt.mouse = 'a'
 opt.updatetime = 250 -- CursorHold の発火間隔。gitsigns / illuminate の反応速度に効く
--- キー列の入力を待つ時間。jk で挿入モードを抜ける割り当てがあるため、
--- 短いほど「単独の j を打って止めた時の表示遅れ」が減り、jk の判定も厳しくなる。
--- <leader> 操作は which-key がポップアップを出した時点で待ち受けに入るため、
--- この値を下げても猶予は短くならない（which-key の delay をこれより小さくすること）
+-- キー列の入力を待つ時間。**モードごとに値を変えている**（切り替えは
+-- lua/config/autocmds.lua の timeoutlen_by_mode）。ここは挿入モードの値。
+--
+-- 挿入モードは短くしたい。jk で抜ける割り当てがあるため、長いと「単独の j を
+-- 打って止めた時の表示遅れ」がそのぶん伸びて文章が書きづらい。
+--
+-- ノーマルモードは長くしたい。mini.surround の s 始まりのキー（saiw) など）が
+-- あり、150 だと s の次を 0.15 秒以内に打てず、s が単独で確定してしまう。
+-- 実測では 250ms 間隔の打鍵で `saiw]` が `hiw]ello world` になった。
+--
+-- <leader> 操作はこの値に左右されない。which-key がポップアップを出した時点で
+-- 待ち受けに入るため（which-key の delay をこの値より小さくすること）
 opt.timeoutlen = 150
 opt.confirm = true -- 未保存で終了しようとした時にエラーではなく確認を出す
 

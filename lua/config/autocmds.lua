@@ -349,3 +349,32 @@ vim.api.nvim_create_autocmd({ 'WinEnter', 'WinNew', 'WinClosed', 'BufWinEnter', 
   group = augroup('dim_inactive_gutter'),
   callback = vim.schedule_wrap(dim_inactive_gutter),
 })
+
+-- キー列の待ち時間をモードごとに変える。
+--
+-- ノーマルモードには mini.surround の s 始まりのキーがある（saiw) など）。
+-- s は単独でも <Nop> として成立するため、次のキーが timeoutlen 以内に来ないと
+-- そこで確定してしまい、続きが素の操作として解釈される。150ms では
+-- 250ms 間隔の打鍵で `saiw]` が `hiw]ello world` になった（実測）。
+--
+-- 一方で挿入モードは短いままにしたい。jk で抜ける割り当てがあり、長いと
+-- 単独の j を打って止めた時の表示遅れがそのぶん伸びる。
+--
+-- options.lua の初期値は挿入モード側。ここでノーマルへ戻す時に伸ばす。
+-- ノーマル側は Vim の既定値と同じ 1000。s を単独で押すと1秒待って何も
+-- 起きないが、s は mini.surround が <Nop> にしているので失うものは無い
+local TIMEOUTLEN = { insert = 150, normal = 1000 }
+
+vim.api.nvim_create_autocmd('InsertEnter', {
+  group = augroup('timeoutlen_by_mode'),
+  callback = function()
+    vim.o.timeoutlen = TIMEOUTLEN.insert
+  end,
+})
+
+vim.api.nvim_create_autocmd({ 'InsertLeave', 'VimEnter' }, {
+  group = augroup('timeoutlen_by_mode_leave'),
+  callback = function()
+    vim.o.timeoutlen = TIMEOUTLEN.normal
+  end,
+})
