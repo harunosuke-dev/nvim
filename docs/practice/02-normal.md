@@ -37,7 +37,7 @@ const userName = getUserProfile(userId, { includeAvatar: true })
 const message = "hello world, this is a test"
 ```
 
-| 打鍵 | 起きること |
+| キー | 起きること |
 |---|---|
 | `dw` | 語を1つ消す |
 | `d$` | 行末まで消す |
@@ -57,7 +57,7 @@ local second = 2
 local third = 3
 ```
 
-| 打鍵 | 起きること |
+| キー | 起きること |
 |---|---|
 | `dd` | 1行消す（切り取り） |
 | `yy` `p` | 1行コピーして下に貼る |
@@ -98,7 +98,7 @@ j で次の行へ、l などで let の上へ  →  .
 one two three four five six seven eight
 ```
 
-| 打鍵 | 起きること |
+| キー | 起きること |
 |---|---|
 | `3w` | 3語進む |
 | `d3w` | 3語ぶん消す |
