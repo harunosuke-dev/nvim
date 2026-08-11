@@ -1,4 +1,8 @@
 return {
+  -- TODO: to-do を書きます
+  -- NOTE: note を書きます
+  -- FIXME: bag を直します
+  -- HACK: 常套手段でない方法で直しています
   -- TODO: FIXME: HACK: NOTE: などのコメントに色と記号を付け、一覧・ジャンプできるようにする
   {
     'folke/todo-comments.nvim',
@@ -6,16 +10,27 @@ return {
     dependencies = { 'nvim-lua/plenary.nvim' },
     opts = {
       signs = true,
-      highlight = {
-        -- キーワードの後ろの本文まで着色すると、コメント全体が主張して読みにくい。
-        -- 空にすると通常のコメント色に戻り、目印はバッジだけになる
-        after = '',
-      },
+      -- highlight.after は既定の 'fg' のまま。キーワードの後ろの本文にも色が付く。
+      -- 一度 after = '' にして本文を通常のコメント色へ戻したが、目印がバッジだけに
+      -- なって見落とすため戻した
+      -- バッジの色は「iceberg の構文色に無い値」を直接指定する。
+      -- 既定は Diagnostic* を参照するが、iceberg では次のように構文と衝突し、
+      -- コード中で目印として働かない（実測値）。
+      --   DiagnosticInfo  #89b9c2 = 文字列リテラル（String / @string）
+      --   DiagnosticHint  #6c7189 = コメント（色が付いていないように見える）
+      --   DiagnosticWarn  #e2a578 = 見出し（Title）
+      --
+      -- 指定するのは**色名**であってキーワード名ではない。対応は次の通り。
+      --   info    → TODO
+      --   hint    → NOTE, INFO
+      --   warning → HACK, WARN, WARNING, XXX
+      --   error   → FIX, FIXME, BUG, FIXIT, ISSUE
+      -- colors.note や colors.hack と書いても参照するキーワードが無いため
+      -- 何も起きない
       colors = {
-        -- TODO のバッジ色。既定は DiagnosticInfo を参照するが、iceberg では
-        -- それが文字列リテラル（String / @string）と同じ #89b9c2 で、
-        -- コード中に埋もれてしまう。本文で使われていない色を直接指定する
-        info = { '#ff92d0' },
+        info = { '#ff92d0' }, -- TODO : ピンク
+        hint = { '#6ee7a8' }, -- NOTE : 緑。構文色に緑系が無いので埋もれない
+        warning = { '#ffb86c' }, -- HACK / WARN : オレンジ。#e2a578 は見出しと同色
       },
     },
     keys = {
