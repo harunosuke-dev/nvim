@@ -74,18 +74,42 @@ return {
         -- 窓」が閉じ、インデックス側だけが残る。中身がほぼ同じなので気づきにくく、
         -- 「gitsigns の記号が消えた」ように見えてしまう。
         -- 実際には差分ゼロの読み取り用バッファを見ているだけで、壊れてはいない
+        --
+        -- 閉じる時は **先に差分モードを解いてから** 窓を閉じること。逆順にすると落ちる。
+        --
+        -- diff のまま nvim_win_close を呼ぶと、窓を解放する途中で残った窓の幅が
+        -- 変わり、その再計算のために差分が引き直される。そこから DiffUpdated が
+        -- 飛び、autocmd の中で win_findbuf がウィンドウ一覧を辿るが、この時点の
+        -- 一覧は解放しかけで壊れているため NULL を踏んで SIGSEGV になる。
+        --
+        --   nvim_win_close → win_free_mem → frame_new_width → win_set_inner_size
+        --     → update_topline → win_get_fill → diff_check_with_linestatus
+        --     → ex_diffupdate → apply_autocmds(DiffUpdated) → win_findbuf → 落ちる
+        --
+        -- DiffUpdated を拾っているのは render-markdown（core/manager.lua）なので、
+        -- **markdown を開いている時だけ**落ちる。他のファイル型では再現しない。
+        -- 素性は Neovim 側の再入バグだが、diffoff! を先に済ませておけば
+        -- 解放中に差分の引き直しが起きなくなり、autocmd 自体が飛ばない。
+        --
+        -- 素の diffoff（bang 無し）は今の窓にしか効かず、残る側の scrollbind や
+        -- foldmethod が差分用のまま取り残される。bang 付きでタブページ全体を戻す
         local function close_diff()
-          local closed = false
+          local targets = {}
           for _, win in ipairs(vim.api.nvim_list_wins()) do
             local buf = vim.api.nvim_win_get_buf(win)
             if vim.api.nvim_buf_get_name(buf):match('^gitsigns://') then
-              closed = pcall(vim.api.nvim_win_close, win, false) or closed
+              targets[#targets + 1] = win
             end
           end
-          if closed then
-            vim.cmd('diffoff')
+          if #targets == 0 then
+            return false
           end
-          return closed
+
+          vim.cmd('diffoff!')
+          for _, win in ipairs(targets) do
+            pcall(vim.api.nvim_win_close, win, false)
+          end
+          return true
         end
 
         map('n', '<leader>hd', function()
