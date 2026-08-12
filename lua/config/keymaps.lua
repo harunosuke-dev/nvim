@@ -125,16 +125,49 @@ map('x', 'Y', '"+Y', { desc = 'Yank whole lines into clipboard' })
 map('n', '*', '<Cmd>keepjumps normal! *N<CR>', { desc = 'Search word : stay in place' })
 map('n', 'g*', '<Cmd>keepjumps normal! g*N<CR>', { desc = 'Search partial word : stay in place' })
 
--- 挿入モードの行頭・行末。ここだけ emacs 方式を入れる。
---
--- 潰す標準（i_CTRL-A = 直前に挿入したテキストを再挿入、i_CTRL-E = 下の行の
--- 同じ桁の文字をコピー）はどちらも出番が少ない。一方ノーマルの <C-a>
--- （数値を増やす）は Vim の看板機能なので標準のまま残す。
+-- 挿入モードの移動・削除を emacs 方式に寄せる。ノーマルモードは一切変えない。
+-- シェル（zsh は bindkey -e）と指の使い方を揃えるため。
+-- dotfiles 側の vim（packages/vim/.config/vim/vimrc）にも同じものを入れてある。
 --
 -- 挿入中に行頭・行末へ飛ぶ標準の手段は <Esc>I / <Esc>A でモードを抜けるしかなく、
--- ここは実用上の穴になっている
+-- ここは実用上の穴になっている。
+--
+-- 置き換える標準と、その代わりの手段:
+--   i_CTRL-A  直前に挿入したテキストを再挿入   出番が少ない
+--   i_CTRL-E  下の行の同じ桁の文字をコピー     出番が少ない（上の行は C-y で残る）
+--   i_CTRL-B  現代の Vim では未使用            失うものが無い
+--   i_CTRL-F  現在行を再インデント             ノーマルの == で足りる
+--   i_CTRL-D  インデントを一段戻す             下の <S-Tab> に同じものを置く
+--
+-- ノーマルの <C-a>（数値を増やす）は Vim の看板機能なので標準のまま残す。
+--
+-- blink.cmp は <C-e> <C-b> <C-f> を握っているが問題にならない。preset の
+-- 末尾にある fallback は「blink 以外の割り当てがあればそれを実行する」作りで
+-- （keymap/fallback.lua:54-64）、補完メニューが開いている時だけ blink の動作、
+-- 閉じている時はここの割り当てになる。fallback_to_mappings との違いは
+-- 「割り当てが1つも無かった時に組み込み動作へ渡すかどうか」だけ
 map('i', '<C-a>', '<C-o>I', { desc = 'Start of line' })
 map('i', '<C-e>', '<End>', { desc = 'End of line' })
+map('i', '<C-b>', '<Left>', { desc = 'Back one character' })
+map('i', '<C-f>', '<Right>', { desc = 'Forward one character' })
+map('i', '<C-d>', '<Del>', { desc = 'Delete character under cursor' })
+
+-- 上で潰した i_CTRL-D の代わり。インデントを一段戻す。
+-- blink.cmp が <S-Tab> を snippet_backward に使っているが、これも fallback
+-- なのでスニペットの穴が無い時だけこちらが動く
+map('i', '<S-Tab>', '<C-\\><C-o><<', { desc = 'Dedent line' })
+
+-- 触らない標準。emacs と意味が違うが、Vim 側の機能を残す価値が上回る
+--   i_CTRL-K  ダイグラフ入力（<C-k>ae → æ）。blink のシグネチャ表示も載っている
+--   i_CTRL-N  キーワード補完 / blink の候補送り
+--   i_CTRL-P  同上（前の候補）
+--   i_CTRL-R  レジスタの内容を挿入
+--   i_CTRL-O  一発だけノーマルモードのコマンドを実行
+--   i_CTRL-T  インデントを一段深くする
+--   i_CTRL-V  次の1文字をそのまま入れる
+--   i_CTRL-Y  上の行の同じ桁の文字をコピー
+-- i_CTRL-H（Backspace）・i_CTRL-W（前の単語を削除）・i_CTRL-U（カーソルより
+-- 前を削除）は元から emacs と同じ動きなので何もしなくてよい
 
 -- 挿入モードを抜けるのは <Esc> / <C-[> だけにする。
 -- jj / jk は j を1文字打って手を止めた時に timeoutlen ぶん表示が遅れるうえ、
