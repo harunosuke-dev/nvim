@@ -194,6 +194,19 @@ vim.api.nvim_create_autocmd('FileType', {
   end,
 })
 
+-- コミットメッセージで勝手に改行させない。
+--
+-- 標準の ftplugin が textwidth=72 と formatoptions+=t を入れるため、72桁を超えると
+-- 直前の空白が改行に変わる。1文1行で書く方針と衝突するので t だけ外す。
+-- textwidth は目安として残るので、整えたい時は gq が使える
+vim.api.nvim_create_autocmd('FileType', {
+  group = augroup('no_auto_wrap'),
+  pattern = 'gitcommit',
+  callback = function()
+    vim.opt_local.formatoptions:remove('t')
+  end,
+})
+
 -- パンくずのメニュー（dropbar）ではカーソルを隠す。
 -- 選択行は別途ハイライトされるためカーソルは不要で、
 -- ブロックカーソルが白い四角として強く目立ってしまう。
