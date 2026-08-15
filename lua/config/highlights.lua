@@ -399,6 +399,13 @@ function M.apply()
   vim.api.nvim_set_hl(0, 'SnacksDashboardFile', { fg = normal.fg })
   vim.api.nvim_set_hl(0, 'SnacksDashboardDir', { fg = ICEBERG.breadcrumb })
 
+  -- 進捗の本文（Loading workspace など）が読めない問題。
+  --
+  -- noice は既定で NonText を継承させる。iceberg の NonText は #252941 で、
+  -- フロートの背景 #1f2233 とほぼ同じ明度のため文字が沈む。
+  -- NonText は `~` を目立たせないための色であって、読ませる文字には向かない
+  vim.api.nvim_set_hl(0, 'NoiceLspProgressTitle', { fg = ICEBERG.breadcrumb })
+
   -- パンくずのメニューで、カーソルのある行が白い帯になる問題。
   --
   -- dropbar は「今いる項目」を DropBarMenuHoverEntry で示し、これは既定で
