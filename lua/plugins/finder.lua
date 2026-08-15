@@ -229,8 +229,20 @@ return {
   opts = {
     -- ファイル名を先に、パスを後ろに薄く表示する。
     -- Next.js のように page.tsx が大量にある構成では、これが無いと判別できない
-    files = { formatter = 'path.filename_first' },
-    grep = { formatter = 'path.filename_first' },
+    --
+    -- fzf-lua は rg を起動する時 RIPGREP_CONFIG_PATH を空にする（fzf.lua:159）。
+    -- そのままだと ~/.config/ripgrep/config の --hidden が効かず、dotfiles のように
+    -- packages/<tool>/.config/... と隠しディレクトリを含む構成が丸ごと検索から漏れる。
+    -- opts の直下に書いても provider には伝わらないため grep の中に置く。
+    -- fd は rg の設定を読まないので、files 側は --hidden を直接足す
+    files = {
+      formatter = 'path.filename_first',
+      fd_opts = '--color=never --type f --type l --hidden --exclude .git --exclude .jj',
+    },
+    grep = {
+      formatter = 'path.filename_first',
+      RIPGREP_CONFIG_PATH = vim.env.RIPGREP_CONFIG_PATH,
+    },
     oldfiles = { formatter = 'path.filename_first', include_current_session = true },
     buffers = { formatter = 'path.filename_first' },
     -- f/ と / のバッファ内検索だけプレビューを畳む。今開いているファイルなので
