@@ -265,6 +265,47 @@ vim.api.nvim_create_autocmd('FileType', {
   end,
 })
 
+-- 新規ファイルを初めて保存した時に読み直す。
+--
+-- 保存すると filetype は判定され Treesitter の色も付くが、LSP だけは起動しない。
+-- 読み直すと BufRead から走り直すため起動する。
+--
+-- BufWritePre の時点でバッファ名は既に付いているので、名前の有無では判定できない。
+-- ディスクにまだ実体が無いことを新規ファイルの印にする。
+--
+-- undo 履歴は失われる。書き始めたばかりの新規ファイルに限るので許容する
+local first_write = augroup('reload_after_first_write')
+
+vim.api.nvim_create_autocmd('BufWritePre', {
+  group = first_write,
+  callback = function(args)
+    -- oil のような実ファイルでないバッファ（buftype が空でない）は対象外。
+    -- 名前が oil:/// で filereadable も 0 のため、新規ファイルと区別が付かない
+    local name = vim.api.nvim_buf_get_name(args.buf)
+    vim.b[args.buf].was_new_file = vim.bo[args.buf].buftype == ''
+      and name ~= ''
+      and vim.fn.filereadable(name) == 0
+  end,
+})
+
+vim.api.nvim_create_autocmd('BufWritePost', {
+  group = first_write,
+  callback = function(args)
+    if not vim.b[args.buf].was_new_file then
+      return
+    end
+    vim.b[args.buf].was_new_file = nil
+    -- BufWritePost の最中は読み直しが効かないため、書き込み完了後に回す
+    vim.schedule(function()
+      if vim.api.nvim_buf_is_valid(args.buf) then
+        vim.api.nvim_buf_call(args.buf, function()
+          vim.cmd.edit()
+        end)
+      end
+    end)
+  end,
+})
+
 -- 保存時に行末の余分な空白を削除する
 vim.api.nvim_create_autocmd('BufWritePre', {
   group = augroup('trim_whitespace'),
