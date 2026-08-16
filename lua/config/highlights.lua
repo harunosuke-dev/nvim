@@ -15,6 +15,7 @@ local ICEBERG = {
   linenr = 0x454d73, -- ステータスラインの文字。素の iceberg の行番号と同じ明度
   faint = 0x555b73, -- 補助的な文字。breadcrumb よりさらに一段落とす
   select = 0x3a4160, -- 一覧の中でカーソルがある行。反転をやめる代わりに敷く
+  border = 0x6c7189, -- 分割の境界線。素の iceberg の FloatBorder と同じ値で揃える
 }
 
 --- 差分表示（:diffthis / <leader>hd）の配色。
@@ -127,6 +128,17 @@ function M.apply()
   -- 枠の左上・右下に出る見出し。文字だけ橙から補助的な色へ落とす
   vim.api.nvim_set_hl(0, 'FloatTitle', { fg = ICEBERG.breadcrumb })
   vim.api.nvim_set_hl(0, 'FloatFooter', { fg = ICEBERG.faint })
+
+  -- 分割の境界線。素の iceberg は文字色も背景と同じ #101218 で、面を透過させると
+  -- 何も見えなくなる（端末背景に対してコントラスト 1.07）。フロートの枠と
+  -- 同じ #6c7189 に上げて 4.15 にする
+  vim.api.nvim_set_hl(0, 'WinSeparator', { fg = ICEBERG.border })
+  vim.api.nvim_set_hl(0, 'VertSplit', { fg = ICEBERG.border })
+
+  -- ポップアップのスクロールバー。軌道は透過のままにして、つまみだけ残す。
+  -- 素の #c7c9d1 は本文と同じ明るさで白い棒として強く出るため、境界線と
+  -- 同じ #6c7189 まで落とす
+  vim.api.nvim_set_hl(0, 'PmenuThumb', { bg = ICEBERG.border })
   -- コメントとキーワードをイタリックにする。
   -- 「実行される処理そのものではないもの（コメント）」と「制御構造（if / function /
   -- return など）」を字形で分け、視覚的な層を作る。
@@ -428,13 +440,13 @@ local TRANSPARENT_GROUPS = {
   'DiagnosticFloatingInfo',
   'DiagnosticFloatingHint',
   'DiagnosticFloatingOk',
-  -- ポップアップメニュー。つまみ（Thumb）も外すのでスクロールバーは消える
+  -- ポップアップメニュー。軌道（Sbar）は透過させ、つまみ（Thumb）だけ
+  -- M.apply() で色を当てて残す
   'Pmenu',
   'PmenuBorder',
   'PmenuExtra',
   'PmenuKind',
   'PmenuSbar',
-  'PmenuThumb',
   'PmenuShadow',
   'PmenuShadowThrough',
   -- メッセージ行
