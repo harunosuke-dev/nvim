@@ -12,7 +12,7 @@ local M = {}
 local ICEBERG = {
   cursor = 0x1f2233, -- カーソル行の帯。素の iceberg の行番号の列の色
   breadcrumb = 0x7d8296, -- 補助的な文字。本文より一段落とす
-  linenr = 0x454d73, -- 行番号・パンくず・ステータスラインの文字。3箇所で揃える
+  linenr = 0x454d73, -- ステータスラインの文字。素の iceberg の行番号と同じ明度
   faint = 0x555b73, -- 補助的な文字。breadcrumb よりさらに一段落とす
   select = 0x3a4160, -- 一覧の中でカーソルがある行。反転をやめる代わりに敷く
 }
@@ -155,22 +155,6 @@ function M.apply()
     vim.api.nvim_set_hl(0, group, vim.tbl_extend('force', current, { italic = true }))
   end
 
-  -- 画面上部のパンくず（dropbar）の文字を控えめにする。
-  -- dropbar は要素の種類ごとにハイライトを分けており、
-  --   DropBarIconKind*  アイコン（種類ごとの色。そのまま残す）
-  --   DropBarKind*      ファイル名や関数名の文字（本文と同じ明るさで主張が強い）
-  -- 後者だけ落として、視線が本文へ向くようにする。
-  --
-  -- DropBarKind* 自体は色を持たず winbar の既定色を継承するため、
-  -- WinBar を落とすのが本体。DropBarKind* にも同じ色を当てて、
-  -- 種類ごとに色が付く実装に変わっても揃うようにしておく。
-  --
-  -- 色は行番号と同じ #454d73。パンくず・行番号・ステータスラインの3箇所を
-  -- ひとつの明度に揃えて、周辺情報として一体に見えるようにする。
-  -- lualine は WinBar の色を読むので、ここを変えれば追従する
-  vim.api.nvim_set_hl(0, 'WinBar', { fg = ICEBERG.linenr })
-  -- 非アクティブ側もここでは同じにする。沈めるのは M.build_inactive() の役目
-  vim.api.nvim_set_hl(0, 'WinBarNC', { fg = ICEBERG.linenr })
   -- ステータスラインの文字色だけここで決める。背景は M.match_statusline()
   -- がテーマを問わず本文に合わせる
   vim.api.nvim_set_hl(0, 'StatusLine', { fg = ICEBERG.linenr })
@@ -341,12 +325,6 @@ function M.apply()
   -- メニュー自体の背景。フロート全般と揃える
   vim.api.nvim_set_hl(0, 'DropBarMenuNormalFloat', { link = 'NormalFloat' })
   vim.api.nvim_set_hl(0, 'DropBarMenuFloatBorder', { link = 'FloatBorder' })
-
-  for name in pairs(vim.api.nvim_get_hl(0, {})) do
-    if name:match('^DropBarKind') then
-      vim.api.nvim_set_hl(0, name, { fg = ICEBERG.linenr })
-    end
-  end
 
   -- 色が出揃った後に、非アクティブ用の複製を作り直す
   M.build_inactive()
