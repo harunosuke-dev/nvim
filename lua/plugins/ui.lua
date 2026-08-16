@@ -7,6 +7,51 @@ return {
     opts = {},
   },
 
+  -- 各ウィンドウの右上に、ファイル種別アイコンとファイル名を表示する。
+  -- Neovim 全体は iceberg のまま、表示部分だけ solarized-osaka の色を使う
+  {
+    'b0o/incline.nvim',
+    event = 'BufReadPre',
+    priority = 1200,
+    dependencies = {
+      'nvim-tree/nvim-web-devicons',
+      'craftzdog/solarized-osaka.nvim',
+    },
+    config = function()
+      local colors = require('solarized-osaka.colors').setup()
+
+      require('incline').setup({
+        highlight = {
+          groups = {
+            InclineNormal = { guibg = colors.magenta500, guifg = colors.base04 },
+            InclineNormalNC = { guifg = colors.violet500, guibg = colors.base03 },
+          },
+        },
+        window = {
+          margin = { vertical = 0, horizontal = 1 },
+          overlap = { borders = false },
+        },
+        hide = { cursorline = true },
+        render = function(props)
+          local filename = vim.fn.fnamemodify(vim.api.nvim_buf_get_name(props.buf), ':t')
+          if filename == '' then
+            filename = '[No Name]'
+          end
+          if vim.bo[props.buf].modified then
+            filename = '[+] ' .. filename
+          end
+
+          local icon, color = require('nvim-web-devicons').get_icon_color(filename)
+          return {
+            { icon or '', guifg = color },
+            { icon and ' ' or '' },
+            { filename },
+          }
+        end,
+      })
+    end,
+  },
+
   -- 画面上部にパンくずを表示する。ディレクトリ階層に加えて、
   -- カーソルが今どの関数・クラスの中にいるかを LSP / Treesitter から取得して並べる。
   -- 各要素は選択でき、そこからファイルやシンボルへ直接ジャンプできる
