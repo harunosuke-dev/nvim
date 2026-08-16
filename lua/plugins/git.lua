@@ -67,6 +67,14 @@ return {
         map('n', '<leader>hb', function()
           gs.blame_line({ full = true })
         end, '[H]unk [B]lame : commit for line')
+        -- 行を触ったコミットを遡る。blame は最後の1件しか出ないので別に張る。
+        --
+        -- fzf-lua の git_bcommits はビジュアルモードだと選択範囲に対して
+        -- git log -L を走らせる（providers/git.lua）。ノーマルモードなら
+        -- ファイル全体の履歴になるので、1つのキーで両方まかなえる
+        map({ 'n', 'x' }, '<leader>hl', function()
+          require('fzf-lua').git_bcommits()
+        end, '[H]unk [L]og : commits for line')
         -- 差分表示は開閉のトグルにする。
         --
         -- diffthis は縦分割でインデックス側のバッファ（名前が gitsigns:// で始まる）を
