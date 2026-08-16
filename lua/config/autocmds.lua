@@ -309,9 +309,7 @@ vim.api.nvim_create_autocmd('BufWritePre', {
     -- oil のような実ファイルでないバッファ（buftype が空でない）は対象外。
     -- 名前が oil:/// で filereadable も 0 のため、新規ファイルと区別が付かない
     local name = vim.api.nvim_buf_get_name(args.buf)
-    vim.b[args.buf].was_new_file = vim.bo[args.buf].buftype == ''
-      and name ~= ''
-      and vim.fn.filereadable(name) == 0
+    vim.b[args.buf].was_new_file = vim.bo[args.buf].buftype == '' and name ~= '' and vim.fn.filereadable(name) == 0
   end,
 })
 

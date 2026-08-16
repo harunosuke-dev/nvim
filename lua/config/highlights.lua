@@ -192,6 +192,7 @@ function M.apply()
   }) do
     vim.api.nvim_set_hl(0, group, { fg = ICEBERG.faint })
   end
+
   -- Markdown の整形表示（render-markdown）。
   --
   -- 既定では H1 から H6 まで6段階すべてが @markup.heading.N.markdown を継ぎ、
