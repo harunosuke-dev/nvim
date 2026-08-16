@@ -1,12 +1,8 @@
 -- iceberg 専用の配色調整。
 --
--- 素の iceberg は「カーソル行の背景」と「行番号の列の背景」がまったく同じ色
--- （#1f2233）のため、カーソルがどの行にあるか判別しづらい。
--- 3つの領域に別々の明度を割り当てて解消する。
---
---   本文        最も暗い    … 面積が広く、目を休ませたい部分
---   行番号の列  やや明るい  … 本文との境界が分かる程度
---   カーソル行  最も明るい  … 行番号・記号の列ごと帯状に光らせる
+-- 面は塗らない。本文・左端の列・パンくず・フロートはすべてテーマの既定に任せ、
+-- 端末の背景を透けさせる（M.transparent()）。ここで足すのは文字の明度の階層と、
+-- カーソル行の帯だけ。
 --
 -- 呼び出し側は M.setup() を一度だけ実行する。
 -- gitsigns のように後から自前のハイライトを定義するプラグインからは
@@ -14,15 +10,11 @@
 local M = {}
 
 local ICEBERG = {
-  body = 0x0d0e14, -- 行番号の列・パンくず・ステータスライン。本文（端末の色）より一段明るい
-  gutter = 0x161822, -- 行番号・記号（gitsigns）・折りたたみの列。素の iceberg の本文色
-  cursor = 0x1f2233, -- カーソル行。素の iceberg の行番号の列の色
+  cursor = 0x1f2233, -- カーソル行の帯。素の iceberg の行番号の列の色
   breadcrumb = 0x7d8296, -- 補助的な文字。本文より一段落とす
-  chrome = 0x07080d, -- 端末の背景と同じ値。透過しない構成に戻した時のための控え
   linenr = 0x454d73, -- 行番号・パンくず・ステータスラインの文字。3箇所で揃える
-  float = 0x1f2233, -- フロートの背景。素の iceberg は #3d425c で本文から浮きすぎる
   faint = 0x555b73, -- 補助的な文字。breadcrumb よりさらに一段落とす
-  select = 0x3a4160, -- 一覧の中でカーソルがある行。他の選択色より一段明るくする
+  select = 0x3a4160, -- 一覧の中でカーソルがある行。反転をやめる代わりに敷く
 }
 
 --- 差分表示（:diffthis / <leader>hd）の配色。
@@ -118,52 +110,23 @@ function M.apply()
     return
   end
 
-  -- 本文の背景。透過が有効なら M.transparent() が既に外しているので触らない
-  if not vim.g.transparent_background then
-    set('Normal', ICEBERG.body)
-  end
-
   -- 非アクティブなウィンドウは M.build_inactive() の名前空間で沈める。
   -- ここは背景を敷かないように戻すだけ。敷くと透過が切れる
   vim.api.nvim_set_hl(0, 'NormalNC', { fg = normal.fg })
 
-  -- 左端の列。カーソル行以外はすべてこの色になる。
-  -- パンくず・ステータスラインと同じ背景に揃え、周辺情報として一体に見せる。
-  --
-  -- 本文は塗らずに端末の色（#07080d）を透けさせているので、こちらを一段
-  -- 明るくすることで本文との境界が出る。透過を入れる前は逆の関係だった
-  for _, group in ipairs({ 'LineNr', 'LineNrAbove', 'LineNrBelow', 'SignColumn', 'FoldColumn' }) do
-    set(group, ICEBERG.body)
-  end
-
-  -- カーソル行。本文・行番号・記号・折りたたみを同じ色で揃えて1本の帯にする
+  -- カーソル行。本文・行番号・記号・折りたたみを同じ色で揃えて1本の帯にする。
+  -- 面を塗る指定はこれだけ残す。位置を示すためのもので、地の色ではない
   set('CursorLine', ICEBERG.cursor)
   set('CursorLineNr', ICEBERG.cursor, { bold = true })
   set('CursorLineSign', ICEBERG.cursor)
   set('CursorLineFold', ICEBERG.cursor)
 
-  -- 記号の列を塗り直したので、記号側の背景も外し直す
+  -- 記号（診断・gitsigns・TODO）の背景を外して、カーソル行の帯を通す
   clear_sign_backgrounds()
 
-  -- フロート（補完メニュー・ホバー・which-key・noice のコマンドライン）の背景。
-  -- 素の iceberg は #3d425c で、本文を #0d0e14 まで暗くした構成では明るすぎる。
-  -- カーソル行と同じ色にして、本文よりわずかに浮く程度に抑える
-  for _, group in ipairs({ 'NormalFloat', 'FloatBorder', 'Pmenu' }) do
-    set(group, ICEBERG.float)
-  end
-  -- 枠の左上に出る見出し（which-key の押下中のキーなど）。
-  -- 既定は背景を持たないため本文の色が透け、枠の中だけ色が違って見える。
-  -- 枠と同じ背景を敷いて一続きにする。文字も橙から補助的な色へ落とす
-  vim.api.nvim_set_hl(0, 'FloatTitle', { fg = ICEBERG.breadcrumb, bg = ICEBERG.float })
-  vim.api.nvim_set_hl(0, 'FloatFooter', { fg = ICEBERG.faint, bg = ICEBERG.float })
-  -- スクロールバー。既定のつまみは #c7c9d1（ほぼ白）で、暗くした本文の上では
-  -- 白い四角として強く目立つ。軌道はフロート背景、つまみは gutter 程度に抑える
-  set('PmenuSbar', ICEBERG.float)
-  set('PmenuThumb', ICEBERG.gutter)
-  -- 選択行。既定は #5c638a と明るく、フロート内で浮く。
-  -- 位置が分かれば足りるので、フロート背景から一段上げる程度に留める
-  set('PmenuSel', ICEBERG.cursor + 0x0a0c14)
-
+  -- 枠の左上・右下に出る見出し。文字だけ橙から補助的な色へ落とす
+  vim.api.nvim_set_hl(0, 'FloatTitle', { fg = ICEBERG.breadcrumb })
+  vim.api.nvim_set_hl(0, 'FloatFooter', { fg = ICEBERG.faint })
   -- コメントとキーワードをイタリックにする。
   -- 「実行される処理そのものではないもの（コメント）」と「制御構造（if / function /
   -- return など）」を字形で分け、視覚的な層を作る。
@@ -205,36 +168,14 @@ function M.apply()
   -- 色は行番号と同じ #454d73。パンくず・行番号・ステータスラインの3箇所を
   -- ひとつの明度に揃えて、周辺情報として一体に見えるようにする。
   -- lualine は WinBar の色を読むので、ここを変えれば追従する
-  vim.api.nvim_set_hl(0, 'WinBar', { fg = ICEBERG.linenr, bg = ICEBERG.body })
-  -- 非アクティブなウィンドウのパンくずは、その窓の本文と同じ明るさまで
-  -- 持ち上げて一体に見せる。文字はさらに沈めて、読む場所ではないと示す
-  vim.api.nvim_set_hl(0, 'WinBarNC', { fg = dim(ICEBERG.linenr, 0.75), bg = ICEBERG.gutter })
+  vim.api.nvim_set_hl(0, 'WinBar', { fg = ICEBERG.linenr })
+  -- 非アクティブ側もここでは同じにする。沈めるのは M.build_inactive() の役目
+  vim.api.nvim_set_hl(0, 'WinBarNC', { fg = ICEBERG.linenr })
   -- ステータスラインの文字色だけここで決める。背景は M.match_statusline()
   -- がテーマを問わず本文に合わせる
   vim.api.nvim_set_hl(0, 'StatusLine', { fg = ICEBERG.linenr })
   vim.api.nvim_set_hl(0, 'StatusLineNC', { fg = ICEBERG.linenr })
-  -- 補完メニューとその周辺（blink.cmp）。
-  --
-  -- 既定は Pmenu を継ぐので、カーソル行と同じ #1f2233 になり本文より明るい。
-  -- パンくず・行番号の列・ステータスラインと同じ色に揃えて、「本文ではない面」
-  -- として一体に見せる。本文（#0d0e14）より暗いので内容と UI が分かれる。
-  --
-  -- 選択行だけは一段持ち上げて位置が分かるようにする
-  for _, group in ipairs({
-    'BlinkCmpMenu',
-    'BlinkCmpMenuBorder',
-    'BlinkCmpDoc',
-    'BlinkCmpDocBorder',
-    'BlinkCmpDocSeparator',
-    'BlinkCmpSignatureHelp',
-    'BlinkCmpSignatureHelpBorder',
-  }) do
-    set(group, ICEBERG.body)
-  end
-  set('BlinkCmpMenuSelection', ICEBERG.cursor)
-  set('BlinkCmpDocCursorLine', ICEBERG.cursor)
-
-  -- 文字の明るさに階層をつける。
+  -- 補完メニュー（blink.cmp）の文字の明るさに階層をつける。
   --
   -- 既定はどれも本文と同じ #c7c9d1 で、候補名も種類も出どころも同列に
   -- 並んで主張が強い。読む必要があるのは「候補名のどこが一致したか」で、
@@ -246,7 +187,7 @@ function M.apply()
   local normal_fg = vim.api.nvim_get_hl(0, { name = 'Normal', link = false }).fg
   vim.api.nvim_set_hl(0, 'BlinkCmpLabelMatch', { fg = normal_fg, bold = true })
   vim.api.nvim_set_hl(0, 'BlinkCmpLabel', { fg = ICEBERG.breadcrumb })
-  vim.api.nvim_set_hl(0, 'BlinkCmpDoc', { fg = ICEBERG.breadcrumb, bg = ICEBERG.body })
+  vim.api.nvim_set_hl(0, 'BlinkCmpDoc', { fg = ICEBERG.breadcrumb })
   for _, group in ipairs({
     'BlinkCmpLabelDetail',
     'BlinkCmpLabelDescription',
@@ -255,10 +196,6 @@ function M.apply()
   }) do
     vim.api.nvim_set_hl(0, group, { fg = ICEBERG.faint })
   end
-  -- スクロールバーは出さない設定だが、軌道が明るいままだと枠に線が見える
-  set('BlinkCmpScrollBarGutter', ICEBERG.body)
-  set('BlinkCmpScrollBarThumb', ICEBERG.gutter)
-
   -- Markdown の整形表示（render-markdown）。
   --
   -- 既定では H1 から H6 まで6段階すべてが @markup.heading.N.markdown を継ぎ、
@@ -469,28 +406,67 @@ end
 
 --- どのテーマでも、面を塗らずに端末の背景を透けさせる。
 ---
---- 本文だけでなく、左端の列（行番号・記号・折りたたみ）やステータスライン、
---- パンくずも対象にする。テーマによってはこれらに独自の色が付いており、
---- 本文だけ透過すると左端に明るい帯が残る（kanagawa-dragon の #282727 など）。
+--- 対象は「UI の地」として塗られているものすべて。本文・左端の列・
+--- ステータスライン・パンくずに加えて、フロートやポップアップの面、
+--- 分割の境界、タブ、メッセージ行まで含める。
 ---
---- iceberg では、この後に M.apply() が階層を作り直す。あちらは本文を端末の色に
---- 委ねたまま、左端の列とパンくずだけを一段明るく塗る。
----
---- NormalNC と NormalFloat は入れない。前者は非アクティブなウィンドウの
---- 減光（kanagawa の dimInactive など）、後者はポップアップの面で、
---- どちらも「背景として塗られていること」に意味がある
+--- 入れないものが3つある。
+---   NormalNC       非アクティブなウィンドウの減光（M.build_inactive() が沈める）
+---   *Sel / WildMenu ポップアップの中で選んでいる行。CursorLine と同じ役割
+---   Cursor / TermCursor カーソルそのもの
 local TRANSPARENT_GROUPS = {
+  -- 本文と左端の列
   'Normal',
   'SignColumn',
   'LineNr',
   'LineNrAbove',
   'LineNrBelow',
   'FoldColumn',
+  'EndOfBuffer',
+  'Conceal',
+  -- 窓の縁
   'StatusLine',
   'StatusLineNC',
+  'StatusLineTerm',
+  'StatusLineTermNC',
   'WinBar',
   'WinBarNC',
-  'EndOfBuffer',
+  'WinSeparator',
+  'VertSplit',
+  'TabLine',
+  'TabLineFill',
+  'TabLineSel',
+  'ToolbarLine',
+  'ToolbarButton',
+  -- フロート（K のホバー・which-key・noice など）
+  'NormalFloat',
+  'FloatBorder',
+  'FloatTitle',
+  'FloatFooter',
+  'FloatShadow',
+  'FloatShadowThrough',
+  'DiagnosticFloatingError',
+  'DiagnosticFloatingWarn',
+  'DiagnosticFloatingInfo',
+  'DiagnosticFloatingHint',
+  'DiagnosticFloatingOk',
+  -- ポップアップメニュー。つまみ（Thumb）も外すのでスクロールバーは消える
+  'Pmenu',
+  'PmenuBorder',
+  'PmenuExtra',
+  'PmenuKind',
+  'PmenuSbar',
+  'PmenuThumb',
+  'PmenuShadow',
+  'PmenuShadowThrough',
+  -- メッセージ行
+  'MsgArea',
+  'MsgSeparator',
+  'ErrorMsg',
+  'WarningMsg',
+  'StderrMsg',
+  'StdoutMsg',
+  'Error',
 }
 
 --- 差分表示の配色を当てる。テーマに依らず同じ色にする。
