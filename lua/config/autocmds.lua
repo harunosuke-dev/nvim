@@ -128,9 +128,23 @@ vim.api.nvim_create_autocmd({ 'FocusGained', 'BufEnter', 'CursorHold', 'TermClos
 -- git や GitHub は変更を「削除（赤）+ 追加（緑）」の組として表すので、これで揃う
 -- DiffTextAdd（変更行の中で挿入された文字）も左右どちらにも出るので同じ扱いにする。
 -- 名前から新しい側だけかと思えるが、実際は古い側にも現れて赤の中に緑が混ざる
+--
+-- DiffAdd も同じ理由で振り分ける。これは「git で追加された行」ではなく
+-- 「この窓にだけあって相手の窓には無い行」なので、削除した行は古い側で
+-- DiffAdd になる。素通しだと左に緑が出て git と逆を向く
 local DIFF_WINHL = {
-  old = { 'DiffChange:DiffChangeOld', 'DiffText:DiffTextOld', 'DiffTextAdd:DiffTextOld' },
-  new = { 'DiffChange:DiffChangeNew', 'DiffText:DiffTextNew', 'DiffTextAdd:DiffTextNew' },
+  old = {
+    'DiffAdd:DiffAddOld',
+    'DiffChange:DiffChangeOld',
+    'DiffText:DiffTextOld',
+    'DiffTextAdd:DiffTextOld',
+  },
+  new = {
+    'DiffAdd:DiffAddNew',
+    'DiffChange:DiffChangeNew',
+    'DiffText:DiffTextNew',
+    'DiffTextAdd:DiffTextNew',
+  },
 }
 
 --- 自分が足した読み替えを取り除いた winhighlight を返す

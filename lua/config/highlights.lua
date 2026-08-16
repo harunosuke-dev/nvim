@@ -471,7 +471,12 @@ local TRANSPARENT_GROUPS = {
 --- 読みやすい。実際に変わった文字だけは白くして浮かせる。数文字ぶんしか
 --- 塗られないので、構文の色を失う代償が小さい
 function M.diff()
+  -- DiffAdd は「git で追加された行」ではなく「この窓にだけあって相手の窓には
+  -- 無い行」の意味。削除した行は古い側にしか無いので、素のままだと古い側で
+  -- 緑になり、git の慣例と逆を向く。これも左右へ振り分ける
   vim.api.nvim_set_hl(0, 'DiffAdd', { bg = DIFF.add })
+  vim.api.nvim_set_hl(0, 'DiffAddOld', { bg = DIFF.delete })
+  vim.api.nvim_set_hl(0, 'DiffAddNew', { bg = DIFF.add })
   vim.api.nvim_set_hl(0, 'DiffChange', { bg = DIFF.delete })
   vim.api.nvim_set_hl(0, 'DiffChangeOld', { bg = DIFF.delete })
   vim.api.nvim_set_hl(0, 'DiffChangeNew', { bg = DIFF.add })
@@ -479,9 +484,9 @@ function M.diff()
   vim.api.nvim_set_hl(0, 'DiffTextOld', { bg = DIFF.delete_word, fg = DIFF.word_fg })
   vim.api.nvim_set_hl(0, 'DiffTextNew', { bg = DIFF.add_word, fg = DIFF.word_fg })
   vim.api.nvim_set_hl(0, 'DiffTextAdd', { bg = DIFF.add_word, fg = DIFF.word_fg })
-  -- 削除側だけは文字色も指定する。ここに並ぶのは filler の埋め文字で、
-  -- 本文と同じ明るさだと「何も無い場所」が一番目立つことになる
-  vim.api.nvim_set_hl(0, 'DiffDelete', { bg = DIFF.delete, fg = DIFF.fill })
+  -- 行が無い側に並ぶ埋め。相手側の色を持たせると「左に赤・右に緑」が崩れるので
+  -- 何も塗らない。行が揃って表示されるため、空白でも欠けている場所は分かる
+  vim.api.nvim_set_hl(0, 'DiffDelete', { fg = DIFF.fill })
 end
 
 --- カーソル行の帯を左端の列まで伸ばす。
