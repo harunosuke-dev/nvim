@@ -1,5 +1,25 @@
---- 文章を書くファイル。補完の出し方をコードと変える
-local PROSE_FILETYPES = { 'markdown', 'mdx', 'text', 'gitcommit', 'gitrebase' }
+--- カーソルの直前が日本語でないか。補完を出すかどうかの唯一の判定。
+---
+--- ファイル型では分けない。以前は markdown などで自動ポップアップを止めて
+--- いたが、その理由が「日本語を打っている最中に窓が開いては閉じるのが
+--- 煩わしい」だったので、条件そのもので判定すれば足りる。
+--- コードの中の日本語コメントでも止まり、markdown の英語では出るようになる。
+---
+--- 入力ソースは見ない。IME の状態を毎キーストローク問い合わせるには macism の
+--- プロセス起動が要るため。直前が ASCII のうちは出るので、日本語の文中で
+--- 英単語を打ち始めれば戻る
+local function is_ascii_context()
+  local col = vim.api.nvim_win_get_cursor(0)[2]
+  if col == 0 then
+    return true
+  end
+  local before = vim.api.nvim_get_current_line():sub(1, col)
+  local last = vim.fn.strcharpart(before, vim.fn.strchars(before) - 1, 1)
+  local cp = vim.fn.char2nr(last)
+  -- 3000-30ff 句読点・ひらがな・カタカナ / 4e00-9fff 漢字 / ff00-ffef 全角
+  local japanese = (cp >= 0x3000 and cp <= 0x30ff) or (cp >= 0x4e00 and cp <= 0x9fff) or (cp >= 0xff00 and cp <= 0xffef)
+  return not japanese
+end
 
 return {
   'saghen/blink.cmp',
@@ -89,10 +109,16 @@ return {
       -- auto_insert は false のまま（true にすると候補を移動しただけで
       -- バッファに実際の文字が入ってしまい、ゴーストテキストと役割が重複する）
       ghost_text = {
-        enabled = true,
-        -- メニューを開いていなくても、選択が無くても1件目を薄く出す。
-        -- ポップアップを止めた文章のファイルでも、補完が効いていること自体は
-        -- 見えるようにするため
+        -- 日本語を打っている間は出さない。
+        --
+        -- 日本語には語の区切りが無いので buffer ソースが延々と候補を返し、
+        -- 確定するそばから行内に薄い文字が割り込んでくる。IME の変換候補とも
+        -- 場所を取り合う。コードを書いている間は今までどおり出す。
+        --
+        -- enabled は draw_preview() の中で毎回評価されるため、カーソル位置を
+        -- 見て切り替えられる（blink.cmp の completion/windows/ghost_text/init.lua）
+        enabled = is_ascii_context,
+        -- メニューを開いていなくても、選択が無くても1件目を薄く出す
         show_without_selection = true,
         show_without_menu = true,
       },
@@ -102,15 +128,9 @@ return {
         -- つまみが背景色つきの別ウィンドウとして重なり、右上に四角く見えていた
         scrollbar = false,
 
-        -- 文章を書くファイルではポップアップを自動で出さない。
-        -- 日本語を打っている最中に候補の窓が開いては閉じるのが煩わしい。
-        -- <C-space> を押せばいつでも開ける。
-        --
-        -- コードを書くファイルでは従来どおり自動で出す。型や関数名は
-        -- 覚えていない前提なので、待たずに見えた方がよい
-        auto_show = function()
-          return not vim.tbl_contains(PROSE_FILETYPES, vim.bo.filetype)
-        end,
+        -- 日本語を打っている間だけ自動で出さない。
+        -- 区切りが無いので、1文字ごとに文がまるごと候補になってしまう
+        auto_show = is_ascii_context,
       },
       list = { selection = { preselect = true, auto_insert = false } },
     },
