@@ -338,70 +338,38 @@ vim.api.nvim_create_autocmd('BufWritePre', {
   end,
 })
 
--- 非アクティブなウィンドウの左端の列（行番号・記号・折りたたみ）を沈ませる。
+-- 非アクティブなウィンドウを沈ませる。
 --
--- 本文は NormalNC、パンくずは WinBarNC という標準のグループがあるが、
--- 行番号にあたる LineNrNC は存在しない。ハイライトの定義はウィンドウごとに
--- 変わらないため、winhighlight でその窓だけ読み替える。
+-- 窓ごとのハイライト名前空間を当てて、その窓の色だけ暗くする。背景を敷いて
+-- 見分ける方法だと透過が切れるため、色を落とすだけで済ませる。
+-- 名前空間の中身は lua/config/highlights.lua の M.build_inactive()。
 --
--- dropbar が同じ仕組みで DropBar* を読み替えているので、値は上書きせず
--- 自分の指定だけを足し引きする。通常のファイルを開いている窓に限り、
--- フロート窓には触らない。色の定義は lua/config/highlights.lua
-local GUTTER_NC = {
-  -- statuscolumn が %#Normal# を明示しているので、その窓では Normal 自体も
-  -- 読み替える。行番号と本文の間の余白がアクティブ側の色で残るのを防ぐ
-  'Normal:NormalNC',
-  'LineNr:LineNrNC',
-  -- 相対行番号ではこの2つが使われる。LineNr だけでは行番号の色が変わらない
-  'LineNrAbove:LineNrAboveNC',
-  'LineNrBelow:LineNrBelowNC',
-  'CursorLineNr:CursorLineNrNC',
-  'SignColumn:SignColumnNC',
-  'FoldColumn:FoldColumnNC',
-  -- カーソル行の帯と、カーソル下の単語のハイライト（illuminate）は消す。
-  -- 読む場所ではない窓で「どこにカーソルがあるか」を示す必要はない
-  'CursorLine:CursorLineNC',
-  'CursorLineSign:CursorLineSignNC',
-  'CursorLineFold:CursorLineFoldNC',
-  'IlluminatedWordText:IlluminatedWordTextNC',
-  'IlluminatedWordRead:IlluminatedWordReadNC',
-  'IlluminatedWordWrite:IlluminatedWordWriteNC',
-}
-
---- 自分が足した指定を取り除いた winhighlight を返す
-local function without_gutter_nc(value)
-  local kept = {}
-  for item in vim.gsplit(value, ',', { trimempty = true }) do
-    if not vim.tbl_contains(GUTTER_NC, item) then
-      kept[#kept + 1] = item
-    end
-  end
-  return kept
-end
-
-local function dim_inactive_gutter()
-  -- 読み替え先のグループは iceberg 用にしか定義していない。他のテーマでは
-  -- 未定義のグループを指すことになり、行番号などが素の色に化ける。
-  -- テーマ側に同じ仕組み（kanagawa の dimInactive）があるので任せる
+-- 通常のファイルを開いている窓に限る。フロート窓（補完・ホバー）は今の
+-- ウィンドウではないが読ませたい面なので触らない。
+--
+-- **差分モードの窓は対象外。** 名前空間は winhighlight より優先されるため、
+-- 当てるとその窓の読み替えが丸ごと効かなくなる（上の DIFF_WINHL が死んで、
+-- 新しい側まで赤くなる）。名前空間を外しても戻らないので、初めから触らない
+local function dim_inactive_windows()
+  -- 名前空間は iceberg 用にしか作らない。テーマ側に同じ仕組み
+  -- （kanagawa の dimInactive）があるものはそちらに任せる
   local enabled = vim.g.colors_name == 'iceberg'
+  local ns = require('config.highlights').inactive_ns()
   local current = vim.api.nvim_get_current_win()
   for _, win in ipairs(vim.api.nvim_tabpage_list_wins(0)) do
     if vim.api.nvim_win_is_valid(win) and vim.api.nvim_win_get_config(win).relative == '' then
       local buf = vim.api.nvim_win_get_buf(win)
-      if vim.bo[buf].buftype == '' then
-        local items = without_gutter_nc(vim.wo[win].winhighlight)
-        if enabled and win ~= current then
-          vim.list_extend(items, GUTTER_NC)
-        end
-        vim.wo[win].winhighlight = table.concat(items, ',')
+      if vim.bo[buf].buftype == '' and not vim.wo[win].diff then
+        -- 0 は大域の名前空間。当て直すのではなく外す側
+        vim.api.nvim_win_set_hl_ns(win, (enabled and win ~= current) and ns or 0)
       end
     end
   end
 end
 
 vim.api.nvim_create_autocmd({ 'WinEnter', 'WinNew', 'WinClosed', 'BufWinEnter', 'VimEnter', 'ColorScheme' }, {
-  group = augroup('dim_inactive_gutter'),
-  callback = vim.schedule_wrap(dim_inactive_gutter),
+  group = augroup('dim_inactive_windows'),
+  callback = vim.schedule_wrap(dim_inactive_windows),
 })
 
 -- キー列の待ち時間をモードごとに変える。

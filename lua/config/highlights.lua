@@ -123,52 +123,9 @@ function M.apply()
     set('Normal', ICEBERG.body)
   end
 
-  -- 非アクティブなウィンドウを見分けられるようにする（kanagawa の dimInactive と
-  -- 同じこと）。テーマ固有の機能ではなく NormalNC を変えているだけなので、
-  -- 設定項目を持たない iceberg でもできる。
-  --
-  -- 背景は暗くするのではなく「明るく」する。本文の #0d0e14 は既に黒に近く、
-  -- 暗い方向には余地が無い（chrome まで落としても 1.04 倍しか差が出ない）。
-  -- 明るい方へ振れば 1.09 倍まで開き、アクティブ側の色を変えずに済む。
-  -- tmux のペインも同じ関係（アクティブが暗く、非アクティブが明るい）。
-  --
-  -- 文字は 25% 沈める。背景の差だけでは足りないぶんをこちらで補う
-  vim.api.nvim_set_hl(0, 'NormalNC', {
-    fg = dim(normal.fg, 0.75),
-    bg = ICEBERG.gutter,
-  })
-
-  -- 非アクティブなウィンドウの左端の列。LineNrNC のような標準のグループは
-  -- 無いので、winhighlight で窓ごとに読み替える（lua/config/autocmds.lua）。
-  -- 本文と同じ明るさまで持ち上げ、文字はさらに沈める
-  -- 相対行番号では LineNr ではなく LineNrAbove / LineNrBelow が使われるので、
-  -- そちらも用意しないと行番号だけ色が変わらない
-  for _, group in ipairs({
-    'LineNrNC',
-    'LineNrAboveNC',
-    'LineNrBelowNC',
-    'CursorLineNrNC',
-    'SignColumnNC',
-    'FoldColumnNC',
-  }) do
-    vim.api.nvim_set_hl(0, group, { fg = dim(ICEBERG.linenr, 0.75), bg = ICEBERG.gutter })
-  end
-
-  -- 非アクティブなウィンドウでは、カーソル行の帯と、カーソル下の単語の
-  -- ハイライト（illuminate）を消す。そこは今読む場所ではないので、
-  -- 「どこにカーソルがあるか」はアクティブなウィンドウだけで示せばよい。
-  --
-  -- 空の定義にすると属性を持たないので、その窓の地の色がそのまま出る
-  for _, group in ipairs({
-    'CursorLineNC',
-    'CursorLineSignNC',
-    'CursorLineFoldNC',
-    'IlluminatedWordTextNC',
-    'IlluminatedWordReadNC',
-    'IlluminatedWordWriteNC',
-  }) do
-    vim.api.nvim_set_hl(0, group, {})
-  end
+  -- 非アクティブなウィンドウは M.build_inactive() の名前空間で沈める。
+  -- ここは背景を敷かないように戻すだけ。敷くと透過が切れる
+  vim.api.nvim_set_hl(0, 'NormalNC', { fg = normal.fg })
 
   -- 左端の列。カーソル行以外はすべてこの色になる。
   -- パンくず・ステータスラインと同じ背景に揃え、周辺情報として一体に見せる。
@@ -452,6 +409,61 @@ function M.apply()
     if name:match('^DropBarKind') then
       vim.api.nvim_set_hl(0, name, { fg = ICEBERG.linenr })
     end
+  end
+
+  -- 色が出揃った後に、非アクティブ用の複製を作り直す
+  M.build_inactive()
+end
+
+--- 非アクティブなウィンドウ用の色。窓ごとの名前空間として持つ。
+---
+--- 背景を敷いて見分ける方法は透過と両立しない。全グループの複製を作って
+--- 色だけ沈め、nvim_win_set_hl_ns で窓に当てる（lua/config/autocmds.lua）。
+---
+--- NormalNC の文字色を落とすやり方では足りない。構文色を持つ文字は自分の
+--- 色で描かれるため沈まず、非アクティブ側の local が rgb(133,160,199) の
+--- ままだった（実測）。名前空間なら構文色ごと沈む
+local inactive_ns
+
+--- 45% 沈める。コントラストは 12.10 対 3.93 で 3.1 倍の開き
+local INACTIVE = 0.55
+
+--- 非アクティブなウィンドウでは背景を持たせないグループ。
+--- カーソル行の帯とカーソル下の単語（illuminate）は、今読んでいる窓だけでよい
+local INACTIVE_NO_BG = {
+  CursorLine = true,
+  CursorLineNr = true,
+  CursorLineSign = true,
+  CursorLineFold = true,
+  IlluminatedWordText = true,
+  IlluminatedWordRead = true,
+  IlluminatedWordWrite = true,
+}
+
+function M.inactive_ns()
+  if not inactive_ns then
+    inactive_ns = vim.api.nvim_create_namespace('user_inactive')
+  end
+  return inactive_ns
+end
+
+function M.build_inactive()
+  local ns = M.inactive_ns()
+  for name in pairs(vim.api.nvim_get_hl(0, {})) do
+    local hl = vim.api.nvim_get_hl(0, { name = name, link = false })
+    -- nvim_get_hl は default = true を含めて返す。そのまま渡すと
+    -- 「既存定義があれば何もしない」書き込みになり、上書きできない
+    hl.default = nil
+    if hl.fg then
+      hl.fg = dim(hl.fg, INACTIVE)
+    end
+    if hl.bg then
+      hl.bg = dim(hl.bg, INACTIVE)
+    end
+    if INACTIVE_NO_BG[name] then
+      hl.bg = nil
+    end
+    vim.api.nvim_set_hl(ns, name, hl)
   end
 end
 
