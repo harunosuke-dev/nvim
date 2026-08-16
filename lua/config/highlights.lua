@@ -122,6 +122,12 @@ function M.apply()
   set('CursorLineSign', ICEBERG.cursor)
   set('CursorLineFold', ICEBERG.cursor)
 
+  -- 補完メニュー（blink.cmp）で選んでいる行も同じ色にする。
+  -- 既定は PmenuSel を継いで #5c638a になり、透過した面の上で青く浮く。
+  -- 「今いる場所」の示し方を本文と揃える
+  set('BlinkCmpMenuSelection', ICEBERG.cursor)
+  set('BlinkCmpDocCursorLine', ICEBERG.cursor)
+
   -- 記号（診断・gitsigns・TODO）の背景を外して、カーソル行の帯を通す
   clear_sign_backgrounds()
 
