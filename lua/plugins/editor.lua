@@ -27,10 +27,30 @@ return {
       })
 
       -- 既定は下線だが、診断の警告表示にも下線を使っているため区別がつかない。
-      -- 背景色に変える。Visual にリンクしておけばカラースキームを変えても追従する
+      -- 背景色に変える。色はカラースキームから引くので :colorscheme に追従する。
+      --
+      -- Visual を link しない理由が2つある。
+      --
+      --   1. Visual は背景しか持たない。colorizer が色コードへ付けた文字色
+      --      （明るい色ほど黒くなる）が残り、黒背景に黒文字で読めなくなる
+      --   2. Visual の背景はカーソル行との差が 1.16:1 しかなく、帯が見えない
+      --
+      -- 背景は Visual を 1.7 倍に持ち上げて 1.91:1 にし、文字色は Normal を明示する。
+      -- この組み合わせで文字と背景は 4.98:1（WCAG AA の 4.5:1 以上）になる
+      local function brighten(color, factor)
+        local r = math.min(255, math.floor(math.floor(color / 65536) % 256 * factor + 0.5))
+        local g = math.min(255, math.floor(math.floor(color / 256) % 256 * factor + 0.5))
+        local b = math.min(255, math.floor(color % 256 * factor + 0.5))
+        return r * 65536 + g * 256 + b
+      end
+
       local function set_hl()
+        local visual = vim.api.nvim_get_hl(0, { name = 'Visual', link = false })
+        local normal = vim.api.nvim_get_hl(0, { name = 'Normal', link = false })
+        -- 背景を持たないカラースキームでは Visual への link に戻す
+        local hl = visual.bg and { bg = brighten(visual.bg, 1.7), fg = normal.fg } or { link = 'Visual' }
         for _, group in ipairs({ 'IlluminatedWordText', 'IlluminatedWordRead', 'IlluminatedWordWrite' }) do
-          vim.api.nvim_set_hl(0, group, { link = 'Visual' })
+          vim.api.nvim_set_hl(0, group, hl)
         end
       end
       vim.api.nvim_create_autocmd('ColorScheme', {
