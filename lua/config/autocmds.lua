@@ -189,13 +189,16 @@ vim.api.nvim_create_autocmd('FileChangedShellPost', {
 
 -- 文章を書くファイルで、折り返しの見た目を整える。
 --
--- 折り返し自体は全ファイルで有効（lua/config/options.lua）。表が崩れる時は
--- <Space>uw で切る。
+-- 折り返し自体は全ファイルで有効（lua/config/options.lua）。
+-- 表が崩れる時は <Space>uw で切る。
 --
---   linebreak    単語の途中で切らない
 --   breakindent  折り返した行もインデントを保つ
+--   showbreak    折り返した行の先頭に印を出す
 --
--- コードでは単語の途中で切れた方が桁が揃うため、文章系にだけ入れる。
+-- WARNING: linebreak は入れない。
+-- 'breakat' が ASCII しか持てない。
+-- そのため日本語では直前の空白まで戻って改行し、行の右半分が空く。
+--
 -- j / k と 0 / $ の表示行対応は全ファイル共通なので keymaps.lua にある
 local prose_group = augroup('prose_wrap')
 
@@ -203,8 +206,9 @@ vim.api.nvim_create_autocmd('FileType', {
   group = prose_group,
   pattern = { 'markdown', 'mdx', 'text', 'gitcommit', 'gitrebase' },
   callback = function()
-    vim.opt_local.linebreak = true
+    vim.opt_local.linebreak = false
     vim.opt_local.breakindent = true
+    vim.opt_local.showbreak = '↪ '
   end,
 })
 
