@@ -95,6 +95,46 @@ local function clear_sign_backgrounds()
   end
 end
 
+--- barbar の「選択中のタブ」から面を外す。
+---
+--- barbar は選択中のタブの色を TabLineSel から作る（barbar/highlight.lua）。
+--- iceberg の TabLineSel は「暗い文字 #17181c + 明るい面 #828597」の反転で、
+--- 他の帯が透けているこの設定の中では、そこだけ板が貼られたように浮く。
+---
+--- 面を外し、今どこにいるかは左端のバー（Special の色）と太字で示す。
+--- barbar 本来の示し方でもある。
+---
+--- 面の上に置くための暗い文字色は、面を外すと地に沈む。TabLineSel と同じ値の
+--- ものだけ本文の明るさへ戻し、診断や差分のように自前の色を持つものは残す。
+---
+--- BufferCurrent だけでは足りない。変更マークや診断も同じ面を持っており、
+--- 外し忘れると名前の周りだけ地が残って途切れて見える。
+--- ファイル種別アイコンの色（DevIcon*Current）は barbar が BufferCurrent から
+--- 作り直すため、ここでは触らなくてよい
+local function flatten_barbar_current()
+  local sel = vim.api.nvim_get_hl(0, { name = 'TabLineSel', link = false })
+  local normal = vim.api.nvim_get_hl(0, { name = 'Normal', link = false })
+
+  for name in pairs(vim.api.nvim_get_hl(0, {})) do
+    if name:match('^BufferCurrent') then
+      local resolved = vim.api.nvim_get_hl(0, { name = name, link = false })
+      -- リンク先がまだ定義されていない段階では空が返る。空のまま書き戻すと
+      -- リンクを潰した空の定義が残り、barbar が後から色を入れても効かなくなる
+      if next(resolved) ~= nil then
+        if resolved.fg == sel.fg then
+          resolved.fg = normal.fg
+          resolved.bold = true
+        end
+        resolved.bg = nil
+        -- nvim_get_hl は default = true を含めて返す。そのまま渡すと
+        -- 「既存定義があれば何もしない」書き込みになり、上書きできない
+        resolved.default = nil
+        vim.api.nvim_set_hl(0, name, resolved)
+      end
+    end
+  end
+end
+
 function M.apply()
   if vim.g.colors_name ~= 'iceberg' then
     return -- 他のテーマには手を入れない
@@ -130,6 +170,15 @@ function M.apply()
 
   -- 記号（診断・gitsigns・TODO）の背景を外して、カーソル行の帯を通す
   clear_sign_backgrounds()
+
+  -- タブ行（barbar）。選択中のタブの面を外す
+  flatten_barbar_current()
+
+  -- 非選択のタブ。番号は NonText（#252941）から作られ、端末の地に対して
+  -- ほとんど読めない。:BufferGoto の目印なので faint まで上げる。
+  -- 閉じるボタンはファイル名と同じ明るさで並ぶと数が多く煩いので、同じだけ落とす
+  vim.api.nvim_set_hl(0, 'BufferInactiveIndex', { fg = ICEBERG.faint })
+  vim.api.nvim_set_hl(0, 'BufferInactiveBtn', { fg = ICEBERG.faint })
 
   -- 枠の左上・右下に出る見出し。文字だけ橙から補助的な色へ落とす
   vim.api.nvim_set_hl(0, 'FloatTitle', { fg = ICEBERG.breadcrumb })
@@ -409,7 +458,10 @@ end
 ---
 --- 入れないものが3つある。
 ---   NormalNC       非アクティブなウィンドウの減光（M.build_inactive() が沈める）
----   *Sel / WildMenu ポップアップの中で選んでいる行。CursorLine と同じ役割
+---   *Sel / WildMenu ポップアップの中で選んでいる行。CursorLine と同じ役割。
+---                  TabLineSel も同じ。多くのテーマは「暗い文字 + 明るい面」で
+---                  組んでおり（iceberg は #17181c、tokyonight は #1b1d2b）、
+---                  面だけ外すと文字が地に沈んで選択中のタブが読めなくなる
 ---   Cursor / TermCursor カーソルそのもの
 local TRANSPARENT_GROUPS = {
   -- 本文と左端の列
@@ -432,7 +484,6 @@ local TRANSPARENT_GROUPS = {
   'VertSplit',
   'TabLine',
   'TabLineFill',
-  'TabLineSel',
   'ToolbarLine',
   'ToolbarButton',
   -- フロート（K のホバー・which-key・noice など）
@@ -616,8 +667,10 @@ function M.setup()
       M.match_cursorline()
       -- 3. どのテーマでも差分の配色を揃える
       M.diff()
-      -- 4. iceberg だけ、その上に階層（左端の列・パンくず）を作り直す
-      M.apply()
+      -- 4. iceberg だけ、その上に階層（左端の列・パンくず）を作り直す。
+      --    barbar も ColorScheme で自前のハイライトを作り直すため、
+      --    こちらは後ろへ回す。先に当てると barbar に上書きし返される
+      vim.schedule(M.apply)
       -- 5. ステータスラインと lualine を本文に合わせる
       vim.schedule(M.match_statusline)
     end,

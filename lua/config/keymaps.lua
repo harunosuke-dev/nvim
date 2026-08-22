@@ -37,11 +37,10 @@ map('n', '<leader>ws', '<C-w>s', { desc = '[W]indow [S]plit horizontal' })
 map('n', '<leader>wv', '<C-w>v', { desc = '[W]indow split [V]ertical' })
 -- 閉じる・サイズ変更は Ctrl+w q / Ctrl+w o / Ctrl+w = などに揃っている
 
--- バッファ操作
--- バッファの移動は Neovim 0.11 標準の ]b / [b を使う。
+-- バッファ操作は barbar が持つ（lua/plugins/ui.lua）。
+-- 移動は標準どおり ]b / [b だが、タブの並び順で動くよう barbar 側へ差し替えてある。
 -- H / L に割り当てる設定は広く見かけるが、素の Vim では「画面の最上行 /
 -- 最下行へ」という毎日使う移動キーで、潰すと素の環境で戸惑う
-map('n', '<leader>bd', '<cmd>bdelete<CR>', { desc = '[B]uffer [D]elete' })
 
 -- quickfix（検索結果などの一覧）の開閉。移動は標準の ]q / [q
 map('n', '<leader>uq', function()

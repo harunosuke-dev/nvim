@@ -90,6 +90,69 @@ return {
     opts = {},
   },
 
+  -- 画面最上部に、開いているバッファをタブとして並べる。
+  -- Vim の本物のタブページ（:tabnew / gt）とは別のもので、並ぶのはバッファそのもの。
+  -- パンくず（dropbar）はウィンドウごとに出るが、こちらは画面に1本だけ。
+  --
+  -- 配色はプラグイン側が TabLineSel / TabLine / TabLineFill から作る
+  -- （barbar/highlight.lua）。iceberg ではそのあと config/highlights.lua が
+  -- 選択中のタブの面を外すので、今どこにいるかは左端のバーと太字で示される
+  {
+    'romgrk/barbar.nvim',
+    event = 'VeryLazy',
+    dependencies = {
+      'lewis6991/gitsigns.nvim', -- タブごとの差分の数（既定では出さない）
+      'nvim-tree/nvim-web-devicons',
+    },
+    init = function()
+      vim.g.barbar_auto_setup = false
+    end,
+    version = '^1.0.0',
+
+    config = function(_, opts)
+      require('barbar').setup(opts)
+
+      -- barbar は setup の最後で showtabline を 2 に上げる（barbar.lua:229）
+      -- これにより、次の2つが起きる：
+      --   1. 組み込みは選択中のタブを TabLineSel で塗る。iceberg のそれは
+      --      明るい面（#828597）なので、画面上端が一瞬白く光る
+      --   2. その間に見えているのは barbar のタブ行ではないため、
+      --      選択中のタブに左端のバーも太字も付かない
+      -- ここで戻し、出すかどうかは barbar の auto_hide に決めさせる
+      vim.o.showtabline = 0
+
+      require('config.highlights').apply()
+    end,
+    opts = {
+      -- バッファが1つしか無い間はタブ行を出さない
+      auto_hide = 1,
+      -- タブの左右の余白設定（既定の 4 はファイル名どうしが離れすぎる）
+      maximum_padding = 1,
+      icons = {
+        buffer_index = true,
+        diagnostics = {
+          [vim.diagnostic.severity.ERROR] = { enabled = true, icon = ' ' },
+          [vim.diagnostic.severity.WARN] = { enabled = true, icon = ' ' },
+        },
+        -- ピン留めしたバッファは左端に集まり、閉じる操作から外れる
+        pinned = { button = '', filename = true },
+      },
+    },
+    keys = {
+      -- 標準の ]b / [b（:bnext / :bprevious）を置き換える
+      -- あちらはバッファ番号の順で動くため、並べ替えた後のタブの並びとずれる
+      { ']b', '<cmd>BufferNext<CR>', desc = 'Next buffer' },
+      { '[b', '<cmd>BufferPrevious<CR>', desc = 'Prev buffer' },
+      -- :bdelete と違い、そのバッファを映していた窓の分割を保ったまま閉じる
+      { '<leader>bd', '<cmd>BufferClose<CR>', desc = '[B]uffer [D]elete' },
+      { '<leader>bo', '<cmd>BufferCloseAllButCurrentOrPinned<CR>', desc = '[B]uffer [O]nly : close the others' },
+      { '<leader>bp', '<cmd>BufferPick<CR>', desc = '[B]uffer [P]ick : jump by letter' },
+      { '<leader>bP', '<cmd>BufferPin<CR>', desc = '[B]uffer [P]in : keep it on the left' },
+      { '<leader>b>', '<cmd>BufferMoveNext<CR>', desc = '[B]uffer move it right' },
+      { '<leader>b<', '<cmd>BufferMovePrevious<CR>', desc = '[B]uffer move it left' },
+    },
+  },
+
   -- コマンドライン・メッセージ・LSP のホバーをフロートウィンドウに置き換える。
   -- 画面下部の1行を占有していたコマンドラインが浮くため、その分だけ本文が広く使える
   {
