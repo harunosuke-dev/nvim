@@ -31,7 +31,16 @@ return {
           margin = { vertical = 0, horizontal = 1 },
           overlap = { borders = false },
         },
-        hide = { cursorline = true },
+        -- カーソルが実際にこの表示と重なる時だけ隠す。
+        --
+        -- true は行だけを見て桁を見ないため（winline.lua:434）、1行目に
+        -- カーソルを置くと、行が短くて重なりようがなくても消えていた。
+        --
+        -- WARNING: パンくず（dropbar）が有効な間、smart は一度も隠さない。
+        -- incline は winline()（パンくずを数えない）と get_win_geom_row()
+        -- （パンくずを避けて +1 する）を直接比べており、行が永久に一致しない。
+        -- 本文が隠れるのが気になるなら window.overlap.winbar を検討する
+        hide = { cursorline = 'smart' },
         render = function(props)
           local filename = vim.fn.fnamemodify(vim.api.nvim_buf_get_name(props.buf), ':t')
           if filename == '' then
