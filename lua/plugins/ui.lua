@@ -92,6 +92,8 @@ return {
     opts = {
       -- バッファが1つしか無い間はタブ行を出さない
       auto_hide = 1,
+      -- タブの増減をスライドさせない（oil を開いた時に一瞬タブが出るのを抑える）
+      animation = false,
       -- タブの左右の余白設定（既定の 4 はファイル名どうしが離れすぎる）
       maximum_padding = 1,
       icons = {
