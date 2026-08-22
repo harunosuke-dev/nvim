@@ -33,13 +33,10 @@ return {
         },
         -- カーソルが実際にこの表示と重なる時だけ隠す。
         --
-        -- true は行だけを見て桁を見ないため（winline.lua:434）、1行目に
-        -- カーソルを置くと、行が短くて重なりようがなくても消えていた。
+        -- true は行だけを見て桁を見ない（winline.lua:434）。
+        -- 1行目にカーソルを置くと、重なりようがなくても消えていた。
         --
-        -- WARNING: パンくず（dropbar）が有効な間、smart は一度も隠さない。
-        -- incline は winline()（パンくずを数えない）と get_win_geom_row()
-        -- （パンくずを避けて +1 する）を直接比べており、行が永久に一致しない。
-        -- 本文が隠れるのが気になるなら window.overlap.winbar を検討する
+        -- WARNING: winbar を持つプラグインを入れると smart が効かなくなる。
         hide = { cursorline = 'smart' },
         render = function(props)
           local filename = vim.fn.fnamemodify(vim.api.nvim_buf_get_name(props.buf), ':t')
@@ -61,42 +58,11 @@ return {
     end,
   },
 
-  -- 画面上部にパンくずを表示する。ディレクトリ階層に加えて、
-  -- カーソルが今どの関数・クラスの中にいるかを LSP / Treesitter から取得して並べる。
-  -- 各要素は選択でき、そこからファイルやシンボルへ直接ジャンプできる
-  {
-    'Bekaboo/dropbar.nvim',
-    event = { 'BufReadPost', 'BufNewFile' },
-    dependencies = { 'nvim-tree/nvim-web-devicons' },
-    keys = {
-      {
-        '<leader>;',
-        function()
-          require('dropbar.api').pick()
-        end,
-        desc = 'Pick from the breadcrumb bar',
-      },
-    },
-    -- 残っている違和感: パンくず上で選択中の要素（DropBarCurrentContext、
-    -- Visual を継承して #282d43）が、パンくず帯の背景 #07080d と揃わず
-    -- 別の面のように見える。気になれば bg を #1a1d2e あたりに落とす。
-    --
-    -- dropbar は読み込み時に 200 以上のハイライトを自前で定義する。
-    -- カラースキーム側のイベントでは取りこぼすため、ここから当て直す
-    config = function(_, opts)
-      require('dropbar').setup(opts)
-      require('config.highlights').apply()
-    end,
-    opts = {},
-  },
-
-  -- 画面最上部に、開いているバッファをタブとして並べる。
-  -- Vim の本物のタブページ（:tabnew / gt）とは別のもので、並ぶのはバッファそのもの。
-  -- パンくず（dropbar）はウィンドウごとに出るが、こちらは画面に1本だけ。
+  -- TODO: 「今どの関数のどこにいるか」が足りないと感じたら nvim-treesitter-context を入れる
+  -- ジャンプは <leader>gs / <leader>gS / Trouble symbols で足りる
   --
-  -- 配色はプラグイン側が TabLineSel / TabLine / TabLineFill から作る
-  -- （barbar/highlight.lua）。iceberg ではそのあと config/highlights.lua が
-  -- 選択中のタブの面を外すので、今どこにいるかは左端のバーと太字で示される
+  -- 画面最上部に、開いているバッファをタブとして並べる
+  -- Vim の本物のタブページ（:tabnew / gt）とは別のもので、並ぶのはバッファそのもの
   {
     'romgrk/barbar.nvim',
     event = 'VeryLazy',

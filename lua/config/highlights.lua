@@ -352,48 +352,6 @@ function M.apply()
   -- NonText は `~` を目立たせないための色であって、読ませる文字には向かない
   vim.api.nvim_set_hl(0, 'NoiceLspProgressTitle', { fg = ICEBERG.breadcrumb })
 
-  -- パンくずのメニューで、カーソルのある行が白い帯になる問題。
-  --
-  -- dropbar は「今いる項目」を DropBarMenuHoverEntry で示し、これは既定で
-  -- IncSearch を継承する。iceberg の IncSearch は色を持たず reverse（反転）
-  -- だけを指定しているため、本文の文字色（#c7c9d1）が背景として塗られる。
-  --
-  -- 反転は元の色を入れ替えるだけなので、アイコンや区切り記号がそれぞれ別の
-  -- 色で反転し、行全体がちぐはぐな見た目になっていた。
-  --
-  -- 明示的に色を与えて反転をやめる。選択行として分かる程度に持ち上げるだけで
-  -- 十分で、白く塗る必要はない
-  -- 背景だけを与える。文字色は指定しない。
-  -- fg まで上書きするとアイコンの色が潰れ、そこだけ浮いて見えるため
-  for _, group in ipairs({
-    'DropBarMenuHoverEntry',
-    'DropBarMenuHoverIcon',
-    'DropBarMenuHoverSymbol',
-  }) do
-    vim.api.nvim_set_hl(0, group, { bg = ICEBERG.select, reverse = false })
-  end
-
-  -- 展開マーク（>）だけが #b5bf82 のオリーブで、彩度が高く浮いていた。
-  -- 同じ補助記号である区切り（DropBarIconUISeparator = #6c7189）に揃える
-  vim.api.nvim_set_hl(0, 'DropBarIconUIIndicator', { fg = ICEBERG.breadcrumb })
-
-  -- マウスが乗った要素の強調。既定は reverse = true で、色を持たないため
-  -- 本文色が背景として塗られる。マウスを使わなくても、フォルダの > の
-  -- ところに帯として出てしまう。行の強調と同じ色にして目立たせない
-  vim.api.nvim_set_hl(0, 'DropBarMenuHoverIcon', { bg = ICEBERG.select, reverse = false })
-
-  -- 展開マーク（>）の位置に出る帯。DropBarPreview は Visual を継承しており、
-  -- カーソルのある行以外の > にも背景が付いて見えていた。背景を持たせない
-  local preview = vim.api.nvim_get_hl(0, { name = 'DropBarPreview', link = false })
-  preview.bg = nil
-  preview.reverse = nil
-  preview.default = nil
-  vim.api.nvim_set_hl(0, 'DropBarPreview', preview)
-
-  -- メニュー自体の背景。フロート全般と揃える
-  vim.api.nvim_set_hl(0, 'DropBarMenuNormalFloat', { link = 'NormalFloat' })
-  vim.api.nvim_set_hl(0, 'DropBarMenuFloatBorder', { link = 'FloatBorder' })
-
   -- 色が出揃った後に、非アクティブ用の複製を作り直す
   M.build_inactive()
 end
