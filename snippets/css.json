@@ -1,0 +1,77 @@
+{
+  "box-sizing リセット": {
+    "prefix": "bbox",
+    "body": [
+      "*,",
+      "*::before,",
+      "*::after {",
+      "  box-sizing: border-box;",
+      "}"
+    ],
+    "description": "width を「占める幅」に読み替える。padding と border を含める"
+  },
+  "owl — 流れる文章の間隔": {
+    "prefix": "flow",
+    "body": [
+      "${1:.flow} > * + * {",
+      "  margin-block-start: var(--flow-space, ${2:1.5rem});",
+      "}"
+    ],
+    "description": "隣り合う兄弟の間にだけ余白。端に余分な余白が出ない（lobotomized owl）"
+  },
+  "縦に積む Flexbox": {
+    "prefix": "stack",
+    "body": [
+      "${1:.stack} {",
+      "  display: flex;",
+      "  flex-direction: column;",
+      "  gap: ${2:1.5rem};",
+      "}"
+    ],
+    "description": "並べる箱の間隔。gap は相殺しないので指定した値がそのまま出る"
+  },
+  "中央寄せと行長の制限": {
+    "prefix": "wrap",
+    "body": [
+      "${1:.wrap} {",
+      "  max-inline-size: ${2:40em};",
+      "  margin-inline: auto;",
+      "  padding-inline: ${3:1rem};",
+      "}"
+    ],
+    "description": "上限を決めて中央へ。位置や大きさは決め打たない"
+  },
+  "流体的なサイズ": {
+    "prefix": "clamp",
+    "body": [
+      "clamp(${1:1rem}, ${2:2.5vw}, ${3:1.5rem})"
+    ],
+    "description": "下限・可変・上限。分岐せずに連続的に伸縮させる"
+  },
+  "フォーカスの輪郭": {
+    "prefix": "focus",
+    "body": [
+      ":focus-visible {",
+      "  outline: ${1:3px} solid ${2:currentColor};",
+      "  outline-offset: ${3:3px};",
+      "}"
+    ],
+    "description": "現在位置の表示装置。outline: none を書くなら代わりを必ず置く"
+  },
+  "動きを減らす設定を尊重": {
+    "prefix": "reduce",
+    "body": [
+      "@media (prefers-reduced-motion: reduce) {",
+      "  *,",
+      "  *::before,",
+      "  *::after {",
+      "    animation-duration: 0.01ms !important;",
+      "    animation-iteration-count: 1 !important;",
+      "    transition-duration: 0.01ms !important;",
+      "    scroll-behavior: auto !important;",
+      "  }",
+      "}"
+    ],
+    "description": "動きが体調に影響する人がいる。設定を尊重する"
+  }
+}
