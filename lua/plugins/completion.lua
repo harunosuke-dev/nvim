@@ -192,6 +192,21 @@ return {
             },
           },
         },
+        -- cssls と css_variables は、どちらも var(--x) の候補を返す。
+        -- cssls が拾うのは同じファイル内の定義だけで、css_variables の結果に必ず含まれる。
+        -- css_variables が付いている間は cssls の変数候補を落とす
+        lsp = {
+          transform_items = function(ctx, items)
+            local bufnr = ctx and ctx.bufnr or 0
+            if #vim.lsp.get_clients({ bufnr = bufnr, name = 'css_variables' }) == 0 then
+              return items
+            end
+            return vim.tbl_filter(function(item)
+              local client = item.client_id and vim.lsp.get_client_by_id(item.client_id)
+              return not (client and client.name == 'cssls' and vim.startswith(item.label, '--'))
+            end, items)
+          end,
+        },
         -- Lua 設定ファイルを編集している時だけ Neovim API の補完を最優先で出す
         lazydev = {
           name = 'LazyDev',

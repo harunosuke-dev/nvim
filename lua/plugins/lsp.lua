@@ -7,6 +7,7 @@ local servers = {
   'eslint', -- ESLint
   'cssls', -- CSS / SCSS
   'cssmodules_ls', -- CSS Modules（styles.foo から .module.css へ定義ジャンプ）
+  'css_variables', -- CSS カスタムプロパティ（var(--x) の補完と定義ジャンプ）
   'html', -- HTML
   'jsonls', -- JSON（package.json / tsconfig.json のスキーマ補完）
   'bashls', -- sh / bash（shellcheck 連携）
@@ -14,6 +15,11 @@ local servers = {
   'yamlls', -- YAML（GitHub Actions など）
   'taplo', -- TOML
 }
+
+-- NOTE: CSS 系は3つが同じバッファに attach する。
+-- cssls が構文検証、cssmodules_ls がクラス名のジャンプ、css_variables が変数を担う。
+-- cssls と css_variables は var(--x) の候補が重なる。
+-- lua/plugins/completion.lua の transform_items で cssls 側を落としている。
 
 -- conform.nvim / bashls から使う外部ツール
 local tools = {
