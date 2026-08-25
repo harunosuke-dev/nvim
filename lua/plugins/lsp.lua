@@ -106,6 +106,20 @@ return {
           -- 対応していないサーバでは何も起きないので、条件を絞らず有効にしてよい
           vim.lsp.document_color.enable(true, { bufnr = event.buf })
 
+          -- WARNING: css_variables は attach 直後の問い合わせに空で答える。
+          -- Neovim は各クライアントに一度しか聞かず、あとは編集されるまで聞き直さない。
+          -- そのため別ファイルで定義した変数だけ、開いた直後は色が付かない。
+          -- 実測ではサーバは 100ms 前後で答えられるので、一拍おいて入れ直す
+          local attached = vim.lsp.get_client_by_id(event.data.client_id)
+          if attached and attached.name == 'css_variables' then
+            vim.defer_fn(function()
+              if vim.api.nvim_buf_is_valid(event.buf) then
+                vim.lsp.document_color.enable(false, { bufnr = event.buf })
+                vim.lsp.document_color.enable(true, { bufnr = event.buf })
+              end
+            end, 500)
+          end
+
           local map = function(keys, fn, desc, opts)
             vim.keymap.set(
               'n',
