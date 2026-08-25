@@ -109,10 +109,10 @@ function M.pick()
     -- 展開前の $1 $0 も見えた方が、どこにカーソルが来るか分かる
     previewer = false,
     fzf_opts = {
-      ['--preview'] = fzf.shell.raw_action(function(selected)
+      ['--preview'] = fzf.shell.stringify_data(function(selected)
         local item = by_label[selected[1]]
         return item and item.lines or {}
-      end),
+      end, {}, '{}'),
       ['--preview-window'] = 'right:60%',
     },
     actions = {
