@@ -225,6 +225,45 @@ vim.api.nvim_create_autocmd('FileType', {
   end,
 })
 
+-- CSS の変数を書いたファイルを保存した時に、css_variables へ知らせる。
+--
+-- WARNING: このサーバは workspace/didChangeWatchedFiles でしか変数表を更新しない
+-- （dist/index.js の onDidChangeWatchedFiles）。監視の登録はサーバ側で行わないため、
+-- VSCode 以外では誰も通知を送らない。
+-- 送らないと、新しく足した変数が補完にも色にも出てこない。
+--
+-- 通知の後で document_color を入れ直すのは、Neovim がクライアントごとに
+-- 一度しか documentColor を聞かないため（lua/plugins/lsp.lua の注記を参照）
+vim.api.nvim_create_autocmd('BufWritePost', {
+  group = augroup('css_variables_sync'),
+  pattern = { '*.css', '*.scss', '*.sass', '*.less' },
+  callback = function(args)
+    local clients = vim.lsp.get_clients({ name = 'css_variables' })
+    if #clients == 0 then
+      return
+    end
+
+    local uri = vim.uri_from_fname(vim.fn.fnamemodify(args.file, ':p'))
+    for _, client in ipairs(clients) do
+      client:notify('workspace/didChangeWatchedFiles', {
+        changes = { { uri = uri, type = vim.lsp.protocol.FileChangeType.Changed } },
+      })
+    end
+
+    -- 再解析を待ってから色を描き直す。
+    -- 窓に出ているものだけでは足りない。定義側を同じ窓で開いて保存した場合、
+    -- 参照している側は隠れていて対象から漏れる
+    vim.defer_fn(function()
+      for _, buf in ipairs(vim.api.nvim_list_bufs()) do
+        if vim.api.nvim_buf_is_loaded(buf) and #vim.lsp.get_clients({ bufnr = buf, name = 'css_variables' }) > 0 then
+          vim.lsp.document_color.enable(false, { bufnr = buf })
+          vim.lsp.document_color.enable(true, { bufnr = buf })
+        end
+      end
+    end, 300)
+  end,
+})
+
 -- quickfix ウィンドウの操作性を整える
 local qf_group = augroup('quickfix')
 
