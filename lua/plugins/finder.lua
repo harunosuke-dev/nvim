@@ -210,9 +210,6 @@ return {
     { '<leader>fk', '<cmd>FzfLua keymaps<cr>', desc = '[F]ind [K]eymap' },
     { '<leader>fc', '<cmd>FzfLua colorschemes<cr>', desc = '[F]ind [C]olorscheme : preview live' },
     { '<leader>fz', '<cmd>FzfLua<cr>', desc = '[F]ind all fzf-lua pickers' },
-    -- Git。変更のあるファイルを一覧にして、選んだものの差分をプレビューに出す。
-    -- 左右でステージの出し入れができる。コミットを組み立てるのは lazygit（<leader>gg）
-    { '<leader>gc', '<cmd>FzfLua git_status<cr>', desc = '[G]it [C]hanges : files to review' },
   },
   init = function()
     -- シェルの FZF_DEFAULT_OPTS を引き継がせない。
