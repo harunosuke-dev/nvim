@@ -139,4 +139,61 @@ return {
       end,
     },
   },
+
+  -- 変更のあったファイルを左のパネルに並べ、選ぶと横並びの差分を開く。
+  -- <leader>hd（gitsigns の diffthis）が1ファイルを見る道具なのに対し、
+  -- こちらはブランチ単位で全部見て回る道具。
+  --
+  -- :CodeDiff main... がマージベースとの差分（PR と同じ範囲）を出す。
+  -- :CodeDiff v1 v2 -- packages/ui のようにパスも絞れる。今の手持ちに無いのはここ
+  {
+    'esmuellert/codediff.nvim',
+    cmd = 'CodeDiff', -- :CodeDiff を打つまで読み込まない
+    opts = {
+      -- 色は <leader>hd と同じものを使う。lua/config/highlights.lua が
+      -- テーマに依らず定義しているグループを指す。
+      -- 名前で渡すと文字色まで引き継がれる（ui/highlights.lua の
+      -- resolve_char_highlight）ので、変わった文字を白く浮かせる指定も効く。
+      --
+      -- 素の :diffthis と違い、こちらは追加と削除を自分で区別する。
+      -- 左右へ振り分ける必要がないので Old / New をそのまま当てられる
+      highlights = {
+        line_insert = 'DiffAddNew',
+        line_delete = 'DiffChangeOld',
+        char_insert = 'DiffTextNew',
+        char_delete = 'DiffTextOld',
+      },
+      explorer = {
+        view_mode = 'tree', -- 既定は平坦な一覧
+        -- j/k で移動するだけで差分が切り替わる。一覧に留まったまま見て回れる
+        auto_open_on_cursor = true,
+      },
+    },
+    config = function(_, opts)
+      require('codediff').setup(opts)
+      -- 自前のハイライトを setup 時に定義するため、こちらから当て直す
+      require('config.highlights').diff()
+    end,
+    keys = {
+      { '<leader>gc', '<cmd>CodeDiff<cr>', desc = '[G]it [C]hanges : review the tree' },
+      {
+        '<leader>gp',
+        function()
+          -- 派生元との差分（PR と同じ範囲）。基準は origin/HEAD から引く。
+          -- main 直書きだと master のリポジトリで外れる
+          local base = vim.fn.systemlist({ 'git', 'symbolic-ref', '--quiet', 'refs/remotes/origin/HEAD' })[1]
+          base = base and base:gsub('^refs/remotes/', '') or 'origin/main'
+          vim.cmd('CodeDiff ' .. base .. '...')
+        end,
+        desc = '[G]it [P]R : changes since branching',
+      },
+      { '<leader>gh', '<cmd>CodeDiff history<cr>', desc = '[G]it [H]istory : commit by commit' },
+      {
+        '<leader>gh',
+        ':CodeDiff history<cr>',
+        mode = 'x',
+        desc = '[G]it [H]istory for the selected lines',
+      },
+    },
+  },
 }
