@@ -377,10 +377,23 @@ vim.api.nvim_create_autocmd('BufWritePre', {
 --- tmux 側は focus-events on が前提（packages/tmux/.config/tmux/tmux.conf）
 local focused = true
 
+--- 差分のタブ（codediff）かどうか。
+--- ここは explorer と左右の差分が組で1つの画面なので、窓を移るたびに
+--- 片方が沈むと読めなくなる。タブごと対象から外す
+local function is_diff_tab()
+  for _, win in ipairs(vim.api.nvim_tabpage_list_wins(0)) do
+    local buf = vim.api.nvim_win_get_buf(win)
+    if vim.bo[buf].filetype:match('^codediff') then
+      return true
+    end
+  end
+  return false
+end
+
 local function dim_inactive_windows()
   -- 名前空間は iceberg 用にしか作らない。テーマ側に同じ仕組み
   -- （kanagawa の dimInactive）があるものはそちらに任せる
-  local enabled = vim.g.colors_name == 'iceberg'
+  local enabled = vim.g.colors_name == 'iceberg' and not is_diff_tab()
   local ns = require('config.highlights').inactive_ns()
   local current = vim.api.nvim_get_current_win()
   for _, win in ipairs(vim.api.nvim_tabpage_list_wins(0)) do
