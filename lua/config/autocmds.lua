@@ -371,6 +371,12 @@ vim.api.nvim_create_autocmd('BufWritePre', {
 -- **差分モードの窓は対象外。** 名前空間は winhighlight より優先されるため、
 -- 当てるとその窓の読み替えが丸ごと効かなくなる（上の DIFF_WINHL が死んで、
 -- 新しい側まで赤くなる）。名前空間を外しても戻らないので、初めから触らない
+--- nvim のペイン自体にフォーカスがあるか。
+--- tmux で隣のペイン（Claude など）へ移ると false になる。
+--- 外れている間は「今いる窓」も沈めて、nvim 全体が退いて見えるようにする。
+--- tmux 側は focus-events on が前提（packages/tmux/.config/tmux/tmux.conf）
+local focused = true
+
 local function dim_inactive_windows()
   -- 名前空間は iceberg 用にしか作らない。テーマ側に同じ仕組み
   -- （kanagawa の dimInactive）があるものはそちらに任せる
@@ -382,7 +388,8 @@ local function dim_inactive_windows()
       local buf = vim.api.nvim_win_get_buf(win)
       if vim.bo[buf].buftype == '' and not vim.wo[win].diff then
         -- 0 は大域の名前空間。当て直すのではなく外す側
-        vim.api.nvim_win_set_hl_ns(win, (enabled and win ~= current) and ns or 0)
+        local dim = enabled and (not focused or win ~= current)
+        vim.api.nvim_win_set_hl_ns(win, dim and ns or 0)
       end
     end
   end
@@ -391,6 +398,15 @@ end
 vim.api.nvim_create_autocmd({ 'WinEnter', 'WinNew', 'WinClosed', 'BufWinEnter', 'VimEnter', 'ColorScheme' }, {
   group = augroup('dim_inactive_windows'),
   callback = vim.schedule_wrap(dim_inactive_windows),
+})
+
+-- 端末のフォーカスが移った時。tmux のペインを跨いだ時にここが呼ばれる
+vim.api.nvim_create_autocmd({ 'FocusLost', 'FocusGained' }, {
+  group = augroup('dim_on_focus'),
+  callback = vim.schedule_wrap(function(args)
+    focused = args.event == 'FocusGained'
+    dim_inactive_windows()
+  end),
 })
 
 -- キー列の待ち時間をモードごとに変える。
