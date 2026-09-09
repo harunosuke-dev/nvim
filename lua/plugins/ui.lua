@@ -87,6 +87,23 @@ return {
       -- ここで戻し、出すかどうかは barbar の auto_hide に決めさせる
       vim.o.showtabline = 0
 
+      -- WARNING: barbar は showtabline が 0 か 2 のどちらかである前提で書かれている。
+      -- render.lua:538-547 は「2 なら 0 へ」「0 なら 2 へ」しか持たない。
+      -- snacks の dashboard は開くときの値を保存し、閉じるときに書き戻す（dashboard.lua:1185）。
+      -- 書き戻されるのは barbar が触る前の既定値 1 である。
+      -- barbar はその 1 から復帰できず、引数なしで起動した回だけタブ行が出なくなる。
+      -- 1 を見つけたら 0 に直し、barbar に判断をやり直させる
+      vim.api.nvim_create_autocmd('OptionSet', {
+        group = vim.api.nvim_create_augroup('barbar-showtabline', { clear = true }),
+        pattern = 'showtabline',
+        callback = function()
+          if vim.o.showtabline == 1 then
+            vim.o.showtabline = 0
+            require('barbar.ui.render').update()
+          end
+        end,
+      })
+
       require('config.highlights').apply()
     end,
     opts = {
