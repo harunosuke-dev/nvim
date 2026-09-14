@@ -1,10 +1,44 @@
 -- oil.nvim はディレクトリを「編集可能なバッファ」として開くファイラ。
 -- 行を書き換えてリネーム、行を消して削除、行を足して新規作成し、:w で確定する。
 -- 通常の Vim 操作（dd / p / cw / ビジュアル選択）がそのまま使えるのが利点
+--- 引数なしで開いた時に、その場に git の変更が残っているか。
+--- 残っていれば「何をしていたか」の答えなので、差分のレビューから始める
+local function has_changes()
+  if vim.fn.argc(-1) > 0 or vim.fn.executable('git') == 0 then
+    return false
+  end
+  local changed = vim.fn.systemlist({ 'git', 'status', '--porcelain' })
+  return vim.v.shell_error == 0 and #changed > 0
+end
+
 return {
   'stevearc/oil.nvim',
   -- netrw を置き換えるため遅延ロードしない（起動直後に nvim . で開けるように）
   lazy = false,
+  -- 引数なしで開いた時はファイラから始める。
+  -- 起動画面は持たない（lua/plugins/snacks.lua の注記を参照）。
+  --
+  -- git に変更が残っていれば、その上に差分のレビューを重ねる。
+  -- codediff を q で閉じるとファイラが残り、そのまま次の作業へ移れる。
+  --
+  -- VimEnter を待つのは codediff が cmd で遅延ロードされるため
+  init = function()
+    vim.api.nvim_create_autocmd('VimEnter', {
+      once = true,
+      callback = function()
+        if vim.fn.argc(-1) > 0 then
+          return
+        end
+        local review = has_changes()
+        vim.schedule(function()
+          pcall(vim.cmd, 'Oil')
+          if review then
+            pcall(vim.cmd, 'CodeDiff')
+          end
+        end)
+      end,
+    })
+  end,
   keys = {
     -- oil の定番は - だが、素の Vim では「前の行の先頭へ」という移動キー。
     -- <leader>e と同じ動作を2箇所に置いても得るものが無いので、こちらだけ残す
