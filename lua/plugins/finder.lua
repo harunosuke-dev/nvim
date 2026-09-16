@@ -256,6 +256,29 @@ return {
       width = 0.85,
       preview = { layout = 'flex', scrollbar = 'float' },
     },
+    -- Alt-i（.gitignore を無視して検索し直す）をヘッダーに出す。
+    --
+    -- node_modules を既定で外すのは正しい。自分が書いた行が埋もれるため。
+    -- 一方で依存ライブラリの中を追う時だけは外したい。
+    -- fzf-lua は割り当てだけ用意してヘッダーから隠している（defaults.lua:262）。
+    -- 表示が無いと存在を思い出せない。
+    --
+    -- 文言を自前の関数にするのは、live_grep で状態を正しく読むため。
+    -- fzf-lua 内蔵の文言は cmd 文字列を見る。live_grep はこの時点で cmd を持たない。
+    --
+    -- bind テーブルは既定と併合されない。先頭の true で引き継ぎを指定する。
+    -- fn と reuse は既定から補われる。
+    -- Alt-h（hidden）と Alt-f（symlink）は隠したまま残す
+    actions = {
+      files = {
+        true,
+        ['alt-i'] = {
+          header = function(o)
+            return o.no_ignore and 'Respect .gitignore' or 'Disable .gitignore'
+          end,
+        },
+      },
+    },
     keymap = {
       builtin = {
         ['<C-d>'] = 'preview-page-down',
