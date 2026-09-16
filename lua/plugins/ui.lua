@@ -171,6 +171,14 @@ return {
           ['vim.lsp.util.stylize_markdown'] = true,
         },
         signature = { enabled = false }, -- blink.cmp が担当
+        -- 情報が無い時に「No information available」を出さない。
+        --
+        -- noice は hover をクライアントごとに判定する（noice/lsp/hover.lua）。
+        -- Neovim 本体は全部の応答を集めてから「1つも無ければ」と判断するが、
+        -- noice は1つでも空を返せばその都度通知する。
+        -- .tsx には vtsls と cssmodules_ls が付くので、片方が答えられない
+        -- 位置では必ず出ていた
+        hover = { silent = true },
         progress = { enabled = true, view = 'mini' }, -- LSP の初期化進捗
       },
       presets = {
