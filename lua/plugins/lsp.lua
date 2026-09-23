@@ -5,6 +5,7 @@ local servers = {
   'lua_ls', -- Lua（Neovim の設定を書くため）
   'vtsls', -- TypeScript / JavaScript / React
   'eslint', -- ESLint
+  'oxlint', -- Oxlint（TypeScript 7 では ESLint が未対応。その代替）
   'cssls', -- CSS / SCSS
   'cssmodules_ls', -- CSS Modules（styles.foo から .module.css へ定義ジャンプ）
   'css_variables', -- CSS カスタムプロパティ（var(--x) の補完と定義ジャンプ）
