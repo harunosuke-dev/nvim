@@ -19,6 +19,10 @@ return {
   -- github_dark
   -- everforest
   -- gruvbox, gruvbox-material, gruvbox-minor
+  -- vague
+  -- rose-pine, rose-pine-main, rose-pine-moon, rose-pine-dawn
+  -- catppuccin-mocha, catppuccin-macchiato, catppuccin-frappe, catppuccin-latte
+  -- nightfox, duskfox, nordfox, terafox, carbonfox, dayfox, dawnfox
   { 'folke/tokyonight.nvim' },
   {
     'rebelot/kanagawa.nvim',
@@ -48,4 +52,9 @@ return {
   { 'ellisonleao/gruvbox.nvim' }, -- 素の gruvbox（Lua 移植版）
   { 'ricardoraposo/gruvbox-minor.nvim' },
   { 'vague-theme/vague.nvim' },
+  { 'rose-pine/neovim', name = 'rose-pine' },
+  -- Neovim にも catppuccin が同梱されているが、そちらは Vim からの移植で
+  -- mocha などの系統を持たない。rtp はプラグインが先なので、こちらが勝つ
+  { 'catppuccin/nvim', name = 'catppuccin' },
+  { 'EdenEast/nightfox.nvim' },
 }
