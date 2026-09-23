@@ -558,14 +558,35 @@ local ITALIC_GROUPS = {
   '@keyword.import',
 }
 
+--- 上の指定から漏れる分を戻すグループ。記号は字形の差が読み取りづらく、
+--- 斜体にしても層が増えないため戻す。
+---
+--- JSX / HTML の山括弧（< > /）は、テーマによって Statement や Keyword へ
+--- リンクしており、キーワードと一緒に斜体になる。
+---
+--- 三項演算子は ? と : の両方が @keyword.conditional.ternary になる。
+--- 片方だけ立体にはできない
+local UPRIGHT_GROUPS = {
+  '@tag.delimiter',
+  '@keyword.conditional.ternary',
+}
+
 function M.italic()
-  for _, group in ipairs(ITALIC_GROUPS) do
+  local function style(group, italic)
     local current = vim.api.nvim_get_hl(0, { name = group, link = false })
-    current.italic = true
+    current.italic = italic
     -- nvim_get_hl は default = true を含めて返す。そのまま渡すと
     -- 「既存定義があれば何もしない」書き込みになり、上書きできない
     current.default = nil
     vim.api.nvim_set_hl(0, group, current)
+  end
+
+  for _, group in ipairs(ITALIC_GROUPS) do
+    style(group, true)
+  end
+  -- リンクを解決した後で戻す。順番を入れ替えると、リンク元が後から斜体にする
+  for _, group in ipairs(UPRIGHT_GROUPS) do
+    style(group, false)
   end
 end
 
