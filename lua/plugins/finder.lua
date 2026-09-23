@@ -112,6 +112,19 @@ local HOME_RG_OPTS = '--column --line-number --no-heading --color=always --smart
   .. '--max-columns=4096 '
   .. rg_excludes()
 
+--- 同梱のカラースキームを除いた一覧を返す。
+---
+--- Neovim には blue や desert など30近くが同梱されており、入れたテーマが埋もれる。
+--- 判定は名前ではなく「実際に読まれるファイルの場所」で行う。catppuccin のように
+--- 同名の同梱版があるものは、rtp の手前に来るプラグイン側が残る
+local function installed_colorschemes()
+  local runtime = vim.fs.normalize(vim.env.VIMRUNTIME)
+  return vim.tbl_filter(function(name)
+    local found = vim.api.nvim_get_runtime_file('colors/' .. name .. '.*', false)[1]
+    return not found or not vim.startswith(vim.fs.normalize(found), runtime)
+  end, vim.fn.getcompletion('', 'color'))
+end
+
 return {
   'ibhagwan/fzf-lua',
   cmd = 'FzfLua',
@@ -208,7 +221,13 @@ return {
       desc = '[F]ind [S]nippet for this filetype',
     },
     { '<leader>fk', '<cmd>FzfLua keymaps<cr>', desc = '[F]ind [K]eymap' },
-    { '<leader>fc', '<cmd>FzfLua colorschemes<cr>', desc = '[F]ind [C]olorscheme : preview live' },
+    {
+      '<leader>fc',
+      function()
+        require('fzf-lua').colorschemes({ colors = installed_colorschemes() })
+      end,
+      desc = '[F]ind [C]olorscheme : preview live',
+    },
     { '<leader>fz', '<cmd>FzfLua<cr>', desc = '[F]ind all fzf-lua pickers' },
   },
   init = function()
