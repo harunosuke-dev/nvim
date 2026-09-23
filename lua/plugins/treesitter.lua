@@ -127,6 +127,31 @@ return {
     end,
   },
 
+  -- 画面の上端に、今いる位置を囲んでいる行を貼り付ける。
+  -- 深い入れ子で「この行はどの関数・どのキーの中か」を見失うのを防ぐ。
+  -- winbar 系（パスと関数名を出すもの）とは別で、囲みの行そのものを出す
+  {
+    'nvim-treesitter/nvim-treesitter-context',
+    event = { 'BufReadPost', 'BufNewFile' },
+    dependencies = { 'nvim-treesitter/nvim-treesitter' },
+    opts = {
+      max_lines = 3, -- 貼り付ける行数の上限。増やすと本文が押し出される
+      multiline_threshold = 1, -- 1 つの囲みにつき 1 行だけ出す（長い引数リストを畳む）
+      trim_scope = 'outer', -- 上限を超えたら外側から捨てる。直近の囲みを残す
+      mode = 'cursor', -- カーソル行を基準にする。topline は画面最上部が基準
+      separator = '─', -- 本文との境目に引く線
+    },
+    keys = {
+      {
+        '[c',
+        function()
+          require('treesitter-context').go_to_context(vim.v.count1)
+        end,
+        desc = 'Jump to [c]ontext : go to the enclosing line',
+      },
+    },
+  },
+
   -- 構文木を使ったテキストオブジェクト。vaf で関数まるごと選択、cif で中身だけ置換など。
   -- textobjects も main ブランチで API が変わっており、キーマップは自前で張る方式
   {
