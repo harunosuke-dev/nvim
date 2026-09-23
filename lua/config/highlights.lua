@@ -180,35 +180,6 @@ function M.apply()
   -- 枠の左上・右下に出る見出し。文字だけ橙から補助的な色へ落とす
   vim.api.nvim_set_hl(0, 'FloatTitle', { fg = ICEBERG.breadcrumb })
   vim.api.nvim_set_hl(0, 'FloatFooter', { fg = ICEBERG.faint })
-
-  -- コメントとキーワードをイタリックにする。
-  -- 「実行される処理そのものではないもの（コメント）」と「制御構造（if / function /
-  -- return など）」を字形で分け、視覚的な層を作る。
-  -- 型や関数名まで広げるとイタリックが多くなりすぎて逆に読みにくい。
-  --
-  -- iceberg 自体はスタイルの設定項目を持たないため、ここで付与する。
-  -- 表示には端末とフォントの両方の対応が要る（tmux は sitm / ritm を持つ
-  -- tmux-256color が必要。screen-256color では握り潰される）
-  for _, group in ipairs({
-    'Comment',
-    '@comment',
-    'Keyword',
-    'Statement',
-    'Conditional',
-    'Repeat',
-    'Exception',
-    '@keyword',
-    '@keyword.function',
-    '@keyword.conditional',
-    '@keyword.repeat',
-    '@keyword.return',
-    '@keyword.operator',
-    '@keyword.import',
-  }) do
-    local current = vim.api.nvim_get_hl(0, { name = group, link = false })
-    vim.api.nvim_set_hl(0, group, vim.tbl_extend('force', current, { italic = true }))
-  end
-
   -- ステータスラインの文字色だけここで決める。背景は M.match_statusline()
   -- がテーマを問わず本文に合わせる
   vim.api.nvim_set_hl(0, 'StatusLine', { fg = ICEBERG.linenr })
@@ -557,6 +528,47 @@ function M.borders()
   vim.api.nvim_set_hl(0, 'PmenuThumb', { bg = comment })
 end
 
+--- コメントとキーワードをイタリックにする。
+---
+--- 「実行される処理そのものではないもの（コメント）」と「制御構造（if / function /
+--- return など）」を字形で分け、視覚的な層を作る。
+--- 型や関数名まで広げるとイタリックが多くなりすぎて逆に読みにくい。
+---
+--- 下位の種類（@keyword.export など）は列挙しない。Treesitter が @keyword から
+--- 継ぐため、親に付ければ一緒に斜体になる。
+---
+--- テーマ側にスタイルの設定項目があるものもあるが、どのテーマでも同じ見え方に
+--- したいのでここで揃える。表示には端末とフォントの両方の対応が要る
+--- （tmux は sitm / ritm を持つ tmux-256color が必要。screen-256color では
+--- 握り潰される）
+local ITALIC_GROUPS = {
+  'Comment',
+  '@comment',
+  'Keyword',
+  'Statement',
+  'Conditional',
+  'Repeat',
+  'Exception',
+  '@keyword',
+  '@keyword.function',
+  '@keyword.conditional',
+  '@keyword.repeat',
+  '@keyword.return',
+  '@keyword.operator',
+  '@keyword.import',
+}
+
+function M.italic()
+  for _, group in ipairs(ITALIC_GROUPS) do
+    local current = vim.api.nvim_get_hl(0, { name = group, link = false })
+    current.italic = true
+    -- nvim_get_hl は default = true を含めて返す。そのまま渡すと
+    -- 「既存定義があれば何もしない」書き込みになり、上書きできない
+    current.default = nil
+    vim.api.nvim_set_hl(0, group, current)
+  end
+end
+
 --- lualine の配色を組み立てる。
 ---
 --- 全区画の背景を本文（Normal）と同じ色に揃え、区画ごとに色が変わる既定の
@@ -625,7 +637,7 @@ end
 function M.setup()
   local group = vim.api.nvim_create_augroup('user_highlights', { clear = true })
 
-  -- カラースキームを切り替えるたびに当て直す。6 だけが iceberg 限定で、残りは全テーマ
+  -- カラースキームを切り替えるたびに当て直す。7 だけが iceberg 限定で、残りは全テーマ
   vim.api.nvim_create_autocmd('ColorScheme', {
     group = group,
     callback = function()
@@ -637,12 +649,14 @@ function M.setup()
       M.diff()
       -- 4. 透過した面の上でも境界線が見えるようにする
       M.borders()
-      -- 5. 選択中のタブから面を外す。barbar も ColorScheme で自前のハイライトを
+      -- 5. コメントとキーワードを斜体にする
+      M.italic()
+      -- 6. 選択中のタブから面を外す。barbar も ColorScheme で自前のハイライトを
       --    作り直すため、後ろへ回す。先に当てると barbar に上書きし返される
       vim.schedule(M.flat_tabline)
-      -- 6. iceberg だけ、その上に階層（左端の列・パンくず）を作り直す
+      -- 7. iceberg だけ、その上に階層（左端の列・パンくず）を作り直す
       vim.schedule(M.apply)
-      -- 7. ステータスラインと lualine を本文に合わせる
+      -- 8. ステータスラインと lualine を本文に合わせる
       vim.schedule(M.match_statusline)
     end,
   })
