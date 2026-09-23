@@ -15,7 +15,6 @@ local ICEBERG = {
   linenr = 0x454d73, -- ステータスラインの文字。素の iceberg の行番号と同じ明度
   faint = 0x555b73, -- 補助的な文字。breadcrumb よりさらに一段落とす
   select = 0x3a4160, -- 一覧の中でカーソルがある行。反転をやめる代わりに敷く
-  border = 0x6c7189, -- 分割の境界線。素の iceberg の FloatBorder と同じ値で揃える
 }
 
 --- 差分表示（:diffthis / <leader>hd）の配色。
@@ -98,8 +97,9 @@ end
 --- barbar の「選択中のタブ」から面を外す。
 ---
 --- barbar は選択中のタブの色を TabLineSel から作る（barbar/highlight.lua）。
---- iceberg の TabLineSel は「暗い文字 #17181c + 明るい面 #828597」の反転で、
---- 他の帯が透けているこの設定の中では、そこだけ板が貼られたように浮く。
+--- 多くのテーマは TabLineSel を「暗い文字 + 明るい面」の反転で組んでおり
+--- （iceberg は #17181c / #828597）、他の帯が透けているこの設定の中では、
+--- そこだけ板が貼られたように浮く。
 ---
 --- 面を外し、今どこにいるかは左端のバー（Special の色）と太字で示す。
 --- barbar 本来の示し方でもある。
@@ -111,7 +111,7 @@ end
 --- 外し忘れると名前の周りだけ地が残って途切れて見える。
 --- ファイル種別アイコンの色（DevIcon*Current）は barbar が BufferCurrent から
 --- 作り直すため、ここでは触らなくてよい
-local function flatten_barbar_current()
+function M.flat_tabline()
   local sel = vim.api.nvim_get_hl(0, { name = 'TabLineSel', link = false })
   local normal = vim.api.nvim_get_hl(0, { name = 'Normal', link = false })
 
@@ -171,9 +171,6 @@ function M.apply()
   -- 記号（診断・gitsigns・TODO）の背景を外して、カーソル行の帯を通す
   clear_sign_backgrounds()
 
-  -- タブ行（barbar）。選択中のタブの面を外す
-  flatten_barbar_current()
-
   -- 非選択のタブ。番号は NonText（#252941）から作られ、端末の地に対して
   -- ほとんど読めない。:BufferGoto の目印なので faint まで上げる。
   -- 閉じるボタンはファイル名と同じ明るさで並ぶと数が多く煩いので、同じだけ落とす
@@ -184,16 +181,6 @@ function M.apply()
   vim.api.nvim_set_hl(0, 'FloatTitle', { fg = ICEBERG.breadcrumb })
   vim.api.nvim_set_hl(0, 'FloatFooter', { fg = ICEBERG.faint })
 
-  -- 分割の境界線。素の iceberg は文字色も背景と同じ #101218 で、面を透過させると
-  -- 何も見えなくなる（端末背景に対してコントラスト 1.07）。フロートの枠と
-  -- 同じ #6c7189 に上げて 4.15 にする
-  vim.api.nvim_set_hl(0, 'WinSeparator', { fg = ICEBERG.border })
-  vim.api.nvim_set_hl(0, 'VertSplit', { fg = ICEBERG.border })
-
-  -- ポップアップのスクロールバー。軌道は透過のままにして、つまみだけ残す。
-  -- 素の #c7c9d1 は本文と同じ明るさで白い棒として強く出るため、境界線と
-  -- 同じ #6c7189 まで落とす
-  vim.api.nvim_set_hl(0, 'PmenuThumb', { bg = ICEBERG.border })
   -- コメントとキーワードをイタリックにする。
   -- 「実行される処理そのものではないもの（コメント）」と「制御構造（if / function /
   -- return など）」を字形で分け、視覚的な層を作る。
@@ -547,6 +534,29 @@ function M.transparent()
   clear_sign_backgrounds()
 end
 
+--- 分割の境界線とポップアップのつまみを、コメントと同じ色にする。
+---
+--- どのテーマも境界線の色を「面を塗る前提」で決めており、面を透過させると
+--- 端末の背景に対してほとんど見えない。端末背景 #07080d に対するコントラストは
+--- iceberg 1.07、carbonfox 1.02、tokyonight 1.20 で、rose-pine の 3.88 だけが
+--- 例外だった（実測）。
+---
+--- Comment の fg を使う。どのテーマも灰色系で、同じ端末背景に対して 3.97 以上
+--- あるため、線だけを見せて色は足さずに済む。FloatBorder から引く手もあるが、
+--- catppuccin（#89b4fa）や tokyonight（#589ed7）では境界線が青くなる。
+---
+--- ポップアップのスクロールバーも同じ色にする。軌道（PmenuSbar）は透過のまま
+--- にして、つまみだけ残す
+function M.borders()
+  local comment = vim.api.nvim_get_hl(0, { name = 'Comment', link = false }).fg
+  if not comment then
+    return
+  end
+  vim.api.nvim_set_hl(0, 'WinSeparator', { fg = comment })
+  vim.api.nvim_set_hl(0, 'VertSplit', { fg = comment })
+  vim.api.nvim_set_hl(0, 'PmenuThumb', { bg = comment })
+end
+
 --- lualine の配色を組み立てる。
 ---
 --- 全区画の背景を本文（Normal）と同じ色に揃え、区画ごとに色が変わる既定の
@@ -615,7 +625,7 @@ end
 function M.setup()
   local group = vim.api.nvim_create_augroup('user_highlights', { clear = true })
 
-  -- カラースキームを切り替えるたびに当て直す（iceberg 以外では何もしない）
+  -- カラースキームを切り替えるたびに当て直す。6 だけが iceberg 限定で、残りは全テーマ
   vim.api.nvim_create_autocmd('ColorScheme', {
     group = group,
     callback = function()
@@ -625,11 +635,14 @@ function M.setup()
       M.match_cursorline()
       -- 3. どのテーマでも差分の配色を揃える
       M.diff()
-      -- 4. iceberg だけ、その上に階層（左端の列・パンくず）を作り直す。
-      --    barbar も ColorScheme で自前のハイライトを作り直すため、
-      --    こちらは後ろへ回す。先に当てると barbar に上書きし返される
+      -- 4. 透過した面の上でも境界線が見えるようにする
+      M.borders()
+      -- 5. 選択中のタブから面を外す。barbar も ColorScheme で自前のハイライトを
+      --    作り直すため、後ろへ回す。先に当てると barbar に上書きし返される
+      vim.schedule(M.flat_tabline)
+      -- 6. iceberg だけ、その上に階層（左端の列・パンくず）を作り直す
       vim.schedule(M.apply)
-      -- 5. ステータスラインと lualine を本文に合わせる
+      -- 7. ステータスラインと lualine を本文に合わせる
       vim.schedule(M.match_statusline)
     end,
   })
@@ -638,6 +651,7 @@ function M.setup()
     group = group,
     pattern = { 'VeryLazy', 'LazyLoad' },
     callback = function()
+      vim.schedule(M.flat_tabline)
       vim.schedule(M.apply)
     end,
   })
