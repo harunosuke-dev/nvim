@@ -528,11 +528,11 @@ function M.borders()
   vim.api.nvim_set_hl(0, 'PmenuThumb', { bg = comment })
 end
 
---- コメントとキーワードをイタリックにする。
+--- キーワードをイタリックにする。
 ---
---- 「実行される処理そのものではないもの（コメント）」と「制御構造（if / function /
---- return など）」を字形で分け、視覚的な層を作る。
+--- 制御構造（if / function / return など）を字形で分け、視覚的な層を作る。
 --- 型や関数名まで広げるとイタリックが多くなりすぎて逆に読みにくい。
+--- コメントは含めない。
 ---
 --- 下位の種類（@keyword.export など）は列挙しない。Treesitter が @keyword から
 --- 継ぐため、親に付ければ一緒に斜体になる。
@@ -542,8 +542,6 @@ end
 --- （tmux は sitm / ritm を持つ tmux-256color が必要。screen-256color では
 --- 握り潰される）
 local ITALIC_GROUPS = {
-  'Comment',
-  '@comment',
   'Keyword',
   'Statement',
   'Conditional',
@@ -670,7 +668,7 @@ function M.setup()
       M.diff()
       -- 4. 透過した面の上でも境界線が見えるようにする
       M.borders()
-      -- 5. コメントとキーワードを斜体にする
+      -- 5. キーワードを斜体にする
       M.italic()
       -- 6. 選択中のタブから面を外す。barbar も ColorScheme で自前のハイライトを
       --    作り直すため、後ろへ回す。先に当てると barbar に上書きし返される
