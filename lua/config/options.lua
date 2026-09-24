@@ -46,6 +46,9 @@ opt.inccommand = 'split' -- :%s/foo/bar の置換結果をプレビュー表示
 -- 最後に適用する
 vim.g.transparent_background = true
 opt.termguicolors = true
+-- 使うのは dark の配色だけ。everforest や gruvbox は 'background' の値で
+-- light と dark が変わるため、既定と同じ値でも明示しておく
+opt.background = 'dark'
 -- 長い行は折り返す。j / k は表示行で動かし、回数を付けた時だけ論理行にするので
 -- （lua/config/keymaps.lua）、折り返していても相対行番号とずれない
 opt.wrap = true
